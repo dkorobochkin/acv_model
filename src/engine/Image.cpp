@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// В данном файле содержится реализация методов класса, представляющего изображение
+// This file contains implementations of image class methods
 
 #include <cstring>
 
