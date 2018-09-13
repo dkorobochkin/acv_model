@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// В данном файле содержится реализация методов класса, который занимается комплексированием изображений
+// This file contains implementations of class to combine of images
 
 #include <vector>
 #include <algorithm>
@@ -33,61 +33,59 @@
 
 namespace acv {
 
-// Класс используется для представления координат пикселя, входящего в морфологическую форму
+// This class represents pixel in morphological form
 class PixelCoordinates
 {
 
-public: // Публичные конструкторы
+public: // Constructors
 
     PixelCoordinates(const int x, const int y);
 
-public: // Публичные методы
+public: // Public methods
 
-    // Методы для получения и установка X и Y
+    // Methods to get and set of pixel coordinates
     void SetX(const int x);
     void SetY(const int y);
     void SetXY(const int x, const int y);
     int GetX() const;
     int GetY() const;
 
-private: // Закрытые данные
+private: // Private members
 
-    // Координаты X и Y
+    // Coordinates
     int mX;
     int mY;
 
 };
 
-// Класс используется для представления морфологической формы - набора пикселей
-// с одинаковой или находящейся в одном диапазоне яркостью
-// Является вектором координат пикселей, входящих в форму
+// This class represent the morphological form
 class AMorphologicalForm
 {
 
-public: // Публичные методы для работы с морфологической формой
+public: // Public methods
 
-    // Метод возвращает количество пикселей в форме
+    // Return the number of pixels in the morphological form
     size_t size() const;
 
-    // Оператор для обращения к пикселю по индеку
+    // Operator [] (array style)
     PixelCoordinates& operator[](const size_t idx);
     const PixelCoordinates& operator[](const size_t idx) const;
 
-    // Добавление нового пикселя
+    // Add new pixel
     void AddNewPixel(const int x, const int y);
 
-    // Очистка формы
+    // Clear the vector of form pixels
     void Clear();
 
-    // Объединение форм (в данную форму добавлябтся пиксели из формы otherForm)
+    // Merge the two forms. To this form will be added the pixels from other form
     void Merge(const AMorphologicalForm& otherForm);
 
-    // Проверка является ли форма пустой
+    // Return "true" if the form is empty
     bool IsEmpty() const;
 
-private: // Закрытые данные
+private: // Private members
 
-    // Вектор пикселей формы
+    // Vector of the pixels in the form
     std::vector<PixelCoordinates> mPixels;
 
 };
@@ -197,19 +195,18 @@ Image ImageCombiner::InformativePriority(bool& combined, const bool needSort)
         else
             sortedImages = mCombinedImages;
 
-        // Базовое изображение на которое будут проецироваться остальные
+        // Basic image. To this image will be projected other images
         Image baseImg = *sortedImages[0];
 
-        // Проецирование изображений на базовое
+        // Projection images to basic image
         for (size_t i = 1; i < sortedImages.size(); ++i)
         {
             const Image& projImg = *sortedImages[i];
 
-            // Расчитываем среднюю яркость проецируемого изображения
             double A = ImageParametersCalculator::CalcAverageBrightness(projImg);
 
-            // Нахождение среднего отличия яркостей пикселей канала от средней яркости канала
-            double dA = 0.0; // Срднее отличие
+            // Calculation the average difference from average brightness
+            double dA = 0.0;
             for (int row = 0; row < projImg.GetHeight(); ++row)
             {
                 const Image::Row& curRow = projImg[row];
@@ -223,7 +220,6 @@ Image ImageCombiner::InformativePriority(bool& combined, const bool needSort)
             }
             dA /= projImg.GetWidth() * projImg.GetHeight();
 
-            // Установка новых значений яркостей канала базового изображения
             for (int row = 0; row < projImg.GetHeight(); ++row)
             {
                 Image::Row& curBaseRow = baseImg[row];
@@ -266,9 +262,8 @@ Image ImageCombiner::Morphological(const size_t numMods, bool& combined, const b
         std::vector<AMorphologicalForm> forms = CalcForms(baseImg, numMods);
 
         std::vector<Image> projections(sortedImages.size() - 1, Image(baseImg.GetHeight(), baseImg.GetWidth()));
-        for (size_t imgIdx = 1; imgIdx < sortedImages.size(); ++imgIdx) // Пропускаем 1-ое изображение, т.к. оно базовое и мы проецируем на него
+        for (size_t imgIdx = 1; imgIdx < sortedImages.size(); ++imgIdx) // First image is basic
         {
-            // В векторе хранятся средние значения яркости проецируемого значения на каждую из numMod форм базового изображения
             Image& projection = projections[imgIdx - 1];
             CalcProjectionToForms(forms, *sortedImages[imgIdx], projection);
         }
@@ -283,7 +278,7 @@ Image ImageCombiner::Morphological(const size_t numMods, bool& combined, const b
 
 Image ImageCombiner::LocalEntropy(bool& combined)
 {
-    const int APERTURE = 2; // Размер локальной окрестности
+    const int APERTURE = 2;
 
     combined = CanCombine();
 
@@ -295,7 +290,7 @@ Image ImageCombiner::LocalEntropy(bool& combined)
         {
             for (int col = 0; col < resImg.GetWidth(); ++col)
             {
-                // Выбор изображения с наибольшей локальной энтропией в данном пикселе
+                // Select the pixel with maximum entropy
                 double Emax = 0.0;
                 size_t iMax = 0;
                 for (size_t i = 0; i < mCombinedImages.size(); ++i)
@@ -334,27 +329,26 @@ bool ImageCombiner::CanCombine() const
 
 void ImageCombiner::FormSortedImagesArray(std::vector<const Image*>& sortedVec)
 {
-    // Структура, содержащая изображение и его энтропию
+    // Image and his entropy
     struct SImageAndEntropy
     {
         const Image* img;
         double Entropy;
     };
 
-    // Формируем вектор изображений с их энтропиями
+    // Form the vector of images with their entropies
     std::vector<SImageAndEntropy> imgEntrVec(mCombinedImages.size());
     size_t curStr = 0;
     for (const auto& img : mCombinedImages)
         imgEntrVec[curStr++] = { img, ImageParametersCalculator::CalcEntropy(*img) };
 
-    // Сортируем вектор по возрастанию энтропии
+    // Sort ascending the vector by their entropy
     std::sort(imgEntrVec.begin(), imgEntrVec.end(),
               [](const SImageAndEntropy& left, const SImageAndEntropy& right)
               {
                 return (left.Entropy > right.Entropy);
               });
 
-    // Формируем результирующий вектор изображений, отсортированный по возрастанию энтропии
     sortedVec.clear();
     for (auto& str : imgEntrVec)
         sortedVec.push_back(str.img);
@@ -411,56 +405,56 @@ Image ImageCombiner::Segmentation(const Image& baseImg, const int numMods)
 
 std::vector<AMorphologicalForm> ImageCombiner::FindForms(const Image& histogramm, const int numMods)
 {
-    // Морфологические формы
     std::vector<AMorphologicalForm> forms;
 
-    // Элемент строки (содержит начальные и конечные координаты отрезка)
-    struct ASStringElement
+    // Element of the row (contains the start and finish coordinates (X) of element on the row)
+    struct RowElement
     {
-        size_t startX;
-        size_t finishX;
-        int formIdx; // Индекс формы, которой принадлежит отрезок в векторе forms
+        int startX;
+        int finishX;
+        int formIdx; // Index of the form to which the row element belong
 
-        ASStringElement(size_t x1, size_t x2) : startX(x1), finishX(x2), formIdx(-1) { }
+        RowElement(int x1, int x2) : startX(x1), finishX(x2), formIdx(-1) { }
 
-        bool IsIntersect(const ASStringElement& other) const
+        // Check the intersection of row element with row element on next or previous row
+        bool IsIntersect(const RowElement& other) const
         {
-            return ((other.startX >= startX  && other.startX <= finishX)  || // Старт предыдущего внутри текущего
-                    (other.finishX >= startX && other.finishX <= finishX) || // Финиш предыдущего внутри текущего
-                    (startX >= other.startX  && startX <= other.finishX)  || // Старт текущего внутри предыдущего
-                    (finishX >= other.startX && finishX <= other.finishX));  // Финиш текущего внутри предыдущего
+            return ((other.startX >= startX  && other.startX <= finishX)  ||
+                    (other.finishX >= startX && other.finishX <= finishX) ||
+                    (startX >= other.startX  && startX <= other.finishX)  ||
+                    (finishX >= other.startX && finishX <= other.finishX));
         }
     };
 
     for (int mod = 0; mod < numMods; ++mod)
     {
-        std::vector<ASStringElement> prevStr, curStr;
+        std::vector<RowElement> prevStr, curStr;
 
         for (int y = 0; y < histogramm.GetHeight(); ++y)
         {
             curStr.clear();
 
-            // Заполнение элементов текущей строки
+            // Fill the current row
             int prevVal = -1;
             for (int x = 0; x < histogramm.GetWidth(); ++x)
             {
                 int curVal = static_cast<int>(histogramm[y][x]);
 
-                if ((x == 0 || prevVal != mod) && curVal == mod) // Начало нового отрезка
-                    curStr.push_back(ASStringElement(x, x));
-                else if (prevVal == mod && curVal == mod) // Внутри отрезка
+                if ((x == 0 || prevVal != mod) && curVal == mod) // Start of new row element
+                    curStr.push_back(RowElement(x, x));
+                else if (prevVal == mod && curVal == mod) // Inside the segment
                     curStr.back().finishX = x;
 
                 prevVal = curVal;
             }
 
-            // Рассматриваем возможные случаи для каждого отрезка текущей строки
+            // Consider the all cases for each element on current row
             for (size_t i = 0; i < curStr.size(); ++i)
             {
-                ASStringElement& curElem = curStr[i];
+                RowElement& curElem = curStr[i];
 
-                // 1. Начало
-                // На предыдущей строке на протяжении всего отрезка нет пикселей - значит это начало новой формы
+                // 1. Begin
+                // Previous row have not pixels on the considered range of X coordinates
                 //
                 // ----------
                 // -++++++++-
@@ -468,14 +462,14 @@ std::vector<AMorphologicalForm> ImageCombiner::FindForms(const Image& histogramm
                 bool prevEmpty = true;
                 for (size_t j = 0; prevEmpty && j < prevStr.size(); ++j)
                 {
-                    const ASStringElement& prevElem = prevStr[j];
+                    const RowElement& prevElem = prevStr[j];
                     if (curElem.IsIntersect(prevElem))
                         prevEmpty = false;
                 }
-                if (prevEmpty) // Новая форма
+                if (prevEmpty) // New form
                 {
                     AMorphologicalForm newForm;
-                    for (size_t x = curElem.startX; x <= curElem.finishX; ++x)
+                    for (int x = curElem.startX; x <= curElem.finishX; ++x)
                         newForm.AddNewPixel(x, y);
                     curElem.formIdx = static_cast<int>(forms.size());
 
@@ -483,48 +477,48 @@ std::vector<AMorphologicalForm> ImageCombiner::FindForms(const Image& histogramm
                     continue;
                 }
 
-                // 2. Продолжение, разветвление или объединение
-                // Текущая строка полностью или частично покрывает одну или несколько предыдущих
+                // 2. Continuation, branching or merger
+                // Current row element covers one or several row element on previous row full or partuially
                 //
-                //    (а)         (б)         (в)          (г)
+                //    (a)         (b)         (c)          (d)
                 // --++++---   --++++++-   --++++++-   -+++--+++--
                 // -+++++++-   ---++++--   -++++++--   --+++++++--
                 //
                 for (size_t j = 0; j < prevStr.size(); ++j)
                 {
-                    const ASStringElement& prevElem = prevStr[j];
+                    const RowElement& prevElem = prevStr[j];
 
                     if (curElem.IsIntersect(prevElem))
                     {
-                        if (curElem.formIdx == -1) // Текущая строка никуда не добавлена - добавляем в форму от предыдущего отрезка (случаи А, Б или В)
+                        // Current row element doesn't belong to form - he will be added to form of element from previous row (A, B, C cases)
+                        if (curElem.formIdx == -1)
                         {
                             AMorphologicalForm& form = forms[prevElem.formIdx];
-                            for (size_t x = curElem.startX; x <= curElem.finishX; ++x)
+                            for (int x = curElem.startX; x <= curElem.finishX; ++x)
                                 form.AddNewPixel(x, y);
                             curElem.formIdx = prevElem.formIdx;
                         }
-                        else // Случай Г
+                        else // case D
                         {
-                            // Возможны 2 варианта:
-                            // 1 - когда номера форм текущего отрезка и предыдущего совпадают,
-                            // тогда текущий отрезок уже в форме, ничего делать не надо
-                            // 2 - номер форм не совпадают, что обозначает что форма предыдущего отрезка
-                            // является продолжением формы текущего отрезка, но ранее не была добавлена к этой форме
+                            // There are 2 cases:
+                            // indexes of forms of elements from current and previous rows is same,
+                            // then current element already in form, nothing to do
+                            // 2nd - indexes of forms of elements from current and previous rows is not same.
+                            // It's mean that current element is continuation of the form of previous element but was not added before
                             if (curElem.formIdx != prevElem.formIdx)
                             {
-                                // В данном случае мы копируем все элементы формы предыдущего отрезка в форму текущего отрезка
                                 AMorphologicalForm& curForm = forms[curElem.formIdx];
                                 AMorphologicalForm& prevForm = forms[prevElem.formIdx];
                                 curForm.Merge(prevForm);
-                                prevForm.Clear(); // Не удаляем из вектора формы, чтобы не сбилась нумерация - это будет сделано позже
+                                prevForm.Clear(); // Don't erase the empty form!!! Otherwise the indexes will be incorrect
                             }
                         }
                     }
                 }
 
-                // 3. Конец
-                // Отрезок текущей строки не покрывает предыдущий
-                // Ничего не делаем
+                // 3. End
+                // Current row have not pixels on the considered range of X coordinates from previous row
+                // It's the end of the form
             }
 
             prevStr = curStr;
@@ -548,7 +542,7 @@ void ImageCombiner::CalcProjectionToForms(const std::vector<AMorphologicalForm>&
     {
         const auto& form = morphForm[i];
 
-        // Находим среднее значение проецируемого изображения в форме
+        // Calculation the average brightness of projected image in the form
         double average = 0.0;
         for (size_t j = 0; j < form.size(); ++j)
         {
@@ -561,7 +555,6 @@ void ImageCombiner::CalcProjectionToForms(const std::vector<AMorphologicalForm>&
         if (!form.IsEmpty())
             average /= form.size();
 
-        // Устанавливаем новое значение в форме на проецируемом изображении
         Image::Byte newVal = static_cast<Image::Byte>(average);
         for (size_t j = 0; j < form.size(); ++j)
         {

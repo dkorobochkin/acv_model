@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// В данном заголовочном файле содержится описание класса, который занимается комплексированием изображений
+// This header file use to define a class to combine of images
 
 #ifndef IMAGE_COMBINER_H
 #define IMAGE_COMBINER_H
@@ -34,86 +34,84 @@ namespace acv {
 class Image;
 class AMorphologicalForm;
 
-// Класс используется для комплексирования изображения различными методами
+// Class to combine of images by several methods
 class ImageCombiner
 {
 
-public: // Публичные вспогательные типы
+public: // Public auxiliary types
 
-    // Допступные типы комплексирования
+    // Used types of combining
     enum class CombineType
     {
-        INFORM_PRIORITY, // Комплексирование с приоритетом наиболее информативного изображения
-        MORPHOLOGICAL, // Морфологическое комплексирование
-        LOCAL_ENTROPY // Локально-энтропийное комплексирование
+        INFORM_PRIORITY, // Combining with priority of image with the biggest entropy
+        MORPHOLOGICAL, // Morphological combining
+        LOCAL_ENTROPY // Local-entropy combining
     };
 
-public: // Публичные методы
+public: // Public mathods
 
-    // Метод добавляет изображение для комбинирования
+    // Add image to combine
     void AddImage(const Image& img);
 
-    // Метод очищает контейнер с изображениями, использующимися для комплексирования
+    // Clear the container with images to combine
     void ClearImages();
 
-    // Метод производит комплексирование изображений заданным методом
-    // Флаг needSort=true говорит о том, что изображения необходимо ранжировать по информативности для выбора в качестве базового
+    // Run of combining with specified type
+    // Flag needSort is used to sort container of image by entropy
     Image Combine(CombineType combineType, bool& combined, const bool needSort = true);
 
-private: // Закрытые методы
+private: // Private methods
 
-    // Метод совмещения изображений с приоритетом наиболее информативного изображения
-    // Флаг needSort=true говорит о том, что необходимо ранжировать изображения по информативности, иначе первое переданное - базовое
+    // Combining with priority of image with the biggest entropy
+    // Flag needSort is used to sort container of image by entropy. If flag value is "false" first image in container is basic
     Image InformativePriority(bool& combined, const bool needSort = true);
 
-    // Морфологический метод совмещения изображений
-    // Флаг needSort=true говорит о том, что необходимо ранжировать изображения по информативности, иначе первое переданное - базовое
+    // Morphological combining
+    // Flag needSort is used to sort container of image by entropy. If flag value is "false" first image in container is basic
     Image Morphological(const size_t numMods, bool& combined, const bool needSort = true);
 
-    // Метод производит локально-энтропийное комплексирование
-    // Его суть заключается в том, что пиксель комплексированного изображения берется из того изображения,
-    // локальная энтропия в пикселе которого самая большая
+    // Local-entropy combining
+    // Each pixel is pixel from image with the biggest local entropy in this pixel
     Image LocalEntropy(bool& combined);
 
-    // Метод для проверки изображений на возможность комплексирования
-    // Для комбинирования должны быть одинаковыми ширина и высота изображения
+    // Check the possibility of combining images in container
+    // All images should have same dimensions
     bool CanCombine() const;
 
-    // Метод формирует вектор изображений, которые будут комплексироваться,
-    // причем вектор упорядочен по возрастанию информативности изображения (оценка по энтропии)
+    // Form the images vector that is sorted by descending of images entropy
     void FormSortedImagesArray(std::vector<const Image*>& sortedVec);
 
-private: // Закрытые методы для морфологического комплексирования
+private: // Private methods to morphological combining
 
-    // Метод расчета морфологических форм
-    // На первом этапе проводится критериальная гистограммная сегментация с заданным количеством мод гистограммы
-    // На втором этапе производится поиск форм на полученной гистограмме
+    // Calculation the morphological forms
+    // The first stage is the criterion histogram segmentation with specified number of histogram mod's
+    // At the second stage we make search of forms by using the calculated histogram
     std::vector<AMorphologicalForm> CalcForms(const Image& baseImg, const int numMods);
 
-    // Критериальная гистограмная сегментация
-    // В результате получаем матрицу, значения пикселей которой равны номеру моды гистограммы
+    // Run the criterion histogram segmentation
+    // The result is the matrix each pixel of which is histogram mod number
     Image Segmentation(const Image& baseImg, const int numMods);
 
-    // Поиск замкнутых форм и их внутренностей проводится с помощью сканирующего алгоритма
+    // Search of the image forms by using scanning algorithm
     std::vector<AMorphologicalForm> FindForms(const Image& histogramm, const int numMods);
 
-    // Метод получения средних значений яркостей проецируемого изображения на формах базового
+    // Calculation the average brightness of projected image in the form
     void CalcProjectionToForms(const std::vector<AMorphologicalForm>& morphForm, const Image& projImg, Image& projection);
 
-    // Метод объединяет изображения усреднением суммы яркостей от каждого из изображения
-    // Для каждой из проекций используется модуль разности базовой яркости и усредненной в форме яркости
+    // This method is used to merging the images brightness
+    // The pixel value of projected image is the difference beside brightness on basic image and average brightness of projected image in form
     void MergeImages(Image& baseImg, const std::vector<Image>& projections);
 
-private: // Закрытые данные
+private: // Private members
 
-    // Комбинируемые изображения
+    // Vector of combined image
     std::vector<const Image*> mCombinedImages;
 
-private: // Константы
+private: // Constants
 
     enum
     {
-        DEFAULT_NUM_MODS = 16 // Количество мод для морфологического комплексирования по умолчанию
+        DEFAULT_NUM_MODS = 16 // Default numbers of morphological mods
     };
 
 };
