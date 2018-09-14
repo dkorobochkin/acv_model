@@ -202,22 +202,21 @@ Image ImageCombiner::InformativePriority(bool& combined, const bool needSort)
         for (size_t i = 1; i < sortedImages.size(); ++i)
         {
             const Image& projImg = *sortedImages[i];
-            int size = projImg.GetWidth() * projImg.GetHeight();
 
             // Calculation the average difference from average brightness
             int A = ImageParametersCalculator::CalcAverageBrightness(projImg);
 
             // Calculation the average difference from average brightness
             int dA = 0;
-            for (auto projPix : projImg.mPixels)
+            for (auto projPix : projImg.GetData())
             {
                 int delta = static_cast<int>(projPix - A);
                 dA += delta;
             }
-            dA /= size;
+            dA /= projImg.GetWidth() * projImg.GetHeight();
 
-            auto baseIt = baseImg.mPixels.begin();
-            for (auto projPix : projImg.mPixels)
+            auto baseIt = baseImg.GetData().begin();
+            for (auto projPix : projImg.GetData())
             {
                     int delta = static_cast<int>(projPix - A);
 

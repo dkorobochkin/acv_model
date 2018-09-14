@@ -52,36 +52,6 @@ Image::Image(const int height, const int width, const void* buf, BufferType bufT
     FillPixels(buf, bufType);
 }
 
-int Image::GetWidth() const
-{
-    return mWidth;
-}
-
-int Image::GetHeight() const
-{
-    return mHeight;
-}
-
-Image::Byte Image::GetPixel(const int rowNum, const int colNum) const
-{
-    return mPixels[mWidth * rowNum + colNum];
-}
-
-void Image::SetPixel(const int rowNum, const int colNum, const Byte val)
-{
-    mPixels[mWidth * rowNum + colNum] = val;
-}
-
-Image::Byte& Image::operator()(const int rowNum, const int colNum)
-{
-    return mPixels[mWidth * rowNum + colNum];
-}
-
-const Image::Byte& Image::operator()(const int rowNum, const int colNum) const
-{
-    return mPixels[mWidth * rowNum + colNum];
-}
-
 bool Image::IsInitialized() const
 {
     return (mWidth != -1 || mHeight != -1);

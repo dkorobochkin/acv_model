@@ -72,20 +72,24 @@ public: // Constructors
 public: // Public methods
 
     // Get the width of image
-    int GetWidth() const;
+    int GetWidth() const { return mWidth; }
 
     // Get the height of image
-    int GetHeight() const;
+    int GetHeight() const { return mHeight; }
 
     // Get the pixel value by coordinates
-    Byte GetPixel(const int rowNum, const int colNum) const;
+    Byte GetPixel(const int rowNum, const int colNum) const { return mPixels[mWidth * rowNum + colNum]; }
 
     // Set the pixel value by coordinates
-    void SetPixel(const int rowNum, const int colNum, const Byte val);
+    void SetPixel(const int rowNum, const int colNum, const Byte val) { mPixels[mWidth * rowNum + colNum] = val; }
 
     // Get the reference to pixel by coordinates
-    Byte& operator()(const int rowNum, const int colNum);
-    const Byte& operator()(const int rowNum, const int colNum) const;
+    Byte& operator()(const int rowNum, const int colNum) { return mPixels[mWidth * rowNum + colNum]; }
+    const Byte& operator()(const int rowNum, const int colNum) const { return mPixels[mWidth * rowNum + colNum]; }
+
+    // Get the reference to the pixels vector
+    Matrix& GetData() { return mPixels; }
+    const Matrix& GetData() const { return mPixels; }
 
     // Check the initialization of image
     // Image is not initialized if was created by default constructor
@@ -115,7 +119,7 @@ private: // Private methods
     // Fill the pixels from buffer of DirectShow type
     void FillPixelFromDirectShow(Byte* buf);
 
-public: // Private members (representation of image)
+private: // Private members (representation of image)
 
     // Matrix of pixels
     Matrix mPixels;
