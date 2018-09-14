@@ -39,14 +39,14 @@ Image::Image()
 { }
 
 Image::Image(const int height, const int width)
-    : mPixels(height*width),
+    : mPixels(height * width * sizeof(Byte)),
       mWidth(width),
       mHeight(height)
 {
     CalcAuxParameters();
 }
 
-Image::Image(const int height, const int width, const void* buf, Image::BufferType bufType)
+Image::Image(const int height, const int width, const void* buf, BufferType bufType)
     : Image(height, width)
 {
     FillPixels(buf, bufType);
@@ -64,22 +64,22 @@ int Image::GetHeight() const
 
 Image::Byte Image::GetPixel(const int rowNum, const int colNum) const
 {
-    return mPixels[mWidth*rowNum+colNum];
+    return mPixels[mWidth * rowNum + colNum];
 }
 
-void Image::SetPixel(const int rowNum, const int colNum, const Image::Byte val)
+void Image::SetPixel(const int rowNum, const int colNum, const Byte val)
 {
-    mPixels[mWidth*rowNum+colNum] = val;
+    mPixels[mWidth * rowNum + colNum] = val;
 }
 
 Image::Byte& Image::operator()(const int rowNum, const int colNum)
 {
-    return mPixels[mWidth*rowNum+colNum];
+    return mPixels[mWidth * rowNum + colNum];
 }
 
 const Image::Byte& Image::operator()(const int rowNum, const int colNum) const
 {
-    return mPixels[mWidth*rowNum+colNum];
+    return mPixels[mWidth * rowNum + colNum];
 }
 
 bool Image::IsInitialized() const
@@ -118,7 +118,7 @@ void Image::CalcAuxParameters()
     mAuxWidth = 2 * mWidth - 2;
 }
 
-void Image::FillPixels(const void* buf, Image::BufferType bufType)
+void Image::FillPixels(const void* buf, BufferType bufType)
 {
     Byte* pData = const_cast<Byte*>(reinterpret_cast<const Byte*>(buf));
 
@@ -143,18 +143,13 @@ void Image::FillPixelFromRGB(Byte* buf)
             g = (*buf)++;
             b = (*buf)++;
 
-            mPixels[mWidth*row+col] = (r + g + b) / 3;
+            mPixels[mWidth * row + col] = (r + g + b) / 3;
         }
 }
 
 void Image::FillPixelFromDirectShow(Byte* buf)
 {
-    const size_t ROW_SIZE = mWidth * sizeof(Byte);
-    for (int row = 0; row < mHeight; ++row)
-    {
-        memcpy(buf, &mPixels[mWidth*row], ROW_SIZE);
-        buf += mWidth;
-    }
+    memcpy(&mPixels[0], buf, mWidth * mHeight * sizeof(Byte));
 }
 
 }

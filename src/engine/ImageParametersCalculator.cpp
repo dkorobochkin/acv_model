@@ -44,9 +44,9 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
 
     // Расчет яркостного объема изображения и меры Лебега
     int V = 0; // Яркостной объем изображения
-    for (auto it : img.mPixels)
+    for (auto imgPix : img.mPixels)
     {
-        Image::Byte z = it;
+        Image::Byte z = imgPix;
 
         V += z;
         ++mz[z];
@@ -116,9 +116,9 @@ double ImageParametersCalculator::CalcAverageBrightness(const Image& img)
     if (!img.IsInitialized())
         return aver;
 
-     for (auto it : img.mPixels)
+     for (auto imgPix : img.mPixels)
      {
-         aver += it;
+         aver += imgPix;
      }
 
     aver /= img.GetHeight() * img.GetWidth();

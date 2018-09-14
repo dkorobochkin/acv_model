@@ -125,13 +125,11 @@ class MatrixFilterOperations
 
 public: // Публичные методы
 
-    // Свертка изображения (выполняется для определенного канала изображения) с фильтром
+    // Свертка изображения с фильтром
     template<typename FilterElementT>
     static bool ConvolutionImage(Image& img, const MatrixFilter<FilterElementT>& filter);
 
-private: // Закрытые методы
-
-    // Свертка пикселя изображения (выполняется для определенного канала изображения) с фильтром
+    // Свертка пикселя изображения с фильтром
     template<typename FilterElementT>
     static FilterElementT ConvolutionPixel(const Image& img, const int rowNum, const int colNum,
                                            const MatrixFilter<FilterElementT>& filter, const int aperture);
