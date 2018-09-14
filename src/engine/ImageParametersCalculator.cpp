@@ -43,17 +43,13 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
     std::vector<size_t> mz(Image::MAX_PIXEL_VALUE + 1, 0);
 
     // Расчет яркостного объема изображения и меры Лебега
-    double V = 0.0; // Яркостной объем изображения
-    for (int row = 0; row < img.GetHeight(); ++row)
+    int V = 0; // Яркостной объем изображения
+    for (auto it : img.mPixels)
     {
-        const Image::Row& curRow = img[row];
-        for (auto it = curRow.begin(); it != curRow.end(); ++it)
-        {
-            Image::Byte z = *it;
+        Image::Byte z = it;
 
-            V += z;
-            ++mz[z];
-        }
+        V += z;
+        ++mz[z];
     }
 
     // Расчет энтропии
@@ -61,7 +57,7 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
     double EX = 0.0; // Энтропия
     for (size_t z = 0; z < mz.size(); ++z)
     {
-        double px = z * mz[z] / V;
+        double px = static_cast<double>(z * mz[z])/ V;
         if (px > 0.0)
             EX += px * log(px) / LOG2;
     }
@@ -115,19 +111,16 @@ double ImageParametersCalculator::CalcLocalEntropy(const Image& img, const int r
 
 double ImageParametersCalculator::CalcAverageBrightness(const Image& img)
 {
-    double aver = 0.0;
+    int aver = 0.0;
 
     if (!img.IsInitialized())
         return aver;
 
-    for (int row = 0; row < img.GetHeight(); ++row)
-    {
-        const Image::Row& curRow = img[row];
-        for (auto it = curRow.begin(); it != curRow.end(); ++it)
-        {
-            aver += *it;
-        }
-    }
+     for (auto it : img.mPixels)
+     {
+         aver += it;
+     }
+
     aver /= img.GetHeight() * img.GetWidth();
 
     return aver;

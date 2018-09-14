@@ -154,18 +154,18 @@ bool ImageFilter::Gaussian(Image& img, const int filterSize)
     if (filterSize % 2 != 0) // Размер фильтра должен быть нечетным
     {
         // Создание фильтра Гаусса
-        MatrixFilter<float> filter(filterSize);
+        MatrixFilter<int> filter(filterSize);
 
         const float SIGMA = (filterSize / 2.0 - 1.0) * 0.3 + 0.8, SIGMA2 = SIGMA * SIGMA;
         const int APERTURE = filterSize / 2, APERTURE2 = APERTURE * APERTURE;
         const float MIN = exp(-(2.0 * APERTURE2) / (2.0 * SIGMA2)) / (2.0 * M_PI * SIGMA2);
 
-        float divider = 0.0;
+        int divider = 0.0;
         for (int filterRow = -APERTURE; filterRow <= APERTURE; ++filterRow)
         {
             for (int filterCol = -APERTURE; filterCol <= APERTURE; ++filterCol)
             {
-                float filterVal = exp(-(filterRow * filterRow + filterCol * filterCol) / (2.0 * SIGMA2)) / (2.0 * M_PI * SIGMA2 * MIN);
+                int filterVal = exp(-(filterRow * filterRow + filterCol * filterCol) / (2.0 * SIGMA2)) / (2.0 * M_PI * SIGMA2 * MIN);
                 divider += filterVal;
 
                 filter.SetElement(filterRow + APERTURE, filterCol + APERTURE, filterVal);
@@ -173,7 +173,7 @@ bool ImageFilter::Gaussian(Image& img, const int filterSize)
         }
         filter.SetDivider(divider);
 
-        return MatrixFilterOperations::ConvolutionImage<float>(img, filter);
+        return MatrixFilterOperations::ConvolutionImage<int>(img, filter);
     }
 
     return false;

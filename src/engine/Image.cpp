@@ -39,7 +39,7 @@ Image::Image()
 { }
 
 Image::Image(const int height, const int width)
-    : mPixels(height, Row(width)),
+    : mPixels(height*width),
       mWidth(width),
       mHeight(height)
 {
@@ -64,42 +64,22 @@ int Image::GetHeight() const
 
 Image::Byte Image::GetPixel(const int rowNum, const int colNum) const
 {
-    return mPixels[rowNum][colNum];
+    return mPixels[mWidth*rowNum+colNum];
 }
 
 void Image::SetPixel(const int rowNum, const int colNum, const Image::Byte val)
 {
-    mPixels[rowNum][colNum] = val;
-}
-
-Image::Row& Image::GetRow(const int rowNum)
-{
-    return mPixels[rowNum];
-}
-
-const Image:: Row&Image::GetRow(const int rowNum) const
-{
-    return mPixels[rowNum];
-}
-
-Image::Row& Image::operator[](const int rowNum)
-{
-    return mPixels[rowNum];
-}
-
-const Image::Row& Image::operator[](const int rowNum) const
-{
-    return mPixels[rowNum];
+    mPixels[mWidth*rowNum+colNum] = val;
 }
 
 Image::Byte& Image::operator()(const int rowNum, const int colNum)
 {
-    return mPixels[rowNum][colNum];
+    return mPixels[mWidth*rowNum+colNum];
 }
 
 const Image::Byte& Image::operator()(const int rowNum, const int colNum) const
 {
-    return mPixels[rowNum][colNum];
+    return mPixels[mWidth*rowNum+colNum];
 }
 
 bool Image::IsInitialized() const
@@ -163,7 +143,7 @@ void Image::FillPixelFromRGB(Byte* buf)
             g = (*buf)++;
             b = (*buf)++;
 
-            mPixels[row][col] = (r + g + b) / 3;
+            mPixels[mWidth*row+col] = (r + g + b) / 3;
         }
 }
 
@@ -172,7 +152,7 @@ void Image::FillPixelFromDirectShow(Byte* buf)
     const size_t ROW_SIZE = mWidth * sizeof(Byte);
     for (int row = 0; row < mHeight; ++row)
     {
-        memcpy(buf, &mPixels[row][0], ROW_SIZE);
+        memcpy(buf, &mPixels[mWidth*row], ROW_SIZE);
         buf += mWidth;
     }
 }

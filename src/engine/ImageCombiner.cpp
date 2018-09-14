@@ -204,43 +204,35 @@ Image ImageCombiner::InformativePriority(bool& combined, const bool needSort)
         for (size_t i = 1; i < sortedImages.size(); ++i)
         {
             const Image& projImg = *sortedImages[i];
+            int Size= projImg.GetWidth() * projImg.GetHeight();
 
             // Расчитываем среднюю яркость проецируемого изображения
-            double A = ImageParametersCalculator::CalcAverageBrightness(projImg);
+            int A = ImageParametersCalculator::CalcAverageBrightness(projImg);
 
             // Нахождение среднего отличия яркостей пикселей канала от средней яркости канала
-            double dA = 0.0; // Срднее отличие
-            for (int row = 0; row < projImg.GetHeight(); ++row)
+            int dA = 0; // Срднее отличие
+
+            for (auto ProjIt : projImg.mPixels)
             {
-                const Image::Row& curRow = projImg[row];
-                for (auto it = curRow.begin(); it != curRow.end(); ++it)
-                {
-                    int delta = static_cast<int>(*it - A);
-                    if (delta < 0)
-                        delta = -delta;
-                    dA += delta;
-                }
+                int delta = static_cast<int>(ProjIt - A);
+                //delta = (delta < 0) ? -delta : delta;
+                dA += delta;
             }
-            dA /= projImg.GetWidth() * projImg.GetHeight();
+            dA /= Size;
 
             // Установка новых значений яркостей канала базового изображения
-            for (int row = 0; row < projImg.GetHeight(); ++row)
+            auto BaseIt = baseImg.mPixels.begin();
+
+            for (auto ProjIt : projImg.mPixels)
             {
-                Image::Row& curBaseRow = baseImg[row];
-                auto itBase = curBaseRow.begin();
+                    int delta = static_cast<int>(ProjIt - A);
+                    //delta = (delta < 0) ? -delta : delta;
 
-                const Image::Row& curProjRow = projImg[row];
-                for (auto it = curProjRow.begin(); it != curProjRow.end(); ++it, ++itBase)
-                {
-                    int delta = static_cast<int>(*it - A);
-                    if (delta < 0)
-                        delta = -delta;
+                    int px = static_cast<int>(*BaseIt + delta - dA);
+                    px = (px < Image::MIN_PIXEL_VALUE) ? Image::MIN_PIXEL_VALUE : px;
+                    px = (px > Image::MAX_PIXEL_VALUE) ? Image::MAX_PIXEL_VALUE : px;
 
-                    int px = static_cast<int>(*itBase + delta - dA);
-                    Image::CheckPixelValue(px);
-
-                    *itBase = px;
-                }
+                    *BaseIt++ = px;
             }
         }
 
@@ -366,16 +358,16 @@ void ImageCombiner::MergeImages(Image& baseImg, const std::vector<Image>& projec
     {
         for (int col = 0; col < baseImg.GetWidth(); ++col)
         {
-            double baseVal = baseImg[row][col];
+            double baseVal = baseImg(row,col);
             double sum = baseVal;
             for (size_t i = 0; i < projections.size(); ++i)
             {
                 const Image& proj = projections[i];
-                sum += fabs(baseVal - proj[row][col]);
+                sum += fabs(baseVal - proj(row,col));
             }
             baseVal = sum / (projections.size() + 1);
 
-            baseImg[row][col] = baseVal;
+            baseImg(row,col) = baseVal;
         }
     }
 }
@@ -400,9 +392,9 @@ Image ImageCombiner::Segmentation(const Image& baseImg, const int numMods)
     {
         for (int col = 0; col < baseImg.GetWidth(); ++col)
         {
-            Image::Byte oldVal = baseImg[row][col];
+            Image::Byte oldVal = baseImg(row,col);
             Image::Byte newVal = static_cast<Image::Byte>(oldVal / dBrig);
-            histSeg[row][col] = newVal;
+            histSeg(row,col) = newVal;
         }
     }
 
@@ -444,7 +436,7 @@ std::vector<AMorphologicalForm> ImageCombiner::FindForms(const Image& histogramm
             int prevVal = -1;
             for (int x = 0; x < histogramm.GetWidth(); ++x)
             {
-                int curVal = static_cast<int>(histogramm[y][x]);
+                int curVal = static_cast<int>(histogramm(y,x));
 
                 if ((x == 0 || prevVal != mod) && curVal == mod) // Начало нового отрезка
                     curStr.push_back(ASStringElement(x, x));
@@ -555,7 +547,7 @@ void ImageCombiner::CalcProjectionToForms(const std::vector<AMorphologicalForm>&
             int x = form[j].GetX();
             int y = form[j].GetY();
 
-            Image::Byte val = projImg[y][x];
+            Image::Byte val = projImg(y,x);
             average += static_cast<double>(val);
         }
         if (!form.IsEmpty())
@@ -568,7 +560,7 @@ void ImageCombiner::CalcProjectionToForms(const std::vector<AMorphologicalForm>&
             int x = form[j].GetX();
             int y = form[j].GetY();
 
-            projection[y][x] = newVal;
+            projection(y,x) = newVal;
         }
     }
 }

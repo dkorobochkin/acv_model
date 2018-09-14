@@ -57,9 +57,7 @@ public: // Публичные вспогательные типы данных
 
     typedef unsigned char Byte; // Тип используется для представления пикселя (яркость пикселя, значение от 0 до 255)
 
-    typedef std::vector<Byte> Row; // Тип используется для представления строки изображения (вектор пикселей)
-
-    typedef std::vector<Row> Matrix; // Тип используется для представления матрицы пикселей (вектор строк)
+    typedef std::vector<Byte> Matrix; // Тип используется для представления матрицы пикселей (вектор строк)
 
 public: // Публичные конструкторы
 
@@ -85,14 +83,6 @@ public: // Публичные методы для работы с изображ
 
     // Установить значение пикселя по его координатам
     void SetPixel(const int rowNum, const int colNum, const Byte val);
-
-    // Получить ссылку на строку изображения
-    Row& GetRow(const int rowNum);
-    const Row& GetRow(const int rowNum) const;
-
-    // Получить ссылку на строку изображения (в стиле массива)
-    Row& operator[](const int rowNum);
-    const Row& operator[](const int rowNum) const;
 
     // Получить ссылку на пиксель изображения
     Byte& operator()(const int rowNum, const int colNum);
