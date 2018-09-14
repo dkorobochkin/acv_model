@@ -1,4 +1,4 @@
-//
+﻿//
 // MIT License
 //
 // Copyright (c) 2018 Dmitriy Korobochkin, Vitaliy Garmash.
@@ -22,8 +22,7 @@
 // SOFTWARE.
 //
 
-// В данном заголовочном файле содержится описание класса, представляющего изображение,
-// методы для работы с ним, вспомогательные типы данных
+// This header file use to define a class of image, his methods and auxiliary types
 
 #ifndef IMAGE_H
 #define IMAGE_H
@@ -32,108 +31,107 @@
 
 namespace acv {
 
-// Класс для работы с изображением (матрица пикселей)
+// Class of one-channel image. Each pixel is represents one byte
 class Image
 {
 
-public: // Константы
+public: // Constants
 
     enum
     {
-        MIN_PIXEL_VALUE = 0, // Минимальное значение яркости пикселя
-        MAX_PIXEL_VALUE = 255 // Максимальное значение яркости пикселя
+        MIN_PIXEL_VALUE = 0, // Minimum value of pixel brightness
+        MAX_PIXEL_VALUE = 255 // Maximum value of pixel brightness
     };
 
-public: // Публичные вспогательные типы
+public: // Auxiliary enums
 
-    // Виды буфера данных, из которых возможно создать изображение
+    //Types of data buffer that used to creation of image
     enum class BufferType
     {
-        RGB, // RGB представление
-        DIRECT_SHOW // Представление DirectShow
+        RGB, // RGB representation
+        DIRECT_SHOW // DirectShow representation
     };
 
-public: // Публичные вспогательные типы данных
+public: // Auxiliary types
 
-    typedef unsigned char Byte; // Тип используется для представления пикселя (яркость пикселя, значение от 0 до 255)
+    typedef unsigned char Byte; // This type is used to representation of pixel brightness
 
-    typedef std::vector<Byte> Matrix; // Тип используется для представления матрицы пикселей (вектор строк)
+    typedef std::vector<Byte> Matrix; // This type is used to representation of pixels matrix
 
-public: // Публичные конструкторы
+public: // Constructors
 
-    // Конструктор по умолчанию
+    // Default constructor
     Image();
 
-    // Конструктор изображения с заданными размерами
+    // Constructor of image with specified dimensions
     Image(const int height, const int width);
 
-    // Конструктор изображения из буфера данных заданного типа
+    // Constructor of image with specified dimensions from buffer of data
     Image(const int height, const int width, const void* buf, BufferType bufType);
 
-public: // Публичные методы для работы с изображением
+public: // Public methods
 
-    // Получить ширину изображения
+    // Get the width of image
     int GetWidth() const;
 
-    // Получить высоту изображения
+    // Get the height of image
     int GetHeight() const;
 
-    // Получить значение пикселя по его координатам
+    // Get the pixel value by coordinates
     Byte GetPixel(const int rowNum, const int colNum) const;
 
-    // Установить значение пикселя по его координатам
+    // Set the pixel value by coordinates
     void SetPixel(const int rowNum, const int colNum, const Byte val);
 
-    // Получить ссылку на пиксель изображения
+    // Get the reference to pixel by coordinates
     Byte& operator()(const int rowNum, const int colNum);
     const Byte& operator()(const int rowNum, const int colNum) const;
 
-    // Провеить, проинициализировано ли изображение
-    // Изображение может быть не проинициализировано, если было создано с помощью конструктора по умолчанию
-    // или при создании матрицы был какой-то сбой
+    // Check the initialization of image
+    // Image is not initialized if was created by default constructor
     bool IsInitialized() const;
 
-    // Метод проверяет некорректность координат пикселя (выходят ли за пределы изображения по ширине и высоте)
+    // Check pixel coordinates out of image boundaries
     bool IsInvalidCoordinates(const int rowNum, const int colNum);
 
-    // Корректировка координат пикселя
-    // Если координаты пикселя выходят за границы матрицы, то его координаты зеркально отражаются от ближайшей грани
+    // Adjust pixel coordinates if they are out of image boundaries
+    // In this case the coordinates are mirrored
     void CorrectCoordinates(int& rowNum, int& colNum) const;
 
-    // Проверка нового значения пикселя на корретность (выход за границы возможных значений)
+    // Check the pixel value to out the minimum and maximum values
     static void CheckPixelValue(int& value);
 
-private: // Закрытые методы
+private: // Private methods
 
-    // Расчет всопогательных параметров, которые используются при корректировке координат пикселя
+    // Calculation of auxiliary parameters that are used to adjust pixels coordinates
     void CalcAuxParameters();
 
-    // Заполнение пикселей из буфера заданного типа
+    // Fill the pixels from buffer of specific type
     void FillPixels(const void* buf, BufferType bufType);
 
-    // Заполнение пикселей из буфера RGB типа
+    // Fill the pixels from buffer of RGB type
     void FillPixelFromRGB(Byte* buf);
 
-    // Заполнение пикселей из буфера типа DirectShow
+    // Fill the pixels from buffer of DirectShow type
     void FillPixelFromDirectShow(Byte* buf);
 
-public: // Закрытые данные (внутреннее представление изображения)
+public: // Private members (representation of image)
 
-    // Матрица пикселей
+    // Matrix of pixels
     Matrix mPixels;
 
-    // Ширина изображения (-1, если изображение не проинициализировано)
+    // Image width (value -1 if image was not initialized)
     int mWidth;
 
-    // Высота изображения (-1, если изображение не проинициализировано)
+    // Image height (value -1 if image was not initialized)
     int mHeight;
 
-private: // Закрытые вспомогательные данные для быстрой корректировки пикселей, выходящих за пределы матрицы
+private: // Private auxiliary members to fast correction of pixel coordinates
 
-    // Используется для корректировки координаты пикселя (x, colNum), если она больше ширины
+    // This value is used to correct x (colNum) coordinate
     int mAuxWidth;
 
-    // Используется для корректировки координаты пикселя (y, rowNum), если она больше высоты
+    // This value is used to correct y (rowNum) coordinate
     int mAuxHeight;
 
 };
