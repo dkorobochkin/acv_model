@@ -39,6 +39,7 @@
 #include <exception>
 
 #include "ImageParametersCalculator.h"
+#include "BordersDetector.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -117,6 +118,13 @@ void MainWindow::CreateOperatorActions()
     connect(mScharrAction, SIGNAL(triggered()), this, SLOT(Scharr()));
 }
 
+void MainWindow::CreateBodersDetectorsActions()
+{
+    mCannyAction = new QAction(tr("Canny algorithm"), this);
+    mCannyAction->setStatusTip(tr("Detect the borders by using Canny algorithm"));
+    connect(mCannyAction, SIGNAL(triggered()), this, SLOT(Canny()));
+}
+
 void MainWindow::CreateParamsActions()
 {
     mImgEntropyAction = new QAction(tr("Энтропия"), this);
@@ -153,6 +161,7 @@ void MainWindow::CreateActions()
     CreateFilteringActions();
     CreateParamsActions();
     CreateOperatorActions();
+    CreateBodersDetectorsActions();
     CreateCombiningActions();
 }
 
@@ -183,6 +192,13 @@ void MainWindow::CreateOperatorsMenu()
     mOperatorsMenu->addAction(mScharrAction);
 }
 
+void MainWindow::CreateBordersDetectorsMenu()
+{
+    mBordersDetectorsMenu = mProcessingMenu->addMenu(tr("Detectors of borders"));
+
+    mBordersDetectorsMenu->addAction(mCannyAction);
+}
+
 void MainWindow::CreateParamsMenu()
 {
     mImgParams = mProcessingMenu->addMenu(tr("Параметры"));
@@ -208,6 +224,7 @@ void MainWindow::CreateMainMenus()
     CreateParamsMenu();
     CreateFilteringMenu();
     CreateOperatorsMenu();
+    CreateBordersDetectorsMenu();
     CreateCombiningMenu();
 }
 
@@ -368,6 +385,35 @@ void MainWindow::Sobel()
 void MainWindow::Scharr()
 {
     Operator(acv::ImageFilter::OperatorType::SCHARR);
+}
+
+void MainWindow::Canny()
+{
+    if (ImgWasSelected())
+    {
+        const int CANNY_THRESHOLD_1 = 20, CANNY_THRESHOLD_2 = 90;
+
+        QElapsedTimer timer;
+        timer.start();
+
+        acv::Image& curImg = GetCurImg();
+        bool detected = acv::BordersDetector::Canny(curImg, CANNY_THRESHOLD_1, CANNY_THRESHOLD_2);
+
+        qint64 filterTime = timer.elapsed();
+
+        if (detected)
+        {
+            emit CurImgWasUpdated();
+
+            QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
+        }
+        else
+            QMessageBox::warning(this, tr("Detecting of the borders"), tr("Could not detect the borders"), QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Detecting of the borders"), tr("Image was not selected"), QMessageBox::Ok);
+    }
 }
 
 void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)

@@ -30,33 +30,9 @@
 #include "ImageParametersCalculator.h"
 #include "ImageCombiner.h"
 #include "Image.h"
+#include "Point.h"
 
 namespace acv {
-
-// This class represents pixel in morphological form
-class PixelCoordinates
-{
-
-public: // Constructors
-
-    PixelCoordinates(const int x, const int y);
-
-public: // Public methods
-
-    // Methods to get and set of pixel coordinates
-    void SetX(const int x);
-    void SetY(const int y);
-    void SetXY(const int x, const int y);
-    int GetX() const;
-    int GetY() const;
-
-private: // Private members
-
-    // Coordinates
-    int mX;
-    int mY;
-
-};
 
 // This class represent the morphological form
 class AMorphologicalForm
@@ -68,8 +44,8 @@ public: // Public methods
     size_t size() const;
 
     // Operator [] (array style)
-    PixelCoordinates& operator[](const size_t idx);
-    const PixelCoordinates& operator[](const size_t idx) const;
+    Point& operator[](const size_t idx);
+    const Point& operator[](const size_t idx) const;
 
     // Add new pixel
     void AddNewPixel(const int x, const int y);
@@ -86,58 +62,28 @@ public: // Public methods
 private: // Private members
 
     // Vector of the pixels in the form
-    std::vector<PixelCoordinates> mPixels;
+    std::vector<Point> mPixels;
 
 };
-
-PixelCoordinates::PixelCoordinates(const int x, const int y)
-    : mX(x), mY(y)
-{ }
-
-void PixelCoordinates::SetX(const int x)
-{
-    mX = x;
-}
-
-void PixelCoordinates::SetY(const int y)
-{
-    mY = y;
-}
-
-void PixelCoordinates::SetXY(const int x, const int y)
-{
-    SetX(x);
-    SetY(y);
-}
-
-int PixelCoordinates::GetX() const
-{
-    return mX;
-}
-
-int PixelCoordinates::GetY() const
-{
-    return mY;
-}
 
 size_t AMorphologicalForm::size() const
 {
     return mPixels.size();
 }
 
-PixelCoordinates& AMorphologicalForm::operator[](const size_t idx)
+Point& AMorphologicalForm::operator[](const size_t idx)
 {
     return mPixels[idx];
 }
 
-const PixelCoordinates& AMorphologicalForm::operator[](const size_t idx) const
+const Point& AMorphologicalForm::operator[](const size_t idx) const
 {
     return mPixels[idx];
 }
 
 void AMorphologicalForm::AddNewPixel(const int x, const int y)
 {
-    mPixels.push_back(PixelCoordinates(x, y));
+    mPixels.push_back(Point(x, y));
 }
 
 void AMorphologicalForm::Clear()

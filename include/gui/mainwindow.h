@@ -92,6 +92,9 @@ private slots: // Закрытые слоты
     // Свертка изображения с оператором Щарра
     void Scharr();
 
+    // Detect the borders by using Canny algorithm
+    void Canny();
+
     // Совмещение с приоритетом наиболее информативного изображения
     void InformPriorityCombining();
 
@@ -135,6 +138,9 @@ private: // Закрытые методы
     // Создание действия для раздела "Операторы"
     void CreateOperatorActions();
 
+    // Creation an actions for section "Detectors of borders"
+    void CreateBodersDetectorsActions();
+
     // Создание действий для раздела "Параметры"
     void CreateParamsActions();
 
@@ -152,6 +158,9 @@ private: // Закрытые методы
 
     // Создание меню для раздела "Операторы"
     void CreateOperatorsMenu();
+
+    // Creation a menu for section "Detectors of borders"
+    void CreateBordersDetectorsMenu();
 
     // Создание меню для раздела "Параметры"
     void CreateParamsMenu();
@@ -224,6 +233,7 @@ private: // Закрытые данные
     QAction* mGaussianBlurAction;
     QAction* mSobelAction;
     QAction* mScharrAction;
+    QAction* mCannyAction;
     QAction* mInfPriorCombAction;
     QAction* mMorphCombAction;
     QAction* mLocEntrCombAction;
@@ -236,6 +246,7 @@ private: // Закрытые данные
     QMenu* mProcessingMenu;
     QMenu* mFilterMenu;
     QMenu* mOperatorsMenu;
+    QMenu* mBordersDetectorsMenu;
     QMenu* mImgParams;
     QMenu* mCombineMenu;
     QMenu* mCombineTestMenu;
