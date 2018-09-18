@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// В данном заголовочном файле содержится описание класса, который расчитывает различные параметры изображения
+// This header use to define a class that are calculate parameters of image
 
 #ifndef IMAGE_PARAMETERS_CALCULATOR_H
 #define IMAGE_PARAMETERS_CALCULATOR_H
@@ -31,20 +31,20 @@ namespace acv {
 
 class Image;
 
-// Класс используется для расчета параметров изображения
-// Содержит только статические методы
+// Class is used to calculate parameters of image
+// He contains only static methods
 class ImageParametersCalculator
 {
 
-public: // Публичные методы
+public: // Public methods
 
-    // Расчет энтропии изображения
+    // Calculate the entropy of image
     static double CalcEntropy(const Image& img);
 
-    // Расчет локальной энтропии изображенния
+    // Calculate the local entropy of image
     static double CalcLocalEntropy(const Image& img, const int row, const int col, const int aperture);
 
-    // Расчет средней яркости изображения
+    // Calculate the average brightness of image
     static double CalcAverageBrightness(const Image& img);
 
 };
