@@ -91,6 +91,9 @@ public: // Public methods
     Matrix& GetData() { return mPixels; }
     const Matrix& GetData() const { return mPixels; }
 
+    // Get the raw pointer to i-th element of the pixels vector
+    Byte* GetRawPointer(int i=0){ return &mPixels[i]; }
+
     // Check the initialization of image
     // Image is not initialized if was created by default constructor
     bool IsInitialized() const;
@@ -103,7 +106,10 @@ public: // Public methods
     void CorrectCoordinates(int& rowNum, int& colNum) const;
 
     // Check the pixel value to out the minimum and maximum values
-    static void CheckPixelValue(int& value);
+    static void CheckPixelValue(int& value){
+        value= (value < MIN_PIXEL_VALUE) ? MIN_PIXEL_VALUE : value;
+        value = (value > MAX_PIXEL_VALUE) ? MAX_PIXEL_VALUE : value;
+    }
 
 private: // Private methods
 
