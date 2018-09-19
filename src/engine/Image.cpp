@@ -74,6 +74,79 @@ void Image::CorrectCoordinates(int& rowNum, int& colNum) const
         colNum = mAuxWidth - colNum;
 }
 
+Image Image::Resize(const int xMin, const int yMin, const int xMax, const int yMax) const
+{
+    if (xMin >= xMax || yMin >= yMax)
+        return Image();
+
+    int newWidth = xMax - xMin + 1;
+    int newHeight = yMax - yMin + 1;
+    Image newImg(newHeight, newWidth);
+    Byte* pDst = &newImg.mPixels[0];
+
+    int row, col;
+    int bufMaxY = (yMax >= mHeight) ? (mHeight - 1) : yMax;
+    int bufMaxX = (xMax >= mWidth) ? (mWidth - 1) : xMax;
+
+    // Expand upper rows
+    for (row = yMin; row < 0; ++row )
+    {
+        for (col = xMin; col <= xMax; ++col)
+        {
+            int bufRow = row;
+            int bufCol = col;
+            CorrectCoordinates(bufRow, bufCol);
+
+            *pDst++ = GetPixel(bufRow, bufCol);
+        }
+    }
+
+    // Creation center rows
+    for ( ; row <= bufMaxY; ++row)
+    {
+        // Expand left columns
+        for (col = xMin; col < 0; ++col)
+        {
+            int bufRow = row;
+            int bufCol = col;
+            CorrectCoordinates(bufRow, bufCol);
+
+            *pDst++ = GetPixel(bufRow, bufCol);
+        }
+
+        int centerWidth = bufMaxX - col + 1;
+        const Byte* pSrc = &mPixels[0] + row * mWidth + col;
+        memcpy(pDst, pSrc, centerWidth);
+        col += centerWidth;
+        pDst += centerWidth;
+
+        // Expand right columns
+        for ( ; col <= xMax; ++col)
+        {
+            int bufRow = row;
+            int bufCol = col;
+            CorrectCoordinates(bufRow, bufCol);
+
+            *pDst++ = GetPixel(bufRow, bufCol);
+        }
+    }
+
+    // Expand lower rows
+    for ( ; row <= yMax; ++row )
+    {
+        for (col = xMin; col <= xMax; ++col)
+        {
+            int bufRow = row;
+            int bufCol = col;
+            CorrectCoordinates(bufRow, bufCol);
+
+            *pDst++ = GetPixel(bufRow, bufCol);
+        }
+    }
+
+    return newImg;
+}
+
 void Image::CheckPixelValue(int& value)
 {
     if (value < MIN_PIXEL_VALUE)

@@ -102,6 +102,16 @@ public: // Public methods
     // In this case the coordinates are mirrored
     void CorrectCoordinates(int& rowNum, int& colNum) const;
 
+    // Creation of new image how a part of this image or how an expanded image
+    // If xMin>=0 and yMin>=0 and xMax<mWidth and yMax<mHeight then resulting image is the part of this image
+    // Else the resulting image is expanded source image
+    // Can combining of this cases
+    Image Resize(const int xMin, const int yMin, const int xMax, const int yMax) const;
+
+    // Get pointer to element of matrix
+    Byte* GetRawPointer(const int elementNum = 0) { return &mPixels[elementNum]; }
+    const Byte* GetRawPointer(const int elementNum = 0) const { return &mPixels[elementNum]; }
+
     // Check the pixel value to out the minimum and maximum values
     static void CheckPixelValue(int& value);
 
