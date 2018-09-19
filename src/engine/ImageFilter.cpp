@@ -61,55 +61,57 @@ bool ImageFilter::OperatorConvolution(Image& img, OperatorType operatorType, Sob
 
 bool ImageFilter::Sobel(Image& img, SobelTypes type)
 {
-    bool res= (type == SobelTypes::HORIZONTAL) ? NonConvSobelH(img) :  NonConvSobelV(img);
+    bool res = (type == SobelTypes::HORIZONTAL) ? NonConvSobelH(img) :  NonConvSobelV(img);
     return res;
 }
 
 // Non-convolutional horizontal Sobel operator
 bool ImageFilter::NonConvSobelH(Image& img)
 {
-    auto width= img.GetWidth();
-    auto height= img.GetHeight();
+    auto width = img.GetWidth();
+    auto height = img.GetHeight();
 
     Image tmpImg(height, width);
 
-    Image::Byte* PtrInput= img.GetRawPointer(0);
-    Image::Byte* PtrOutput= tmpImg.GetRawPointer(0);
+    Image::Byte* ptrInput = img.GetRawPointer(0);
+    Image::Byte* ptrOutput = tmpImg.GetRawPointer(0);
 
     // 1st row loop
-    for (int colNum = 0; colNum < width; ++colNum, ++PtrInput, ++PtrOutput) *PtrOutput= 0;
+    for (int colNum = 0; colNum < width; ++colNum, ++ptrInput, ++ptrOutput)
+        *ptrOutput = 0;
 
     // Main loop
-    for (int rowNum = 1; rowNum < height-1; ++rowNum)
+    for (int rowNum = 1; rowNum < height - 1; ++rowNum)
     {
          // 1-st element in row
-        int res= (*(PtrInput-width) << 1) + (*(PtrInput-width+1) << 1)
-                - (*(PtrInput+width) << 1) - (*(PtrInput+width+1) << 1);
+        int res = (*(ptrInput - width) << 1) + (*(ptrInput - width + 1) << 1)
+                - (*(ptrInput + width) << 1) - (*(ptrInput + width + 1) << 1);
 
         Image::CheckPixelValue(res);
-        *PtrOutput++= static_cast<Image::Byte>(res);
-        ++PtrInput;
+        *ptrOutput++ = static_cast<Image::Byte>(res);
+        ++ptrInput;
 
-        for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+        for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
         {
-            res= *(PtrInput-width-1) + (*(PtrInput-width) << 1) + *(PtrInput-width+1)
-                    - *(PtrInput+width-1) - (*(PtrInput+width) << 1) - *(PtrInput+width+1);
+            res = *(ptrInput - width - 1) + (*(ptrInput - width) << 1) + *(ptrInput - width + 1)
+                    - *(ptrInput+ width - 1) - (*(ptrInput + width) << 1) - *(ptrInput + width + 1);
 
             Image::CheckPixelValue(res);
-            *PtrOutput= static_cast<Image::Byte>(res);
+            *ptrOutput = static_cast<Image::Byte>(res);
         }
 
         // last element in row
-        res= (*(PtrInput-width-1) << 1) + (*(PtrInput-width) << 1)
-                - (*(PtrInput+width-1) << 1) - (*(PtrInput+width) << 1);
+        res = (*(ptrInput - width - 1) << 1) + (*(ptrInput - width) << 1)
+                - (*(ptrInput+width - 1) << 1) - (*(ptrInput + width) << 1);
 
         Image::CheckPixelValue(res);
-        *PtrOutput++= static_cast<Image::Byte>(res);
-         ++PtrInput;
+        *ptrOutput++ = static_cast<Image::Byte>(res);
+         ++ptrInput;
     }
 
     // last row loop
-    for (int colNum = 0; colNum < width; ++colNum, ++PtrInput, ++PtrOutput) *PtrOutput= 0;
+    for (int colNum = 0; colNum < width; ++colNum, ++ptrInput, ++ptrOutput)
+        *ptrOutput = 0;
 
     img = std::move(tmpImg);
     return true;
@@ -118,63 +120,63 @@ bool ImageFilter::NonConvSobelH(Image& img)
 // Non-convolutional vertical Sobel operator
 bool ImageFilter::NonConvSobelV(Image& img)
 {
-    auto width= img.GetWidth();
-    auto height= img.GetHeight();
+    auto width = img.GetWidth();
+    auto height = img.GetHeight();
 
     Image tmpImg(height, width);
 
-    Image::Byte* PtrInput= img.GetRawPointer(0);
-    Image::Byte* PtrOutput= tmpImg.GetRawPointer(0);
+    Image::Byte* ptrInput = img.GetRawPointer(0);
+    Image::Byte* ptrOutput = tmpImg.GetRawPointer(0);
 
     // 1st row loop
-    *PtrOutput++= 0;
-     ++PtrInput;
-    for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+    *ptrOutput++ = 0;
+     ++ptrInput;
+    for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
     {
-        int res= + (*(PtrInput-1) << 1) - (*(PtrInput+1) << 1)
-                + (*(PtrInput+width-1)<< 1)  - (*(PtrInput+width+1)<< 1);
+        int res = + (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1)
+                + (*(ptrInput + width - 1)<< 1)  - (*(ptrInput + width + 1)<< 1);
 
         Image::CheckPixelValue(res);
-        *PtrOutput= static_cast<Image::Byte>(res);
+        *ptrOutput = static_cast<Image::Byte>(res);
     }
-    *PtrOutput++= 0;
-     ++PtrInput;
+    *ptrOutput++ = 0;
+     ++ptrInput;
 
     // Main loop
-    for (int rowNum = 1; rowNum < height-1; ++rowNum)
+    for (int rowNum = 1; rowNum < height - 1; ++rowNum)
     {
          // 1-st element in row
-        *PtrOutput++= 0;
-         ++PtrInput;
+        *ptrOutput++= 0;
+         ++ptrInput;
 
-        for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+        for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
         {
-            int res= *(PtrInput-width-1)   - *(PtrInput-width+1)
-                    + (*(PtrInput-1) << 1) - (*(PtrInput+1) << 1)
-                    + *(PtrInput+width-1)  - *(PtrInput+width+1);
+            int res = *(ptrInput - width - 1)   - *(ptrInput - width + 1)
+                    + (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1)
+                    + *(ptrInput + width - 1)  - *(ptrInput + width + 1);
 
             Image::CheckPixelValue(res);
-            *PtrOutput= static_cast<Image::Byte>(res);
+            *ptrOutput = static_cast<Image::Byte>(res);
         }
 
         // last element in row
-        *PtrOutput++= 0;
-         ++PtrInput;
+        *ptrOutput++ = 0;
+         ++ptrInput;
     }
 
     // last row loop
-    *PtrOutput++= 0;
-     ++PtrInput;
-    for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+    *ptrOutput++ = 0;
+     ++ptrInput;
+    for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
     {
-        int res= (*(PtrInput-width-1)<< 1) - (*(PtrInput-width+1)<< 1)
-                + (*(PtrInput-1) << 1) - (*(PtrInput+1) << 1);
+        int res = (*(ptrInput - width - 1) << 1) - (*(ptrInput - width + 1) << 1)
+                + (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1);
 
         Image::CheckPixelValue(res);
-        *PtrOutput= static_cast<Image::Byte>(res);
+        *ptrOutput = static_cast<Image::Byte>(res);
     }
-    *PtrOutput++= 0;
-     ++PtrInput;
+    *ptrOutput++ = 0;
+     ++ptrInput;
 
     img = std::move(tmpImg);
     return true;
