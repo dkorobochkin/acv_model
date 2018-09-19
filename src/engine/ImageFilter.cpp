@@ -61,24 +61,123 @@ bool ImageFilter::OperatorConvolution(Image& img, OperatorType operatorType, Sob
 
 bool ImageFilter::Sobel(Image& img, SobelTypes type)
 {
-    MatrixFilter<int> filter(3, 1);
+    bool res= (type == SobelTypes::HORIZONTAL) ? NonConvSobelH(img) :  NonConvSobelV(img);
+    return res;
+}
 
-    if (type == SobelTypes::HORIZONTAL)
-    {
-        filter[0][0] = 1;  filter[0][1] = 2;  filter[0][2] = 1;
-        filter[1][0] = 0;  filter[1][1] = 0;  filter[1][2] = 0;
-        filter[2][0] = -1; filter[2][1] = -2; filter[2][2] = -1;
-    }
-    else if (type == SobelTypes::VERTICAL)
-    {
-        filter[0][0] =  1;  filter[0][1] =  0;  filter[0][2] = -1;
-        filter[1][0] =  2;  filter[1][1] =  0;  filter[1][2] = -2;
-        filter[2][0] =  1;  filter[2][1] =  0;  filter[2][2] = -1;
-    }
-    else
-        return false;
+// Non-convolutional horizontal Sobel operator
+bool ImageFilter::NonConvSobelH(Image& img)
+{
+    auto width= img.GetWidth();
+    auto height= img.GetHeight();
 
-    return MatrixFilterOperations::ConvolutionImage<int>(img, filter);
+    Image tmpImg(height, width);
+
+    Image::Byte* PtrInput= img.GetRawPointer(0);
+    Image::Byte* PtrOutput= tmpImg.GetRawPointer(0);
+
+    // 1st row loop
+    for (int colNum = 0; colNum < width; ++colNum, ++PtrInput, ++PtrOutput) *PtrOutput= 0;
+
+    // Main loop
+    for (int rowNum = 1; rowNum < height-1; ++rowNum)
+    {
+         // 1-st element in row
+        int res= (*(PtrInput-width) << 1) + (*(PtrInput-width+1) << 1)
+                - (*(PtrInput+width) << 1) - (*(PtrInput+width+1) << 1);
+
+        Image::CheckPixelValue(res);
+        *PtrOutput++= static_cast<Image::Byte>(res);
+        ++PtrInput;
+
+        for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+        {
+            res= *(PtrInput-width-1) + (*(PtrInput-width) << 1) + *(PtrInput-width+1)
+                    - *(PtrInput+width-1) - (*(PtrInput+width) << 1) - *(PtrInput+width+1);
+
+            Image::CheckPixelValue(res);
+            *PtrOutput= static_cast<Image::Byte>(res);
+        }
+
+        // last element in row
+        res= (*(PtrInput-width-1) << 1) + (*(PtrInput-width) << 1)
+                - (*(PtrInput+width-1) << 1) - (*(PtrInput+width) << 1);
+
+        Image::CheckPixelValue(res);
+        *PtrOutput++= static_cast<Image::Byte>(res);
+         ++PtrInput;
+    }
+
+    // last row loop
+    for (int colNum = 0; colNum < width; ++colNum, ++PtrInput, ++PtrOutput) *PtrOutput= 0;
+
+    img = std::move(tmpImg);
+    return true;
+}
+
+// Non-convolutional vertical Sobel operator
+bool ImageFilter::NonConvSobelV(Image& img)
+{
+    auto width= img.GetWidth();
+    auto height= img.GetHeight();
+
+    Image tmpImg(height, width);
+
+    Image::Byte* PtrInput= img.GetRawPointer(0);
+    Image::Byte* PtrOutput= tmpImg.GetRawPointer(0);
+
+    // 1st row loop
+    *PtrOutput++= 0;
+     ++PtrInput;
+    for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+    {
+        int res= + (*(PtrInput-1) << 1) - (*(PtrInput+1) << 1)
+                + (*(PtrInput+width-1)<< 1)  - (*(PtrInput+width+1)<< 1);
+
+        Image::CheckPixelValue(res);
+        *PtrOutput= static_cast<Image::Byte>(res);
+    }
+    *PtrOutput++= 0;
+     ++PtrInput;
+
+    // Main loop
+    for (int rowNum = 1; rowNum < height-1; ++rowNum)
+    {
+         // 1-st element in row
+        *PtrOutput++= 0;
+         ++PtrInput;
+
+        for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+        {
+            int res= *(PtrInput-width-1)   - *(PtrInput-width+1)
+                    + (*(PtrInput-1) << 1) - (*(PtrInput+1) << 1)
+                    + *(PtrInput+width-1)  - *(PtrInput+width+1);
+
+            Image::CheckPixelValue(res);
+            *PtrOutput= static_cast<Image::Byte>(res);
+        }
+
+        // last element in row
+        *PtrOutput++= 0;
+         ++PtrInput;
+    }
+
+    // last row loop
+    *PtrOutput++= 0;
+     ++PtrInput;
+    for (int colNum = 1; colNum < width-1; ++colNum, ++PtrInput, ++PtrOutput)
+    {
+        int res= (*(PtrInput-width-1)<< 1) - (*(PtrInput-width+1)<< 1)
+                + (*(PtrInput-1) << 1) - (*(PtrInput+1) << 1);
+
+        Image::CheckPixelValue(res);
+        *PtrOutput= static_cast<Image::Byte>(res);
+    }
+    *PtrOutput++= 0;
+     ++PtrInput;
+
+    img = std::move(tmpImg);
+    return true;
 }
 
 bool ImageFilter::Scharr(Image& img, ImageFilter::SobelTypes type)
