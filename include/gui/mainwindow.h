@@ -183,6 +183,9 @@ private: // Закрытые методы
     // Формирование имени для действия по обработке изображений
     QString FormProcessedImgActionName(const QString& prefix);
 
+    // Forming the name for action of filtered image
+    QString FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize);
+
     // Добавление действия для обработанного изображения
     void AddProcessedImgAction(const QString& actionName);
 

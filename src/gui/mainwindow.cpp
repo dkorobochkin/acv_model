@@ -421,29 +421,40 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
     if (ImgWasSelected())
     {
         const int DEFAULT_FILTER_SIZE = 3, MIN_FILTER_SIZE = 1, MAX_FILTER_SIZE = 15, FILTER_SIZE_STEP = 2;
-        int filterSize = QInputDialog::getInt(this, tr("Введите размер фильтра (нечетное положительное число)"), tr("Размер фильтра"),
+        int filterSize = QInputDialog::getInt(this, tr("Enter the filter size (odd positive number)"), tr("Filter size"),
                                               DEFAULT_FILTER_SIZE, MIN_FILTER_SIZE, MAX_FILTER_SIZE, FILTER_SIZE_STEP);
+
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        acv::Image& curImg = GetCurImg();
-        bool filtred = acv::ImageFilter::Filter(curImg, filterSize, filterType);
+        bool filtred = acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
 
         qint64 filterTime = timer.elapsed();
 
         if (filtred)
         {
+            mProcessedImgs.push_back(processedImg);
+
+            QString actionName = FormFilterActionName(filterType, filterSize);
+
+            mCurOpenedImg = -1;
+            mCurProcessedImg = mProcessedImgs.size() - 1;
             emit CurImgWasUpdated();
 
-            QMessageBox::information(this, tr("Фильтрация изображений"), tr("Время фильтрации: %1 мсек").arg(filterTime), QMessageBox::Ok);
+            AddProcessedImgAction(actionName);
+            emit ProcessedImgsChanged();
+
+            QMessageBox::information(this, tr("Image filtration"), tr("Time of filtration: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Фильтрация изображений"), tr("Не удалось выполнить фильтрацию"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Image filtration"), tr("Could not filtration"), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::warning(this, tr("Фильтрация изображений"), tr("Изображение не выбрано"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Image filtration"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
@@ -579,6 +590,26 @@ QString MainWindow::FormCombineActionName(acv::ImageCombiner::CombineType combTy
             ret += tr("+");
     }
 
+    return ret;
+}
+
+QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize)
+{
+    QString ret;
+
+    switch (filterType)
+    {
+    case acv::ImageFilter::FilterType::MEDIAN:
+        ret = tr("F_M_%1: ").arg(filterSize);
+        break;
+    case acv::ImageFilter::FilterType::GAUSSIAN:
+        ret = tr("F_G_%1: ").arg(filterSize);
+        break;
+    default:
+        return QString();
+    }
+
+    ret = FormProcessedImgActionName(ret);
     return ret;
 }
 

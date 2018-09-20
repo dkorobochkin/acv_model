@@ -65,6 +65,10 @@ public: // Публичные методы
     // Возвращаемое значение говорит об успешности фильтрации
     static bool Filter(Image& img, const int filterSize, FilterType type);
 
+    // Run a filtration by the specified method
+    // Return true if filtration was success
+    static bool Filter(const Image& srcImg, Image& dstImg, const int filterSize, FilterType type);
+
     // Свертка изображения с заданным оператором
     static bool OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type);
 
@@ -75,10 +79,18 @@ private: // Закрытые методы
     // Возвращаемое значение говорит об успешности фильтрации
     static bool Median(Image& img, const int filterSize);
 
+    // Median filtration (filter size must be odd)
+    // Return true if filtration was success
+    static bool Median(const Image& srcImg, Image& dstImg, const int filterSize);
+
     // Гауссовая фильтрация
     // В результате вызова метода изменяется ВХОДНОЕ ИЗОБРАЖЕНИЕ
     // Возвращаемое значение говорит об успешности фильтрации
     static bool Gaussian(Image& img, const int filterSize);
+
+    // Gaussian filtration (filter size must be odd)
+    // Return true if filtration was success
+    static bool Gaussian(const Image& srcImg, Image& dstImg, const int filterSize);
 
     // Свертка изображения с оператором Собеля
     static bool Sobel(Image& img, SobelTypes type);
