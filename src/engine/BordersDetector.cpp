@@ -304,4 +304,204 @@ BordersDetector::Gradient::Gradient(int horiz, int vert)
         arg = ((vert > 0 && horiz > 0) || (vert < 0 && horiz < 0)) ? 45 : 135;
 }
 
+bool BordersDetector::OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type)
+{
+    switch (operatorType)
+    {
+    case OperatorType::SOBEL:
+        return Sobel(img, type);
+    case OperatorType::SCHARR:
+        return Scharr(img, type);
+    default:
+        return false;
+    }
+}
+
+bool BordersDetector::OperatorConvolution(const Image& srcImg, Image& dstImg, BordersDetector::OperatorType operatorType, BordersDetector::SobelTypes type)
+{
+    switch (operatorType)
+    {
+    case OperatorType::SOBEL:
+        return Sobel(srcImg, dstImg, type);
+    case OperatorType::SCHARR:
+        return Scharr(srcImg, dstImg, type);
+    default:
+        return false;
+    }
+}
+
+bool BordersDetector::Sobel(Image& img, SobelTypes type)
+{
+    bool res = (type == SobelTypes::HORIZONTAL) ? NonConvSobelH(img) : NonConvSobelV(img);
+    return res;
+}
+
+bool BordersDetector::Sobel(const Image& srcImg, Image& dstImg, BordersDetector::SobelTypes type)
+{
+    bool res = (type == SobelTypes::HORIZONTAL) ? NonConvSobelH(srcImg, dstImg) : NonConvSobelV(srcImg, dstImg);
+    return res;
+}
+
+// Non-convolutional horizontal Sobel operator
+bool BordersDetector::NonConvSobelH(Image& img)
+{
+    Image tmpImg(img.GetHeight(), img.GetWidth());
+
+    NonConvSobelH(img, tmpImg);
+
+    img = std::move(tmpImg);
+    return true;
+}
+
+// Non-convolutional horizontal Sobel operator
+bool BordersDetector::NonConvSobelH(const Image& srcImg, Image& dstImg)
+{
+    auto width = srcImg.GetWidth();
+    auto height = srcImg.GetHeight();
+
+    Image::Byte* ptrInput = const_cast<Image::Byte*>(srcImg.GetRawPointer());
+    Image::Byte* ptrOutput = dstImg.GetRawPointer();
+
+    // 1st row loop
+    for (int colNum = 0; colNum < width; ++colNum, ++ptrInput, ++ptrOutput)
+        *ptrOutput = 0;
+
+    // Main loop
+    for (int rowNum = 1; rowNum < height - 1; ++rowNum)
+    {
+         // 1-st element in row
+        int res = (*(ptrInput - width) << 1) + (*(ptrInput - width + 1) << 1) -
+                  (*(ptrInput + width) << 1) - (*(ptrInput + width + 1) << 1);
+
+        Image::CheckPixelValue(res);
+        *ptrOutput++ = static_cast<Image::Byte>(res);
+        ++ptrInput;
+
+        for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
+        {
+            res = *(ptrInput - width - 1) + (*(ptrInput - width) << 1) + *(ptrInput - width + 1) -
+                  *(ptrInput + width - 1) - (*(ptrInput + width) << 1) - *(ptrInput + width + 1);
+
+            Image::CheckPixelValue(res);
+            *ptrOutput = static_cast<Image::Byte>(res);
+        }
+
+        // last element in row
+        res = (*(ptrInput - width - 1) << 1) + (*(ptrInput - width) << 1) -
+              (*(ptrInput + width - 1) << 1) - (*(ptrInput + width) << 1);
+
+        Image::CheckPixelValue(res);
+        *ptrOutput++ = static_cast<Image::Byte>(res);
+         ++ptrInput;
+    }
+
+    // last row loop
+    for (int colNum = 0; colNum < width; ++colNum, ++ptrInput, ++ptrOutput)
+        *ptrOutput = 0;
+
+    return true;
+}
+
+// Non-convolutional vertical Sobel operator
+bool BordersDetector::NonConvSobelV(Image& img)
+{
+    Image tmpImg(img.GetHeight(), img.GetWidth());
+
+    NonConvSobelV(img, tmpImg);
+
+    img = std::move(tmpImg);
+    return true;
+}
+
+// Non-convolutional vertical Sobel operator
+bool BordersDetector::NonConvSobelV(const Image& srcImg, Image& dstImg)
+{
+    auto width = srcImg.GetWidth();
+    auto height = srcImg.GetHeight();
+
+    Image::Byte* ptrInput = const_cast<Image::Byte*>(srcImg.GetRawPointer());
+    Image::Byte* ptrOutput = dstImg.GetRawPointer();
+
+    // 1st row loop
+    *ptrOutput++ = 0;
+    ++ptrInput;
+    for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
+    {
+        int res = (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1) +
+                  (*(ptrInput + width - 1) << 1) - (*(ptrInput + width + 1) << 1);
+
+        Image::CheckPixelValue(res);
+        *ptrOutput = static_cast<Image::Byte>(res);
+    }
+    *ptrOutput++ = 0;
+     ++ptrInput;
+
+    // Main loop
+    for (int rowNum = 1; rowNum < height - 1; ++rowNum)
+    {
+         // 1-st element in row
+        *ptrOutput++= 0;
+        ++ptrInput;
+
+        for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
+        {
+            int res = *(ptrInput - width - 1)   - *(ptrInput - width + 1) +
+                      (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1) +
+                      *(ptrInput + width - 1)  - *(ptrInput + width + 1);
+
+            Image::CheckPixelValue(res);
+            *ptrOutput = static_cast<Image::Byte>(res);
+        }
+
+        // last element in row
+        *ptrOutput++ = 0;
+         ++ptrInput;
+    }
+
+    // last row loop
+    *ptrOutput++ = 0;
+    ++ptrInput;
+    for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
+    {
+        int res = (*(ptrInput - width - 1) << 1) - (*(ptrInput - width + 1) << 1) +
+                  (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1);
+
+        Image::CheckPixelValue(res);
+        *ptrOutput = static_cast<Image::Byte>(res);
+    }
+    *ptrOutput++ = 0;
+     ++ptrInput;
+
+    return true;
+}
+
+bool BordersDetector::Scharr(Image& img, SobelTypes type)
+{
+    MatrixFilter<int> filter(3, 1);
+
+    if (type == SobelTypes::HORIZONTAL)
+    {
+        filter[0][0] =  3;  filter[0][1] =  10;  filter[0][2] =  3;
+        filter[1][0] =  0;  filter[1][1] =   0;  filter[1][2] =  0;
+        filter[2][0] = -3;  filter[2][1] = -10;  filter[2][2] = -3;
+    }
+    else if (type == SobelTypes::VERTICAL)
+    {
+        filter[0][0] =  3;  filter[0][1] =  0;  filter[0][2] =  -3;
+        filter[1][0] = 10;  filter[1][1] =  0;  filter[1][2] = -10;
+        filter[2][0] =  3;  filter[2][1] =  0;  filter[2][2] =  -3;
+    }
+    else
+        return false;
+
+    return MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
+}
+
+bool BordersDetector::Scharr(const Image& srcImg, Image& dstImg, BordersDetector::SobelTypes type)
+{
+    memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+    bool ret = Scharr(dstImg, type);
+    return ret;
+}
+
 }

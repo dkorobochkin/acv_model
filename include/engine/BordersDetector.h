@@ -39,10 +39,29 @@ class BordersDetector
 
     struct Gradient;
 
+public: // Public auxiliary types
+
+    enum class OperatorType
+    {
+        SOBEL, // Sobel operator
+        SCHARR // Scharr operator
+    };
+
+    // Types of Sobel and Scharr operators
+    enum class SobelTypes
+    {
+        VERTICAL, // Vertical
+        HORIZONTAL // Horizontal
+    };
+
 public: // Public methods
 
     // Detect borders by using the Canny algorithm
     static bool Canny(Image& img, const Image::Byte thresholdMin, const Image::Byte thresholdMax);
+
+    // Convolution of image with specified operator
+    static bool OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type);
+    static bool OperatorConvolution(const Image& srcImg, Image& dstImg, OperatorType operatorType, SobelTypes type);
 
 private: // Private methods for Canny algorithm
 
@@ -53,6 +72,24 @@ private: // Private methods for Canny algorithm
     static void AmbiguityTrace(const int row, const int col, const int height, const int width,
                                std::vector<std::vector<BordersDetector::Gradient>>& gradients,
                                std::list<Point>& pixelGroup, int& closer);
+
+
+
+    // Convolution of image with Sobel operator
+    static bool Sobel(Image& img, SobelTypes type);
+    static bool Sobel(const Image& srcImg, Image& dstImg, SobelTypes type);
+
+    // Non-convolutional horizontal Sobel operator
+    static bool NonConvSobelH(Image& img);
+    static bool NonConvSobelH(const Image& srcImg, Image& dstImg);
+
+    // Non-convolutional vertical Sobel operator
+    static bool NonConvSobelV(Image& img);
+    static bool NonConvSobelV(const Image& srcImg, Image& dstImg);
+
+    // Convolution of image with Scharr operator
+    static bool Scharr(Image& img, SobelTypes type);
+    static bool Scharr(const Image& srcImg, Image& dstImg, SobelTypes type);
 
 private: // Private types
 

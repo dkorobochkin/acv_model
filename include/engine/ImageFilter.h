@@ -45,19 +45,6 @@ public: // Публичные вспогательные типы
         GAUSSIAN // Гауссова фильтрация
     };
 
-    enum class OperatorType
-    {
-        SOBEL, // Оператор Собеля
-        SCHARR // Оператор Щарра
-    };
-
-    // Доступные типы оператора Собеля (Щарра)
-    enum class SobelTypes
-    {
-        VERTICAL, // Вертикальный
-        HORIZONTAL // Горизонтальный
-    };
-
 public: // Публичные методы
 
     // Запуск фильтрации заданным методом
@@ -68,9 +55,6 @@ public: // Публичные методы
     // Run a filtration by the specified method
     // Return true if filtration was success
     static bool Filter(const Image& srcImg, Image& dstImg, const int filterSize, FilterType type);
-
-    // Свертка изображения с заданным оператором
-    static bool OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type);
 
 private: // Закрытые методы
 
@@ -91,18 +75,6 @@ private: // Закрытые методы
     // Gaussian filtration (filter size must be odd)
     // Return true if filtration was success
     static bool Gaussian(const Image& srcImg, Image& dstImg, const int filterSize);
-
-    // Свертка изображения с оператором Собеля
-    static bool Sobel(Image& img, SobelTypes type);
-
-    // Non-convolutional horizontal Sobel operator
-    static bool NonConvSobelH(Image& img);
-
-    // Non-convolutional vertical Sobel operator
-    static bool NonConvSobelV(Image& img);
-
-    // Свертка изображения с оператором Щарра
-    static bool Scharr(Image& img, SobelTypes type);
 
 };
 

@@ -39,7 +39,6 @@
 #include <exception>
 
 #include "ImageParametersCalculator.h"
-#include "BordersDetector.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -344,47 +343,58 @@ void MainWindow::GaussianBlur()
     Filtering(acv::ImageFilter::FilterType::GAUSSIAN);
 }
 
-void MainWindow::Operator(acv::ImageFilter::OperatorType operatorType)
+void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
 {
     if (ImgWasSelected())
     {
-        acv::ImageFilter::SobelTypes type;
-        if (QMessageBox::question(this, tr("Оператор"), "Горизонтальный оператор? Иначе вертикальный.") == QMessageBox::Yes)
-            type = acv::ImageFilter::SobelTypes::HORIZONTAL;
+        acv::BordersDetector::SobelTypes type;
+        if (QMessageBox::question(this, tr("Operator"), "Need the horizontal operator? Else will be vertical.") == QMessageBox::Yes)
+            type = acv::BordersDetector::SobelTypes::HORIZONTAL;
         else
-            type = acv::ImageFilter::SobelTypes::VERTICAL;
+            type = acv::BordersDetector::SobelTypes::VERTICAL;
+
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        acv::Image& curImg = GetCurImg();
-        bool filtred = acv::ImageFilter::OperatorConvolution(curImg, operatorType, type);
+        bool filtred = acv::BordersDetector::OperatorConvolution(curImg, processedImg, operatorType, type);
 
         qint64 filterTime = timer.elapsed();
 
         if (filtred)
         {
+            mProcessedImgs.push_back(processedImg);
+
+            QString actionName = FormOperatorActionName(operatorType, type);
+
+            mCurOpenedImg = -1;
+            mCurProcessedImg = mProcessedImgs.size() - 1;
             emit CurImgWasUpdated();
 
-            QMessageBox::information(this, tr("Оператор"), tr("Время свертки: %1 мсек").arg(filterTime), QMessageBox::Ok);
+            AddProcessedImgAction(actionName);
+            emit ProcessedImgsChanged();
+
+            QMessageBox::information(this, tr("Operator"), tr("Time of convolution: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Оператор"), tr("Не удалось выполнить свертку"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Operator"), tr("Could not convolution"), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::warning(this, tr("Оператор"), tr("Изображение не выбрано"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Operator"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
 void MainWindow::Sobel()
 {
-    Operator(acv::ImageFilter::OperatorType::SOBEL);
+    Operator(acv::BordersDetector::OperatorType::SOBEL);
 }
 
 void MainWindow::Scharr()
 {
-    Operator(acv::ImageFilter::OperatorType::SCHARR);
+    Operator(acv::BordersDetector::OperatorType::SCHARR);
 }
 
 void MainWindow::Canny()
@@ -604,6 +614,28 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
         break;
     case acv::ImageFilter::FilterType::GAUSSIAN:
         ret = tr("F_G_%1: ").arg(filterSize);
+        break;
+    default:
+        return QString();
+    }
+
+    ret = FormProcessedImgActionName(ret);
+    return ret;
+}
+
+QString MainWindow::FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type)
+{
+    QString ret;
+
+    QString dirStr = (type == acv::BordersDetector::SobelTypes::VERTICAL) ? tr("V") : tr("H");
+
+    switch (operatorType)
+    {
+    case acv::BordersDetector::OperatorType::SOBEL:
+        ret = tr("O_SOB_%1: ").arg(dirStr);
+        break;
+    case acv::BordersDetector::OperatorType::SCHARR:
+        ret = tr("O_SCH_%1: ").arg(dirStr);
         break;
     default:
         return QString();

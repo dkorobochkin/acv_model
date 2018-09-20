@@ -32,6 +32,7 @@
 #include "Image.h"
 #include "ImageFilter.h"
 #include "ImageCombiner.h"
+#include "BordersDetector.h"
 
 namespace Ui {
 class MainWindow;
@@ -186,6 +187,9 @@ private: // Закрытые методы
     // Forming the name for action of filtered image
     QString FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize);
 
+    // Forming the name for action of image that get in result of convolution with operator
+    QString FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type);
+
     // Добавление действия для обработанного изображения
     void AddProcessedImgAction(const QString& actionName);
 
@@ -202,7 +206,7 @@ private: // Закрытые методы
     void Filtering(acv::ImageFilter::FilterType filterType);
 
     // Свертка с оператором заданного типа
-    void Operator(acv::ImageFilter::OperatorType operatorType);
+    void Operator(acv::BordersDetector::OperatorType operatorType);
 
     // Получить номер выбранного действия из вектора действий (если не выбрано, то возвращает -1)
     int GetNumOfActionInVec(const QAction* action, const std::vector<QAction*>& actionsVec);
