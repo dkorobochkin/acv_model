@@ -84,8 +84,8 @@ bool ImageFilter::NonConvSobelH(Image& img)
     for (int rowNum = 1; rowNum < height - 1; ++rowNum)
     {
          // 1-st element in row
-        int res = (*(ptrInput - width) << 1) + (*(ptrInput - width + 1) << 1)
-                - (*(ptrInput + width) << 1) - (*(ptrInput + width + 1) << 1);
+        int res = (*(ptrInput - width) << 1) + (*(ptrInput - width + 1) << 1) -
+                  (*(ptrInput + width) << 1) - (*(ptrInput + width + 1) << 1);
 
         Image::CheckPixelValue(res);
         *ptrOutput++ = static_cast<Image::Byte>(res);
@@ -93,16 +93,16 @@ bool ImageFilter::NonConvSobelH(Image& img)
 
         for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
         {
-            res = *(ptrInput - width - 1) + (*(ptrInput - width) << 1) + *(ptrInput - width + 1)
-                    - *(ptrInput+ width - 1) - (*(ptrInput + width) << 1) - *(ptrInput + width + 1);
+            res = *(ptrInput - width - 1) + (*(ptrInput - width) << 1) + *(ptrInput - width + 1) -
+                  *(ptrInput + width - 1) - (*(ptrInput + width) << 1) - *(ptrInput + width + 1);
 
             Image::CheckPixelValue(res);
             *ptrOutput = static_cast<Image::Byte>(res);
         }
 
         // last element in row
-        res = (*(ptrInput - width - 1) << 1) + (*(ptrInput - width) << 1)
-                - (*(ptrInput+width - 1) << 1) - (*(ptrInput + width) << 1);
+        res = (*(ptrInput - width - 1) << 1) + (*(ptrInput - width) << 1) -
+              (*(ptrInput + width - 1) << 1) - (*(ptrInput + width) << 1);
 
         Image::CheckPixelValue(res);
         *ptrOutput++ = static_cast<Image::Byte>(res);
@@ -130,11 +130,11 @@ bool ImageFilter::NonConvSobelV(Image& img)
 
     // 1st row loop
     *ptrOutput++ = 0;
-     ++ptrInput;
+    ++ptrInput;
     for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
     {
-        int res = + (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1)
-                + (*(ptrInput + width - 1)<< 1)  - (*(ptrInput + width + 1)<< 1);
+        int res = (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1) +
+                  (*(ptrInput + width - 1) << 1) - (*(ptrInput + width + 1) << 1);
 
         Image::CheckPixelValue(res);
         *ptrOutput = static_cast<Image::Byte>(res);
@@ -147,13 +147,13 @@ bool ImageFilter::NonConvSobelV(Image& img)
     {
          // 1-st element in row
         *ptrOutput++= 0;
-         ++ptrInput;
+        ++ptrInput;
 
         for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
         {
-            int res = *(ptrInput - width - 1)   - *(ptrInput - width + 1)
-                    + (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1)
-                    + *(ptrInput + width - 1)  - *(ptrInput + width + 1);
+            int res = *(ptrInput - width - 1)   - *(ptrInput - width + 1) +
+                      (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1) +
+                      *(ptrInput + width - 1)  - *(ptrInput + width + 1);
 
             Image::CheckPixelValue(res);
             *ptrOutput = static_cast<Image::Byte>(res);
@@ -166,11 +166,11 @@ bool ImageFilter::NonConvSobelV(Image& img)
 
     // last row loop
     *ptrOutput++ = 0;
-     ++ptrInput;
+    ++ptrInput;
     for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
     {
-        int res = (*(ptrInput - width - 1) << 1) - (*(ptrInput - width + 1) << 1)
-                + (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1);
+        int res = (*(ptrInput - width - 1) << 1) - (*(ptrInput - width + 1) << 1) +
+                  (*(ptrInput - 1) << 1) - (*(ptrInput + 1) << 1);
 
         Image::CheckPixelValue(res);
         *ptrOutput = static_cast<Image::Byte>(res);

@@ -147,14 +147,6 @@ Image Image::Resize(const int xMin, const int yMin, const int xMax, const int yM
     return newImg;
 }
 
-void Image::CheckPixelValue(int& value)
-{
-    if (value < MIN_PIXEL_VALUE)
-        value = MIN_PIXEL_VALUE;
-    else if (value > MAX_PIXEL_VALUE)
-        value = MAX_PIXEL_VALUE;
-}
-
 void Image::CalcAuxParameters()
 {
     mAuxHeight = 2 * mHeight - 2;
