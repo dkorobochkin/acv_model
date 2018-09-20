@@ -45,7 +45,7 @@ bool BordersDetector::Canny(Image& img, const Image::Byte thresholdMin, const Im
     filter[3][0] = 4; filter[3][1] =  9; filter[3][2] = 12; filter[3][3] =  9; filter[3][4] = 4;
     filter[4][0] = 2; filter[4][1] =  4; filter[4][2] =  5; filter[4][3] =  4; filter[4][4] = 2;
 
-    if (!MatrixFilterOperations::ConvolutionImage<int>(img, filter))
+    if (!MatrixFilterOperations::FastConvolutionImage<int>(img, filter))
         return false;
 
     // Calculation the gradients for each pixel

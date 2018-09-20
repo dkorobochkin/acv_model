@@ -1,4 +1,4 @@
-//
+﻿//
 // MIT License
 //
 // Copyright (c) 2018 Dmitriy Korobochkin, Vitaliy Garmash.
@@ -201,7 +201,7 @@ bool ImageFilter::Scharr(Image& img, ImageFilter::SobelTypes type)
     else
         return false;
 
-    return MatrixFilterOperations::ConvolutionImage<int>(img, filter);
+    return MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
 }
 
 bool ImageFilter::Median(Image& img, const int filterSize)
@@ -274,7 +274,7 @@ bool ImageFilter::Gaussian(Image& img, const int filterSize)
         }
         filter.SetDivider(divider);
 
-        return MatrixFilterOperations::ConvolutionImage<int>(img, filter);
+        return MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
     }
 
     return false;

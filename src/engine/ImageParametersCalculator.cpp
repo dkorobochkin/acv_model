@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// Файл используется для имплементации методов класса расчета параметров изображения
+// File is used to implementation of methods of class to calculate parameters of image
 
 #include <cmath>
 #include <vector>
@@ -38,12 +38,12 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
     if (!img.IsInitialized())
         return 0.0;
 
-    // В каждом элементе вектора хранится количество точек изображения
-    // со значение канала равному индексу вектора (мера Лебега)
+    // Each element of vector contains the number of image pixels
+    // with brightness value which is equal to index of vector (Lebesgue measure)
     std::vector<size_t> mz(Image::MAX_PIXEL_VALUE + 1, 0);
 
-    // Расчет яркостного объема изображения и меры Лебега
-    int V = 0; // Яркостной объем изображения
+    // Calculate of the volume of brightness and Lebesgue measure
+    int V = 0;
     for (auto imgPix : img.GetData())
     {
         Image::Byte z = imgPix;
@@ -52,9 +52,9 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
         ++mz[z];
     }
 
-    // Расчет энтропии
+    // Calculate of entropy
     const double LOG2 = log(2.0);
-    double EX = 0.0; // Энтропия
+    double EX = 0.0;
     for (size_t z = 0; z < mz.size(); ++z)
     {
         double px = static_cast<double>(z * mz[z])/ V;
@@ -68,17 +68,17 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
 
 double ImageParametersCalculator::CalcLocalEntropy(const Image& img, const int row, const int col, const int aperture)
 {
-    // Ключ - яркость, значение - количество пикселей с данной яркостью
+    // Lebesgue measure
+    // Key - brightness, value - number of pixels with brightness which is equal to key
     std::map<size_t, size_t> mz;
 
-    // Расчет яркостного объема изображения и меры Лебега
-    double V = 0.0; // Яркостной объем изображения
+    // Calculate of the volume of brightness and Lebesgue measure
+    double V = 0.0;
     for (int y = row - aperture; y < row + aperture; ++y)
     {
         for (int x = col - aperture; x < col + aperture; ++x)
         {
-            // Внутренние индексы пикселя, которые могут изменится,
-            // если пиксель выходит за границу матрицы
+            // Inner coordinates which are can going abroad of image
             int innerRow = y;
             int innerCol = x;
             img.CorrectCoordinates(innerRow, innerCol);
@@ -95,9 +95,9 @@ double ImageParametersCalculator::CalcLocalEntropy(const Image& img, const int r
         }
     }
 
-    // Расчет энтропии
+    // Calculate of entropy
     const double LOG2 = log(2.0);
-    double EX = 0.0; // Энтропия
+    double EX = 0.0;
     for (auto it = mz.begin(); it != mz.end(); ++it)
     {
         double px = it->first * it->second / V;

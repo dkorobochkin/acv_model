@@ -129,10 +129,18 @@ public: // Публичные методы
     template<typename FilterElementT>
     static bool ConvolutionImage(Image& img, const MatrixFilter<FilterElementT>& filter);
 
+    // Fast convolution of image with filter
+    template<typename FilterElementT>
+    static bool FastConvolutionImage(Image& img, const MatrixFilter<FilterElementT>& filter);
+
     // Свертка пикселя изображения с фильтром
     template<typename FilterElementT>
     static FilterElementT ConvolutionPixel(const Image& img, const int rowNum, const int colNum,
                                            const MatrixFilter<FilterElementT>& filter, const int aperture);
+
+    // Convolution of pixel with filter
+    template<typename FilterElementT>
+    inline static FilterElementT ConvolutionPixel(std::vector<Image::Byte*>& rowsStarts, const MatrixFilter<FilterElementT>& filter);
 
 };
 
@@ -165,6 +173,45 @@ bool MatrixFilterOperations::ConvolutionImage(Image& img, const MatrixFilter<Fil
 }
 
 template<typename FilterElementT>
+bool MatrixFilterOperations::FastConvolutionImage(Image& img, const MatrixFilter<FilterElementT>& filter)
+{
+    if (!filter.IsCorrectFilter())
+        return false;
+
+    int aperture = filter.GetAperture();
+    Image tmpImg = img.Resize(-aperture, -aperture, img.GetWidth() + aperture - 1, img.GetHeight() + aperture - 1);
+    Image::Byte* pTmpPix = tmpImg.GetRawPointer();
+
+    std::vector<Image::Byte*> rowsStarts(filter.GetSize());
+    for (int i = 0; i < filter.GetSize(); ++i)
+    {
+        rowsStarts[i] = pTmpPix;
+        pTmpPix += tmpImg.GetWidth();
+    }
+
+    Image::Byte* pDst = img.GetRawPointer();
+    for (int rowNum = 0; rowNum < img.GetHeight(); ++rowNum)
+    {
+        for (int colNum = 0; colNum < img.GetWidth(); ++colNum)
+        {
+            FilterElementT conv = MatrixFilterOperations::ConvolutionPixel<FilterElementT>(rowsStarts, filter);
+
+            if (conv < Image::MIN_PIXEL_VALUE)
+                conv = Image::MIN_PIXEL_VALUE;
+            else if (conv > Image::MAX_PIXEL_VALUE)
+                conv = Image::MAX_PIXEL_VALUE;
+
+            *pDst++ = static_cast<Image::Byte>(conv);
+        }
+
+        for (int i = 0; i < filter.GetSize(); ++i)
+            rowsStarts[i] += filter.GetSize() - 1;
+    }
+
+    return true;
+}
+
+template<typename FilterElementT>
 FilterElementT MatrixFilterOperations::ConvolutionPixel(const Image& img, const int rowNum, const int colNum,
                                                         const MatrixFilter<FilterElementT>& filter, const int aperture)
 {
@@ -181,6 +228,29 @@ FilterElementT MatrixFilterOperations::ConvolutionPixel(const Image& img, const 
 
             res += filter.GetElement(filterRow, filterCol) * img.GetPixel(innerRow, innerCol);
         }
+    }
+
+    FilterElementT div = filter.GetDivider();
+    if (div != 0)
+        res /= div;
+
+    return res;
+}
+
+template<typename FilterElementT>
+inline FilterElementT MatrixFilterOperations::ConvolutionPixel(std::vector<Image::Byte*>& rowsStarts, const MatrixFilter<FilterElementT>& filter)
+{
+    FilterElementT res = 0;
+
+    for (int row = 0; row < filter.GetSize(); ++row)
+    {
+        for (int col = 0; col < filter.GetSize(); ++col)
+        {
+            Image::Byte rowPix = *rowsStarts[row];
+            res += filter.GetElement(row, col) * rowPix;
+            ++rowsStarts[row];
+        }
+        rowsStarts[row] -= filter.GetSize() - 1;
     }
 
     FilterElementT div = filter.GetDivider();
