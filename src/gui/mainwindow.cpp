@@ -72,48 +72,48 @@ MainWindow::~MainWindow()
 
 void MainWindow::CreateFileActions()
 {
-    mOpenAction = new QAction(tr("Открыть изображение"), this);
+    mOpenAction = new QAction(tr("Open image"), this);
     mOpenAction->setShortcut(QKeySequence::New);
-    mOpenAction->setStatusTip(tr("Открыть изображение для обработки"));
+    mOpenAction->setStatusTip(tr("Open image to processing"));
     connect(mOpenAction, SIGNAL(triggered()), this, SLOT(OpenImgFile()));
 
-    mCloseAction = new QAction(tr("Закрыть изображение"), this);
+    mCloseAction = new QAction(tr("Close image"), this);
     mCloseAction->setShortcut(QKeySequence::Close);
-    mCloseAction->setStatusTip(tr("Закрыть текущее изображение"));
+    mCloseAction->setStatusTip(tr("Close current image"));
     connect(mCloseAction, SIGNAL(triggered()), this, SLOT(CloseImgFile()));
 
-    mSaveAction = new QAction(tr("Сохранить изображение"), this);
+    mSaveAction = new QAction(tr("Save image"), this);
     mSaveAction->setShortcut(QKeySequence::Save);
-    mSaveAction->setStatusTip(tr("Сохранить текущее изображение"));
+    mSaveAction->setStatusTip(tr("Save current image"));
     connect(mSaveAction, SIGNAL(triggered()), this, SLOT(SaveImgFile()));
 
-    mExitAction = new QAction(tr("Выход"), this);
+    mExitAction = new QAction(tr("Exit"), this);
     mExitAction->setShortcut(tr("Ctrl+Q"));
-    mExitAction->setStatusTip(tr("Выход из программы. Все несохраненные данные будут потеряны"));
+    mExitAction->setStatusTip(tr("Exit from model. Not saved data will be lose"));
     connect(mExitAction, SIGNAL(triggered()), this, SLOT(Exit()));
 }
 
 void MainWindow::CreateFilteringActions()
 {
-    mMedianBlurAction = new QAction(tr("Медианный фильтр"), this);
+    mMedianBlurAction = new QAction(tr("Median filter"), this);
     mMedianBlurAction->setShortcut(tr("Ctrl+B"));
-    mMedianBlurAction->setStatusTip(tr("Медианная фильтрация выбранного изображения"));
+    mMedianBlurAction->setStatusTip(tr("Median filtration of current image"));
     connect(mMedianBlurAction, SIGNAL(triggered()), this, SLOT(MedianBlur()));
 
-    mGaussianBlurAction = new QAction(tr("Гауссов фильтр"), this);
+    mGaussianBlurAction = new QAction(tr("Gaussian filter"), this);
     mGaussianBlurAction->setShortcut(tr("Ctrl+G"));
-    mGaussianBlurAction->setStatusTip(tr("Гауссова фильтрация выбранного изображения"));
+    mGaussianBlurAction->setStatusTip(tr("Gaussian filtration of current image"));
     connect(mGaussianBlurAction, SIGNAL(triggered()), this, SLOT(GaussianBlur()));
 }
 
 void MainWindow::CreateOperatorActions()
 {
-    mSobelAction = new QAction(tr("Оператор Собеля"), this);
-    mSobelAction->setStatusTip(tr("Выделение границ с помощью оператора Собеля"));
+    mSobelAction = new QAction(tr("Sobel operator"), this);
+    mSobelAction->setStatusTip(tr("Convolution of current image with Sobel operator"));
     connect(mSobelAction, SIGNAL(triggered()), this, SLOT(Sobel()));
 
-    mScharrAction = new QAction(tr("Оператор Щарра"), this);
-    mScharrAction->setStatusTip(tr("Выделение границ с помощью оператора Щарра"));
+    mScharrAction = new QAction(tr("Scharr operator"), this);
+    mScharrAction->setStatusTip(tr("Convolution of current image with Scharr operator"));
     connect(mScharrAction, SIGNAL(triggered()), this, SLOT(Scharr()));
 }
 
@@ -126,31 +126,31 @@ void MainWindow::CreateBodersDetectorsActions()
 
 void MainWindow::CreateParamsActions()
 {
-    mImgEntropyAction = new QAction(tr("Энтропия"), this);
+    mImgEntropyAction = new QAction(tr("Entropy"), this);
     mImgEntropyAction->setShortcut(tr("Ctrl+E"));
-    mImgEntropyAction->setStatusTip(tr("Расчет энтропии в качестве меры информативности изображения"));
+    mImgEntropyAction->setStatusTip(tr("Calculate the entropy of image (measure of informative)"));
     connect(mImgEntropyAction, SIGNAL(triggered()), this, SLOT(CalcEntropy()));
 
-    mImgAverBrightnessAction = new QAction(tr("Средняя яркость"), this);
-    mImgAverBrightnessAction->setStatusTip(tr("Расчет средней яркости изображения"));
+    mImgAverBrightnessAction = new QAction(tr("Average of brightness"), this);
+    mImgAverBrightnessAction->setStatusTip(tr("Calculate the average of brightness"));
     connect(mImgAverBrightnessAction, SIGNAL(triggered()), this, SLOT(CalcAverageBrightness()));
 }
 
 void MainWindow::CreateCombiningActions()
 {
-    mInfPriorCombAction = new QAction(tr("С приоритетом наиболее информативного"), this);
+    mInfPriorCombAction = new QAction(tr("Priority of the most informative image"), this);
     mInfPriorCombAction->setShortcut(tr("Ctrl+I"));
-    mInfPriorCombAction->setStatusTip(tr("Совместить все открытые изображения методом с приоритетом наиболее информативного"));
+    mInfPriorCombAction->setStatusTip(tr("Combine the all opened images by the method of priority of the most informative image"));
     connect(mInfPriorCombAction, SIGNAL(triggered()), this, SLOT(InformPriorityCombining()));
 
-    mMorphCombAction = new QAction(tr("Морфологическое комплексирование"), this);
+    mMorphCombAction = new QAction(tr("Morphological"), this);
     mMorphCombAction->setShortcut(tr("Ctrl+M"));
-    mMorphCombAction->setStatusTip(tr("Совместить все открытые изображения морфологическим методом"));
+    mMorphCombAction->setStatusTip(tr("Combine the all opened images by the morphological method"));
     connect(mMorphCombAction, SIGNAL(triggered()), this, SLOT(MorphologicalCombining()));
 
-    mLocEntrCombAction = new QAction(tr("Локально-энтропийное комплексирование"), this);
+    mLocEntrCombAction = new QAction(tr("Local-entropy"), this);
     mLocEntrCombAction->setShortcut(tr("Ctrl+L"));
-    mLocEntrCombAction->setStatusTip(tr("Совместить все открытые изображения локально-энтропийным методом"));
+    mLocEntrCombAction->setStatusTip(tr("Combine the all opened images by the local-entropy method"));
     connect(mLocEntrCombAction, SIGNAL(triggered()), this, SLOT(LocalEntropyCombining()));
 }
 
@@ -166,7 +166,7 @@ void MainWindow::CreateActions()
 
 void MainWindow::CreateFileMenu()
 {
-    mFileMenu = menuBar()->addMenu(tr("Файл"));
+    mFileMenu = menuBar()->addMenu(tr("File"));
 
     mFileMenu->addAction(mOpenAction);
     mFileMenu->addAction(mCloseAction);
@@ -177,7 +177,7 @@ void MainWindow::CreateFileMenu()
 
 void MainWindow::CreateFilteringMenu()
 {
-    mFilterMenu = mProcessingMenu->addMenu(tr("Фильтрация"));
+    mFilterMenu = mProcessingMenu->addMenu(tr("Filtration"));
 
     mFilterMenu->addAction(mMedianBlurAction);
     mFilterMenu->addAction(mGaussianBlurAction);
@@ -185,7 +185,7 @@ void MainWindow::CreateFilteringMenu()
 
 void MainWindow::CreateOperatorsMenu()
 {
-    mOperatorsMenu = mProcessingMenu->addMenu(tr("Операторы"));
+    mOperatorsMenu = mProcessingMenu->addMenu(tr("Operators"));
 
     mOperatorsMenu->addAction(mSobelAction);
     mOperatorsMenu->addAction(mScharrAction);
@@ -200,7 +200,7 @@ void MainWindow::CreateBordersDetectorsMenu()
 
 void MainWindow::CreateParamsMenu()
 {
-    mImgParams = mProcessingMenu->addMenu(tr("Параметры"));
+    mImgParams = mProcessingMenu->addMenu(tr("Parameters"));
 
     mImgParams->addAction(mImgEntropyAction);
     mImgParams->addAction(mImgAverBrightnessAction);
@@ -208,7 +208,7 @@ void MainWindow::CreateParamsMenu()
 
 void MainWindow::CreateCombiningMenu()
 {
-    mCombineMenu = menuBar()->addMenu(tr("Совмещение"));
+    mCombineMenu = menuBar()->addMenu(tr("Combination"));
 
     mCombineMenu->addAction(mInfPriorCombAction);
     mCombineMenu->addAction(mMorphCombAction);
@@ -218,8 +218,8 @@ void MainWindow::CreateCombiningMenu()
 void MainWindow::CreateMainMenus()
 {
     CreateFileMenu();
-    mImgsMenu = menuBar()->addMenu(tr("Изображения"));
-    mProcessingMenu = menuBar()->addMenu(tr("Обработка"));
+    mImgsMenu = menuBar()->addMenu(tr("Images"));
+    mProcessingMenu = menuBar()->addMenu(tr("Processing"));
     CreateParamsMenu();
     CreateFilteringMenu();
     CreateOperatorsMenu();
