@@ -86,6 +86,9 @@ private slots: // Закрытые слоты
     // Выполнение Гауссовой фильтрации
     void GaussianBlur();
 
+    // IIR-imitated gaussian blur
+    void IIRGaussianBlur();
+
     // Свертка изображения с оператором Собеля
     void Sobel();
 
@@ -231,6 +234,7 @@ private: // Закрытые данные
     QAction* mExitAction;
     QAction* mMedianBlurAction;
     QAction* mGaussianBlurAction;
+    QAction* mIIRGaussianBlurAction;
     QAction* mSobelAction;
     QAction* mScharrAction;
     QAction* mCannyAction;

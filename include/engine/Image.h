@@ -91,8 +91,6 @@ public: // Public methods
     Matrix& GetData() { return mPixels; }
     const Matrix& GetData() const { return mPixels; }
 
-    // Get the raw pointer to i-th element of the pixels vector
-    Byte* GetRawPointer(int i = 0){ return &mPixels[i]; }
 
     // Check the initialization of image
     // Image is not initialized if was created by default constructor

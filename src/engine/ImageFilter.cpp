@@ -41,6 +41,8 @@ bool ImageFilter::Filter(Image& img, const int filterSize, ImageFilter::FilterTy
         return Median(img, filterSize);
     case FilterType::GAUSSIAN:
         return Gaussian(img, filterSize);
+    case FilterType::IIR_GAUSSIAN:
+        return GaussianIIR( img, static_cast<float>(filterSize/6.) );
     default:
         return false;
     }
@@ -94,7 +96,7 @@ bool ImageFilter::NonConvSobelH(Image& img)
         for (int colNum = 1; colNum < width - 1; ++colNum, ++ptrInput, ++ptrOutput)
         {
             res = *(ptrInput - width - 1) + (*(ptrInput - width) << 1) + *(ptrInput - width + 1)
-                    - *(ptrInput+ width - 1) - (*(ptrInput + width) << 1) - *(ptrInput + width + 1);
+                    - *(ptrInput + width - 1) - (*(ptrInput + width) << 1) - *(ptrInput + width + 1);
 
             Image::CheckPixelValue(res);
             *ptrOutput = static_cast<Image::Byte>(res);
@@ -102,7 +104,7 @@ bool ImageFilter::NonConvSobelH(Image& img)
 
         // last element in row
         res = (*(ptrInput - width - 1) << 1) + (*(ptrInput - width) << 1)
-                - (*(ptrInput+width - 1) << 1) - (*(ptrInput + width) << 1);
+                - (*(ptrInput + width - 1) << 1) - (*(ptrInput + width) << 1);
 
         Image::CheckPixelValue(res);
         *ptrOutput++ = static_cast<Image::Byte>(res);
@@ -279,5 +281,64 @@ bool ImageFilter::Gaussian(Image& img, const int filterSize)
 
     return false;
 }
+
+// Gaussian imitation by IIR-filter
+bool ImageFilter::GaussianIIR(Image& img, float sigma)
+{
+    if (sigma >= 1.)
+    {
+        IIRfilter<float> Filter(sigma);
+        Image::Byte* ptr = img.GetRawPointer(0);
+
+        auto width = img.GetWidth();
+        auto height = img.GetHeight();
+
+        for (int rowNum = 0; rowNum < height; ++rowNum, ptr += width+1)    // Горизонтальные проходы БИХ-фильтра
+        {
+            Filter.Reset();
+            for (int colNum = 0; colNum < width; ++colNum, ++ptr)
+            {
+                int ycurr = static_cast<int>( Filter.Solve(*ptr) );
+                Image::CheckPixelValue(ycurr);
+                *ptr = static_cast<Image::Byte>(ycurr);
+            }
+            --ptr;
+
+            for (int colNum = width - 1; colNum >= 0; --colNum, --ptr)
+            {
+                int ycurr = static_cast<int>( Filter.Solve(*ptr) );
+                Image::CheckPixelValue(ycurr);
+                *ptr = static_cast<Image::Byte>(ycurr);
+            }
+
+        }
+
+        ptr = img.GetRawPointer(0);
+        for (int colNum = 0; colNum < width; ++colNum , ptr += width+1)    // Вертикальные проходы БИХ-фильтра
+        {
+            Filter.Reset();
+            for (int rowNum = 0; rowNum < height; ++rowNum, ptr += width)
+            {
+                int ycurr = static_cast<int>( Filter.Solve(*ptr) );
+                Image::CheckPixelValue(ycurr);
+                *ptr = static_cast<Image::Byte>(ycurr);
+             }
+            ptr -= width;
+
+            for (int rowNum = height - 1; rowNum >= 0; --rowNum, ptr -= width)
+            {
+                int ycurr = static_cast<int>( Filter.Solve(*ptr) );
+                Image::CheckPixelValue(ycurr);
+                *ptr = static_cast<Image::Byte>(ycurr);
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+
+}
+
 
 }

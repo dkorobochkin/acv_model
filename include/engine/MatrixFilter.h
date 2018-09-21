@@ -195,12 +195,7 @@ bool MatrixFilterOperations::FastConvolutionImage(Image& img, const MatrixFilter
         for (int colNum = 0; colNum < img.GetWidth(); ++colNum)
         {
             FilterElementT conv = MatrixFilterOperations::ConvolutionPixel<FilterElementT>(rowsStarts, filter);
-
-            if (conv < Image::MIN_PIXEL_VALUE)
-                conv = Image::MIN_PIXEL_VALUE;
-            else if (conv > Image::MAX_PIXEL_VALUE)
-                conv = Image::MAX_PIXEL_VALUE;
-
+            Image::CheckPixelValue(conv);
             *pDst++ = static_cast<Image::Byte>(conv);
         }
 

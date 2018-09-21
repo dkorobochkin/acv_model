@@ -42,7 +42,8 @@ public: // Публичные вспогательные типы
     enum class FilterType
     {
         MEDIAN, // Медианная фильтрация
-        GAUSSIAN // Гауссова фильтрация
+        GAUSSIAN, // Гауссова фильтрация
+        IIR_GAUSSIAN // IIR-imitated gaussian filter
     };
 
     enum class OperatorType
@@ -56,6 +57,17 @@ public: // Публичные вспогательные типы
     {
         VERTICAL, // Вертикальный
         HORIZONTAL // Горизонтальный
+    };
+
+    template <typename T>
+    class IIRfilter{
+        public:
+            IIRfilter(T sigma);   // Расчет коэффициентов Бих-фильтра для имитации гауссиана с заданной сигмой
+            T Solve(T input);  // Вычисление выходного сигнала
+            void Reset(){ y[0] = y[1] = y[2] = 0.; }
+            void Reset(T s0, T s1, T s2){ y[0] = s0, y[1] = s1, y[2] = s2; }
+        private:
+            T b0, a[3], y[3];
     };
 
 public: // Публичные методы
@@ -80,6 +92,9 @@ private: // Закрытые методы
     // Возвращаемое значение говорит об успешности фильтрации
     static bool Gaussian(Image& img, const int filterSize);
 
+    // Gaussian imitation by IIR-filter
+    static bool GaussianIIR(Image& img, float sigma);
+
     // Свертка изображения с оператором Собеля
     static bool Sobel(Image& img, SobelTypes type);
 
@@ -93,6 +108,51 @@ private: // Закрытые методы
     static bool Scharr(Image& img, SobelTypes type);
 
 };
+
+
+// Calculation of the IIR-filter's ratios to imit gaussian with specified sigma
+template <typename T>
+ImageFilter::IIRfilter<T>::IIRfilter(T sigma)
+{
+     if (sigma){
+        T sigma_inv_4;
+
+        sigma_inv_4 = sigma * sigma;
+        sigma_inv_4 = 1.0 / (sigma_inv_4 * sigma_inv_4);
+
+        T coef_A = sigma_inv_4 * (sigma * (sigma* (sigma * 1.1442707 + 0.0130625) - 0.7500910) + 0.2546730);
+        T coef_W = sigma_inv_4 * (sigma * (sigma* (sigma * 1.3642870 + 0.0088755) - 0.3255340) + 0.3016210);
+        T coef_B = sigma_inv_4 * (sigma * (sigma* (sigma * 1.2397166 - 0.0001644) - 0.6363580) - 0.0536068);
+
+        T z0_abs   = exp(coef_A);
+
+        T z0_real  = z0_abs * cos(coef_W);
+        //T z0_im    = z0_abs*sin(coef_W);
+        T z2       = exp(coef_B);
+
+        T z0_abs_2 = z0_abs * z0_abs;
+
+        a[2] = 1.0 / (z2 * z0_abs_2);
+        a[0] = (z0_abs_2 + 2 * z0_real * z2) * a[2];
+        a[1] = - (2 * z0_real + z2) * a[2];
+
+        b0 = 1.0 - a[0] - a[1] - a[2];
+    }
+
+}
+
+// Calculation of the IIR-filter's output signal
+template <typename T>
+T ImageFilter::IIRfilter<T>::Solve(T input)
+{
+    T output= input * b0 + a[0] * y[0] + a[1] * y[1] + a[2] * y[2];
+
+    y[2]= y[1];
+    y[1]= y[0];
+    y[0]= output;
+
+    return output;
+}
 
 }
 

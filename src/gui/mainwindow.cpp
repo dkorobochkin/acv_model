@@ -105,6 +105,11 @@ void MainWindow::CreateFilteringActions()
     mGaussianBlurAction->setShortcut(tr("Ctrl+G"));
     mGaussianBlurAction->setStatusTip(tr("Гауссова фильтрация выбранного изображения"));
     connect(mGaussianBlurAction, SIGNAL(triggered()), this, SLOT(GaussianBlur()));
+
+    mIIRGaussianBlurAction = new QAction(tr("Гауссов фильтр (БИХ)"), this);
+    mIIRGaussianBlurAction->setShortcut(tr("Ctrl+I"));
+    mIIRGaussianBlurAction->setStatusTip(tr("Гауссова фильтрация выбранного изображения"));
+    connect(mIIRGaussianBlurAction, SIGNAL(triggered()), this, SLOT(IIRGaussianBlur()));
 }
 
 void MainWindow::CreateOperatorActions()
@@ -182,6 +187,7 @@ void MainWindow::CreateFilteringMenu()
 
     mFilterMenu->addAction(mMedianBlurAction);
     mFilterMenu->addAction(mGaussianBlurAction);
+    mFilterMenu->addAction(mIIRGaussianBlurAction);
 }
 
 void MainWindow::CreateOperatorsMenu()
@@ -342,6 +348,11 @@ void MainWindow::MedianBlur()
 void MainWindow::GaussianBlur()
 {
     Filtering(acv::ImageFilter::FilterType::GAUSSIAN);
+}
+
+void MainWindow::IIRGaussianBlur()
+{
+    Filtering(acv::ImageFilter::FilterType::IIR_GAUSSIAN);
 }
 
 void MainWindow::Operator(acv::ImageFilter::OperatorType operatorType)
