@@ -29,12 +29,12 @@
 
 class QImage;
 
-// Класс используется для конвертации QImage в AImage и обратно
-// Имеет только статические методы
+// Class is used to transform from QImage to AImage and back
+// Contains only static methods
 class ImageTransormer
 {
 
-public: // Публичные методы
+public: // Public methods
 
     static acv::Image QImage2AImage(const QImage& from);
     static QImage AImage2QImage(const acv::Image& from);
