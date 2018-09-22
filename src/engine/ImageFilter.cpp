@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// В данном файле содержится реализация методов класса, который занимается фильтрацией изображений
+// The file contains implementation the methods of filter class
 
 #include <vector>
 #include <algorithm>
@@ -62,9 +62,9 @@ bool ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSiz
 
 bool ImageFilter::Median(Image& img, const int filterSize)
 {
-    if (filterSize % 2 != 0) // Размер фильтра должен быть нечетным
+    if (filterSize % 2 != 0) // The filter size should be odd
     {
-        // Используем временной изображение, т.к. при фильтрации изменются значения пикселей
+        // We use temporary image because of the value of pixels are changed in process of filtration
         Image tmpImg = Image(img);
 
         Median(img, tmpImg, filterSize);
@@ -78,26 +78,23 @@ bool ImageFilter::Median(Image& img, const int filterSize)
 
 bool ImageFilter::Median(const Image& srcImg, Image& dstImg, const int filterSize)
 {
-    if (filterSize % 2 != 0) // Размер фильтра должен быть нечетным
+    if (filterSize % 2 != 0) // The filter size should be odd
     {
-        const int APERTURE = filterSize / 2; // Размер апертуры фильтра
-        const int MEDIAN = filterSize * filterSize / 2; // Индекс медианы (индекс элемента, который будет новым значением)
+        const int APERTURE = filterSize / 2; // Aparture size
+        const int MEDIAN = filterSize * filterSize / 2; // Median index (the index of element that will be a new value)
 
-        // Для каждого пикселя изображения задаем окно размером filterSize*filterSize
-        // и собираем все пиксели, входящие в окно в вектор
+       //  We collect all pixels from the window of size filterSize*filterSize to vector for each pixel
         std::vector<Image::Byte> pixelsWindow(filterSize * filterSize);
 
         for (int row = 0; row < dstImg.GetHeight(); ++row)
         {
             for (int col = 0; col < dstImg.GetWidth(); ++col)
             {
-                // Проходим по окну и сохраняем значения канала пикселей, входящих в окно
                 size_t vecIdx = 0;
                 for (int relRow = row - APERTURE; relRow <= row + APERTURE; ++relRow)
                 {
                     for (int relCol = col - APERTURE; relCol <= col + APERTURE; ++relCol)
                     {
-                        // Проверяем выход пикселей за границы изображения
                         int pixRow = relRow;
                         int pixCol = relCol;
                         srcImg.CorrectCoordinates(pixRow, pixCol);
@@ -106,7 +103,7 @@ bool ImageFilter::Median(const Image& srcImg, Image& dstImg, const int filterSiz
                     }
                 }
 
-                // Упорядочение массива полученных пикселей и установка нового значения канала
+                // Sort the vector and setting of new pixel value
                 std::nth_element(pixelsWindow.begin(), pixelsWindow.begin() + MEDIAN, pixelsWindow.end());
                 dstImg(row, col) = pixelsWindow[MEDIAN];
             }
@@ -120,9 +117,9 @@ bool ImageFilter::Median(const Image& srcImg, Image& dstImg, const int filterSiz
 
 bool ImageFilter::Gaussian(Image& img, const int filterSize)
 {
-    if (filterSize % 2 != 0) // Размер фильтра должен быть нечетным
+    if (filterSize % 2 != 0) // The filter size should be odd
     {
-        // Создание фильтра Гаусса
+        // Creation of the Gaussian filter
         MatrixFilter<int> filter(filterSize);
 
         const float SIGMA = (filterSize / 2.0 - 1.0) * 0.3 + 0.8, SIGMA2 = SIGMA * SIGMA;
