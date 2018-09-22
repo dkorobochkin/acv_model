@@ -73,7 +73,7 @@ private: // Private methods for Canny algorithm
                                std::vector<std::vector<BordersDetector::Gradient>>& gradients,
                                std::list<Point>& pixelGroup, int& closer);
 
-
+private: // Private methods
 
     // Convolution of image with Sobel operator
     static bool Sobel(Image& img, SobelTypes type);
