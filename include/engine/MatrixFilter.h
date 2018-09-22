@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// Заголовочный файл используется для описания классов, работающих с матричными фильтрами и операциями над ними
+// This header file is used to define a classes that are work with matrix filter and do operations with him
 
 #ifndef MATRIX_FILTER_H
 #define MATRIX_FILTER_H
@@ -33,70 +33,70 @@
 
 namespace acv {
 
-// Шаблонный класс для представления матричного фильтра с произвольным типом элемента
+// Generic class that used to representations of matrix filter with arbitrary type of elements
 template<typename T>
 class MatrixFilter
 {
 
-public: // Публичные конструкторы
+public: // Public constructors
 
-    // Конструктор принимает размер фильтра и делитель
+    // Constructor from filter size and divider
     MatrixFilter(const int filterSize, const T divider)
         : mFilter(filterSize, std::vector<T>(filterSize)),
           mDivider(divider)
     { }
 
-    // Конструктор принимает только размер фильтра
+    // Constructor from filter size only
     MatrixFilter(const int filterSize)
         :
         MatrixFilter(filterSize, 0)
     { }
 
-public: // Публичные методы
+public: // Public methods
 
-    // Установка значения элемента фильтра
+    // Set the value of the filter element
     void SetElement(const int rowNum, const int colNum, const T value)
     {
         mFilter[rowNum][colNum] = value;
     }
 
-    // Получение значения элемента фильтра
+    // Get the value of the filter element
     T GetElement(const int rowNum, const int colNum) const
     {
         return mFilter[rowNum][colNum];
     }
 
-    // Возвращает размер фильтра
+    // Get the filter size
     int GetSize() const
     {
         return mFilter.size();
     }
 
-    // Проверка корректности фильтра (фильтр должен иметь нечетный размер)
+    // Check correct of filter (filter size should be odd)
     bool IsCorrectFilter() const
     {
         return (GetSize() % 2 != 0);
     }
 
-    // Возвращает апертуру фильтра
+    // Get the filter aperture
     int GetAperture() const
     {
         return (GetSize() / 2);
     }
 
-    // Возвращает делитель фильтра
+    // Get the filter divider
     T GetDivider() const
     {
         return mDivider;
     }
 
-    // Устанавливает делитель фильтра
+    // Set the filter divider
     void SetDivider(const T divider)
     {
         mDivider = divider;
     }
 
-    // Получение ссылки на строку фильтра
+    // Get the reference to the filter row
     std::vector<T>& operator[](const int rowNum)
     {
         return mFilter[rowNum];
@@ -107,25 +107,25 @@ public: // Публичные методы
     }
 
 
-private: // Закрытые данные
+private: // Private members
 
-    // Фильтр - квадратная матрица
+    // Filter - square matrix
     std::vector<std::vector<T>> mFilter;
 
-    // Делитель фильтра
+    // Filter divider
     T mDivider;
 
 };
 
 
-// Класс для выполнения операций c матричным фильтром
-// Содержит только статические методы
+// Class is used to do operations with matrix filter
+// Contains only static methods
 class MatrixFilterOperations
 {
 
-public: // Публичные методы
+public: // Public methods
 
-    // Свертка изображения с фильтром
+    // Convolution of image with filter
     template<typename FilterElementT>
     static bool ConvolutionImage(Image& img, const MatrixFilter<FilterElementT>& filter);
 
@@ -133,12 +133,14 @@ public: // Публичные методы
     template<typename FilterElementT>
     static bool FastConvolutionImage(Image& img, const MatrixFilter<FilterElementT>& filter);
 
-    // Свертка пикселя изображения с фильтром
+    // Convolution of pixel with filter
     template<typename FilterElementT>
     static FilterElementT ConvolutionPixel(const Image& img, const int rowNum, const int colNum,
                                            const MatrixFilter<FilterElementT>& filter, const int aperture);
 
-    // Convolution of pixel with filter
+private: // Private methods
+
+    // Convolution of pixel with filter (used in fast convolution)
     template<typename FilterElementT>
     inline static FilterElementT ConvolutionPixel(std::vector<Image::Byte*>& rowsStarts, const MatrixFilter<FilterElementT>& filter);
 
@@ -220,8 +222,6 @@ FilterElementT MatrixFilterOperations::ConvolutionPixel(const Image& img, const 
     {
         for (int pixCol = colNum - aperture, filterCol = 0; pixCol <=  colNum + aperture; ++pixCol, ++filterCol)
         {
-            // Внутренние индексы пикселя, которые могут изменится,
-            // если пиксель выходит за границу матрицы
             int innerRow = pixRow;
             int innerCol = pixCol;
             img.CorrectCoordinates(innerRow, innerCol);

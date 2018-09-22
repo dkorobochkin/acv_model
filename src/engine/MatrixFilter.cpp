@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// Файл используется для имплементации методов классов, работающих с матричными фильтрами и операциями над ними
+// This file is used to implementation the methods of classes that are work with matrix filter and do operations with him
 
 #include "MatrixFilter.h"
 
