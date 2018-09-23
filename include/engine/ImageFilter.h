@@ -41,22 +41,9 @@ public: // Public auxiliary types
     // Used types of filtration
     enum class FilterType
     {
-        MEDIAN, // Медианная фильтрация
-        GAUSSIAN, // Гауссова фильтрация
-        IIR_GAUSSIAN // IIR-imitated gaussian filter
-    };
-
-    enum class OperatorType
-    {
-        SOBEL, // Оператор Собеля
-        SCHARR // Оператор Щарра
-    };
-
-    // Доступные типы оператора Собеля (Щарра)
-    enum class SobelTypes
-    {
-        VERTICAL, // Вертикальный
-        HORIZONTAL // Горизонтальный
+        MEDIAN, // Median filtration
+        GAUSSIAN, // Gaissian filtration
+        IIR_GAUSSIAN // IIR-imitated gaussian filtration
     };
 
     template <typename T>
@@ -99,18 +86,6 @@ private: // Private methods
 
     // Gaussian imitation by IIR-filter
     static bool GaussianIIR(Image& img, float sigma);
-
-    // Свертка изображения с оператором Собеля
-    static bool Sobel(Image& img, SobelTypes type);
-
-    // Non-convolutional horizontal Sobel operator
-    static bool NonConvSobelH(Image& img);
-
-    // Non-convolutional vertical Sobel operator
-    static bool NonConvSobelV(Image& img);
-
-    // Свертка изображения с оператором Щарра
-    static bool Scharr(Image& img, SobelTypes type);
 
     // Gaussian filtration (filter size must be odd)
     // Return true if filtration was success
