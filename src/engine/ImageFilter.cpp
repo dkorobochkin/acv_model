@@ -42,7 +42,7 @@ bool ImageFilter::Filter(Image& img, const int filterSize, ImageFilter::FilterTy
     case FilterType::GAUSSIAN:
         return Gaussian(img, filterSize);
     case FilterType::IIR_GAUSSIAN:
-        return GaussianIIR( img, static_cast<float>(filterSize/6.) );
+        return GaussianIIR( img, static_cast<float>(filterSize/6.0) );
     default:
         return false;
     }
@@ -56,6 +56,8 @@ bool ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSiz
         return Median(srcImg, dstImg, filterSize);
     case FilterType::GAUSSIAN:
         return Gaussian(srcImg, dstImg, filterSize);
+    case FilterType::IIR_GAUSSIAN:
+        return GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize/6.0));
     default:
         return false;
     }
@@ -201,6 +203,19 @@ bool ImageFilter::GaussianIIR(Image& img, float sigma)
 
     return false;
 
+}
+
+bool ImageFilter::GaussianIIR(const Image& srcImg, Image& dstImg, float sigma)
+{
+    bool ret = sigma >= 1.;
+
+    if (ret)
+    {
+        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+        ret = ret && GaussianIIR(dstImg, sigma);
+    }
+
+    return ret;
 }
 
 bool ImageFilter::Gaussian(const Image& srcImg, Image& dstImg, const int filterSize)

@@ -125,6 +125,12 @@ bool BordersDetector::Canny(Image& img, const Image::Byte thresholdMin, const Im
     return true;
 }
 
+bool BordersDetector::Canny(const Image& srcImg, Image& dstImg, const Image::Byte thresholdMin, const Image::Byte thresholdMax)
+{
+    dstImg = srcImg;
+    return Canny(dstImg, thresholdMin, thresholdMax);
+}
+
 bool BordersDetector::MaximumSuppression(std::vector<std::vector<BordersDetector::Gradient>>& gradients)
 {
     int leftCol, leftRow, rightCol, rightRow;

@@ -106,7 +106,6 @@ void MainWindow::CreateFilteringActions()
     connect(mGaussianBlurAction, SIGNAL(triggered()), this, SLOT(GaussianBlur()));
 
     mIIRGaussianBlurAction = new QAction(tr("IIR-gaussian filter"), this);
-    mIIRGaussianBlurAction->setShortcut(tr("Ctrl+I"));
     mIIRGaussianBlurAction->setStatusTip(tr("IIR-imitated gaussian blur"));
     connect(mIIRGaussianBlurAction, SIGNAL(triggered()), this, SLOT(IIRGaussianBlur()));
 }
@@ -414,17 +413,28 @@ void MainWindow::Canny()
     {
         const int CANNY_THRESHOLD_1 = 20, CANNY_THRESHOLD_2 = 90;
 
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+
         QElapsedTimer timer;
         timer.start();
 
-        acv::Image& curImg = GetCurImg();
-        bool detected = acv::BordersDetector::Canny(curImg, CANNY_THRESHOLD_1, CANNY_THRESHOLD_2);
+        bool detected = acv::BordersDetector::Canny(curImg, processedImg, CANNY_THRESHOLD_1, CANNY_THRESHOLD_2);
 
         qint64 filterTime = timer.elapsed();
 
         if (detected)
         {
+            mProcessedImgs.push_back(processedImg);
+
+            QString actionName = FormCannyActionName();
+
+            mCurOpenedImg = -1;
+            mCurProcessedImg = mProcessedImgs.size() - 1;
             emit CurImgWasUpdated();
+
+            AddProcessedImgAction(actionName);
+            emit ProcessedImgsChanged();
 
             QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
         }
@@ -451,17 +461,13 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
         QElapsedTimer timer;
         timer.start();
 
-        bool filtred = (filterType== acv::ImageFilter::FilterType::IIR_GAUSSIAN)
-                ? acv::ImageFilter::Filter(const_cast<acv::Image&>(curImg), filterSize, filterType)
-                : acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
+        bool filtred = acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
 
         qint64 filterTime = timer.elapsed();
 
         if (filtred)
         {
-            (filterType== acv::ImageFilter::FilterType::IIR_GAUSSIAN)
-                    ? mProcessedImgs.push_back(curImg)
-                    : mProcessedImgs.push_back(processedImg);
+            mProcessedImgs.push_back(processedImg);
 
             QString actionName = FormFilterActionName(filterType, filterSize);
 
@@ -630,6 +636,9 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
     case acv::ImageFilter::FilterType::GAUSSIAN:
         ret = tr("F_G_%1: ").arg(filterSize);
         break;
+    case acv::ImageFilter::FilterType::IIR_GAUSSIAN:
+        ret = tr("F_G_IIR_%1: ").arg(filterSize);
+        break;
     default:
         return QString();
     }
@@ -656,6 +665,13 @@ QString MainWindow::FormOperatorActionName(acv::BordersDetector::OperatorType op
         return QString();
     }
 
+    ret = FormProcessedImgActionName(ret);
+    return ret;
+}
+
+QString MainWindow::FormCannyActionName()
+{
+    QString ret = tr("BD_C: ");
     ret = FormProcessedImgActionName(ret);
     return ret;
 }

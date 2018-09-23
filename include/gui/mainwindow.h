@@ -193,6 +193,9 @@ private: // Private methods
     // Forming the name for action of image that get in result of convolution with operator
     QString FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type);
 
+    // Forming the name for action of detected borders by Canny algorithm
+    QString FormCannyActionName();
+
     // Adding the action for processed image
     void AddProcessedImgAction(const QString& actionName);
 

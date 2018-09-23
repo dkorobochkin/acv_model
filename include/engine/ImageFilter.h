@@ -84,12 +84,13 @@ private: // Private methods
     // Return true if filtration was success
     static bool Gaussian(Image& img, const int filterSize);
 
-    // Gaussian imitation by IIR-filter
-    static bool GaussianIIR(Image& img, float sigma);
-
     // Gaussian filtration (filter size must be odd)
     // Return true if filtration was success
     static bool Gaussian(const Image& srcImg, Image& dstImg, const int filterSize);
+
+    // Gaussian imitation by IIR-filter
+    static bool GaussianIIR(Image& img, float sigma);
+    static bool GaussianIIR(const Image& srcImg, Image& dstImg, float sigma);
 
 };
 

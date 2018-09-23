@@ -58,6 +58,7 @@ public: // Public methods
 
     // Detect borders by using the Canny algorithm
     static bool Canny(Image& img, const Image::Byte thresholdMin, const Image::Byte thresholdMax);
+    static bool Canny(const Image& srcImg, Image& dstImg, const Image::Byte thresholdMin, const Image::Byte thresholdMax);
 
     // Convolution of image with specified operator
     static bool OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type);
