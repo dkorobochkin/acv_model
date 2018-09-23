@@ -41,23 +41,23 @@ class AMorphologicalForm
 public: // Public methods
 
     // Return the number of pixels in the morphological form
-    size_t size() const;
+    size_t size() const { return mPixels.size(); }
 
     // Operator [] (array style)
-    Point& operator[](const size_t idx);
-    const Point& operator[](const size_t idx) const;
+    Point& operator[](const size_t idx) { return mPixels[idx]; }
+    const Point& operator[](const size_t idx) const { return mPixels[idx]; }
 
     // Add new pixel
-    void AddNewPixel(const int x, const int y);
+    void AddNewPixel(const int x, const int y) { mPixels.push_back(Point(x, y)); }
 
     // Clear the vector of form pixels
-    void Clear();
+    void Clear() { mPixels.clear(); }
 
     // Merge the two forms. To this form will be added the pixels from other form
-    void Merge(const AMorphologicalForm& otherForm);
+    void Merge(const AMorphologicalForm& otherForm) { mPixels.insert(mPixels.end(), otherForm.mPixels.begin(), otherForm.mPixels.end()); }
 
     // Return "true" if the form is empty
-    bool IsEmpty() const;
+    bool IsEmpty() const { return mPixels.empty(); }
 
 private: // Private members
 
@@ -65,41 +65,6 @@ private: // Private members
     std::vector<Point> mPixels;
 
 };
-
-size_t AMorphologicalForm::size() const
-{
-    return mPixels.size();
-}
-
-Point& AMorphologicalForm::operator[](const size_t idx)
-{
-    return mPixels[idx];
-}
-
-const Point& AMorphologicalForm::operator[](const size_t idx) const
-{
-    return mPixels[idx];
-}
-
-void AMorphologicalForm::AddNewPixel(const int x, const int y)
-{
-    mPixels.push_back(Point(x, y));
-}
-
-void AMorphologicalForm::Clear()
-{
-    mPixels.clear();
-}
-
-void AMorphologicalForm::Merge(const AMorphologicalForm& otherForm)
-{
-    mPixels.insert(mPixels.end(), otherForm.mPixels.begin(), otherForm.mPixels.end());
-}
-
-bool AMorphologicalForm::IsEmpty() const
-{
-    return mPixels.empty();
-}
 
 
 void ImageCombiner::AddImage(const Image& img)
@@ -289,21 +254,22 @@ void ImageCombiner::FormSortedImagesArray(std::vector<const Image*>& sortedVec)
 
 void ImageCombiner::MergeImages(Image& baseImg, const std::vector<Image>& projections)
 {
-    for (int row = 0; row < baseImg.GetHeight(); ++row)
-    {
-        for (int col = 0; col < baseImg.GetWidth(); ++col)
-        {
-            double baseVal = baseImg(row, col);
-            double sum = baseVal;
-            for (size_t i = 0; i < projections.size(); ++i)
-            {
-                const Image& proj = projections[i];
-                sum += fabs(baseVal - proj(row, col));
-            }
-            baseVal = sum / (projections.size() + 1);
+    std::vector<Image::Matrix::const_iterator> projectionsIts(projections.size());
+    for (size_t i = 0; i < projections.size(); ++i)
+        projectionsIts[i] = projections[i].GetData().begin();
 
-            baseImg(row, col) = baseVal;
+    for (auto& basePix : baseImg.GetData())
+    {
+        double baseVal = basePix;
+        double sum = baseVal;
+        for (size_t i = 0; i < projectionsIts.size(); ++i)
+        {
+            sum += fabs(baseVal - *projectionsIts[i]);
+            ++projectionsIts[i];
         }
+        baseVal = sum / (projectionsIts.size() + 1);
+
+        basePix = baseVal;
     }
 }
 
@@ -316,22 +282,16 @@ std::vector<AMorphologicalForm> ImageCombiner::CalcForms(const Image& baseImg, c
 
 Image ImageCombiner::Segmentation(const Image& baseImg, const int numMods)
 {
-    Image histSeg = baseImg;
+    Image histSeg(baseImg.GetHeight(), baseImg.GetWidth());
 
-    // Шаг моды гистограммы по яркост
+    // Mod step by brightness
     Image::Byte dBrig = static_cast<Image::Byte>(Image::MAX_PIXEL_VALUE / numMods);
     while (static_cast<Image::Byte>(Image::MAX_PIXEL_VALUE / dBrig) >= numMods)
         ++dBrig;
 
-    for (int row = 0; row < baseImg.GetHeight(); ++row)
-    {
-        for (int col = 0; col < baseImg.GetWidth(); ++col)
-        {
-            Image::Byte oldVal = baseImg(row, col);
-            Image::Byte newVal = static_cast<Image::Byte>(oldVal / dBrig);
-            histSeg(row, col) = newVal;
-        }
-    }
+    Image::Byte* pDstPix = histSeg.GetRawPointer();
+    for (auto srcPix : baseImg.GetData())
+        *pDstPix++ = static_cast<Image::Byte>(srcPix / dBrig);
 
     return histSeg;
 }
@@ -363,15 +323,16 @@ std::vector<AMorphologicalForm> ImageCombiner::FindForms(const Image& histogramm
     {
         std::vector<RowElement> prevStr, curStr;
 
+        auto histPixIt = histogramm.GetData().begin();
         for (int y = 0; y < histogramm.GetHeight(); ++y)
         {
             curStr.clear();
 
             // Fill the current row
             int prevVal = -1;
-            for (int x = 0; x < histogramm.GetWidth(); ++x)
+            for (int x = 0; x < histogramm.GetWidth(); ++x, ++histPixIt)
             {
-                int curVal = static_cast<int>(histogramm(y, x));
+                int curVal = static_cast<int>(*histPixIt);
 
                 if ((x == 0 || prevVal != mod) && curVal == mod) // Start of new row element
                     curStr.push_back(RowElement(x, x));
@@ -459,6 +420,7 @@ std::vector<AMorphologicalForm> ImageCombiner::FindForms(const Image& histogramm
     }
 
     std::vector<AMorphologicalForm> resForms;
+    resForms.reserve(forms.size());
     std::copy_if(forms.begin(), forms.end(),
                  std::back_inserter(resForms),
                  [](const AMorphologicalForm& form)
