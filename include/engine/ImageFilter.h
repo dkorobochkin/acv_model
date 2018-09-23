@@ -77,8 +77,9 @@ public: // Публичные методы
     // Возвращаемое значение говорит об успешности фильтрации
     static bool Filter(Image& img, const int filterSize, FilterType type);
 
-    // Свертка изображения с заданным оператором
-    static bool OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type);
+    // Run a filtration by the specified method
+    // Return true if filtration was success
+    static bool Filter(const Image& srcImg, Image& dstImg, const int filterSize, FilterType type);
 
 private: // Закрытые методы
 
@@ -86,6 +87,10 @@ private: // Закрытые методы
     // В результате вызова метода изменяется ВХОДНОЕ ИЗОБРАЖЕНИЕ
     // Возвращаемое значение говорит об успешности фильтрации
     static bool Median(Image& img, const int filterSize);
+
+    // Median filtration (filter size must be odd)
+    // Return true if filtration was success
+    static bool Median(const Image& srcImg, Image& dstImg, const int filterSize);
 
     // Гауссовая фильтрация
     // В результате вызова метода изменяется ВХОДНОЕ ИЗОБРАЖЕНИЕ
@@ -106,6 +111,10 @@ private: // Закрытые методы
 
     // Свертка изображения с оператором Щарра
     static bool Scharr(Image& img, SobelTypes type);
+
+    // Gaussian filtration (filter size must be odd)
+    // Return true if filtration was success
+    static bool Gaussian(const Image& srcImg, Image& dstImg, const int filterSize);
 
 };
 

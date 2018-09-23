@@ -91,7 +91,6 @@ public: // Public methods
     Matrix& GetData() { return mPixels; }
     const Matrix& GetData() const { return mPixels; }
 
-
     // Check the initialization of image
     // Image is not initialized if was created by default constructor
     bool IsInitialized() const;
@@ -109,14 +108,17 @@ public: // Public methods
     // Can combining of this cases
     Image Resize(const int xMin, const int yMin, const int xMax, const int yMax) const;
 
-    // Get pointer to element of matrix
+    // Get the raw pointer to i-th element of the pixels vector
     Byte* GetRawPointer(const int elementNum = 0) { return &mPixels[elementNum]; }
     const Byte* GetRawPointer(const int elementNum = 0) const { return &mPixels[elementNum]; }
 
     // Check the pixel value to out the minimum and maximum values
-    static void CheckPixelValue(int& value){
-        value = (value < MIN_PIXEL_VALUE) ? MIN_PIXEL_VALUE : value;
-        value = (value > MAX_PIXEL_VALUE) ? MAX_PIXEL_VALUE : value;
+    static void CheckPixelValue(int& value)
+    {
+        if (value < MIN_PIXEL_VALUE)
+            value = MIN_PIXEL_VALUE;
+        else if (value > MAX_PIXEL_VALUE)
+            value = MAX_PIXEL_VALUE;
     }
 
 private: // Private methods

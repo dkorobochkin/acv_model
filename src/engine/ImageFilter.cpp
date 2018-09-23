@@ -48,14 +48,14 @@ bool ImageFilter::Filter(Image& img, const int filterSize, ImageFilter::FilterTy
     }
 }
 
-bool ImageFilter::OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type)
+bool ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSize, ImageFilter::FilterType type)
 {
-    switch (operatorType)
+    switch (type)
     {
-    case OperatorType::SOBEL:
-        return Sobel(img, type);
-    case OperatorType::SCHARR:
-        return Scharr(img, type);
+    case FilterType::MEDIAN:
+        return Median(srcImg, dstImg, filterSize);
+    case FilterType::GAUSSIAN:
+        return Gaussian(srcImg, dstImg, filterSize);
     default:
         return false;
     }
@@ -213,6 +213,19 @@ bool ImageFilter::Median(Image& img, const int filterSize)
         // Используем временной изображение, т.к. при фильтрации изменются значения пикселей
         Image tmpImg = Image(img);
 
+        Median(img, tmpImg, filterSize);
+
+        img = std::move(tmpImg);
+        return true;
+    }
+
+    return false;
+}
+
+bool ImageFilter::Median(const Image& srcImg, Image& dstImg, const int filterSize)
+{
+    if (filterSize % 2 != 0) // Размер фильтра должен быть нечетным
+    {
         const int APERTURE = filterSize / 2; // Размер апертуры фильтра
         const int MEDIAN = filterSize * filterSize / 2; // Индекс медианы (индекс элемента, который будет новым значением)
 
@@ -220,9 +233,9 @@ bool ImageFilter::Median(Image& img, const int filterSize)
         // и собираем все пиксели, входящие в окно в вектор
         std::vector<Image::Byte> pixelsWindow(filterSize * filterSize);
 
-        for (int row = 0; row < tmpImg.GetHeight(); ++row)
+        for (int row = 0; row < dstImg.GetHeight(); ++row)
         {
-            for (int col = 0; col < tmpImg.GetWidth(); ++col)
+            for (int col = 0; col < dstImg.GetWidth(); ++col)
             {
                 // Проходим по окну и сохраняем значения канала пикселей, входящих в окно
                 size_t vecIdx = 0;
@@ -233,19 +246,18 @@ bool ImageFilter::Median(Image& img, const int filterSize)
                         // Проверяем выход пикселей за границы изображения
                         int pixRow = relRow;
                         int pixCol = relCol;
-                        img.CorrectCoordinates(pixRow, pixCol);
+                        srcImg.CorrectCoordinates(pixRow, pixCol);
 
-                        pixelsWindow[vecIdx++] = img(pixRow, pixCol);
+                        pixelsWindow[vecIdx++] = srcImg(pixRow, pixCol);
                     }
                 }
 
                 // Упорядочение массива полученных пикселей и установка нового значения канала
                 std::nth_element(pixelsWindow.begin(), pixelsWindow.begin() + MEDIAN, pixelsWindow.end());
-                tmpImg(row, col) = pixelsWindow[MEDIAN];
+                dstImg(row, col) = pixelsWindow[MEDIAN];
             }
         }
 
-        img = std::move(tmpImg);
         return true;
     }
 
@@ -282,7 +294,6 @@ bool ImageFilter::Gaussian(Image& img, const int filterSize)
     return false;
 }
 
-// Gaussian imitation by IIR-filter
 bool ImageFilter::GaussianIIR(Image& img, float sigma)
 {
     if (sigma >= 1.)
@@ -340,5 +351,18 @@ bool ImageFilter::GaussianIIR(Image& img, float sigma)
 
 }
 
+
+bool ImageFilter::Gaussian(const Image& srcImg, Image& dstImg, const int filterSize)
+{
+    bool ret = filterSize % 2 != 0;
+
+    if (ret)
+    {
+        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+        ret = ret && Gaussian(dstImg, filterSize);
+    }
+
+    return ret;
+}
 
 }

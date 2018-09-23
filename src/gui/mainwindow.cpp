@@ -39,7 +39,6 @@
 #include <exception>
 
 #include "ImageParametersCalculator.h"
-#include "BordersDetector.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -73,53 +72,53 @@ MainWindow::~MainWindow()
 
 void MainWindow::CreateFileActions()
 {
-    mOpenAction = new QAction(tr("Открыть изображение"), this);
+    mOpenAction = new QAction(tr("Open image"), this);
     mOpenAction->setShortcut(QKeySequence::New);
-    mOpenAction->setStatusTip(tr("Открыть изображение для обработки"));
+    mOpenAction->setStatusTip(tr("Open image to processing"));
     connect(mOpenAction, SIGNAL(triggered()), this, SLOT(OpenImgFile()));
 
-    mCloseAction = new QAction(tr("Закрыть изображение"), this);
+    mCloseAction = new QAction(tr("Close image"), this);
     mCloseAction->setShortcut(QKeySequence::Close);
-    mCloseAction->setStatusTip(tr("Закрыть текущее изображение"));
+    mCloseAction->setStatusTip(tr("Close current image"));
     connect(mCloseAction, SIGNAL(triggered()), this, SLOT(CloseImgFile()));
 
-    mSaveAction = new QAction(tr("Сохранить изображение"), this);
+    mSaveAction = new QAction(tr("Save image"), this);
     mSaveAction->setShortcut(QKeySequence::Save);
-    mSaveAction->setStatusTip(tr("Сохранить текущее изображение"));
+    mSaveAction->setStatusTip(tr("Save current image"));
     connect(mSaveAction, SIGNAL(triggered()), this, SLOT(SaveImgFile()));
 
-    mExitAction = new QAction(tr("Выход"), this);
+    mExitAction = new QAction(tr("Exit"), this);
     mExitAction->setShortcut(tr("Ctrl+Q"));
-    mExitAction->setStatusTip(tr("Выход из программы. Все несохраненные данные будут потеряны"));
+    mExitAction->setStatusTip(tr("Exit from model. Not saved data will be lose"));
     connect(mExitAction, SIGNAL(triggered()), this, SLOT(Exit()));
 }
 
 void MainWindow::CreateFilteringActions()
 {
-    mMedianBlurAction = new QAction(tr("Медианный фильтр"), this);
+    mMedianBlurAction = new QAction(tr("Median filter"), this);
     mMedianBlurAction->setShortcut(tr("Ctrl+B"));
-    mMedianBlurAction->setStatusTip(tr("Медианная фильтрация выбранного изображения"));
+    mMedianBlurAction->setStatusTip(tr("Median filtration of current image"));
     connect(mMedianBlurAction, SIGNAL(triggered()), this, SLOT(MedianBlur()));
 
-    mGaussianBlurAction = new QAction(tr("Гауссов фильтр"), this);
+    mGaussianBlurAction = new QAction(tr("Gaussian filter"), this);
     mGaussianBlurAction->setShortcut(tr("Ctrl+G"));
-    mGaussianBlurAction->setStatusTip(tr("Гауссова фильтрация выбранного изображения"));
+    mGaussianBlurAction->setStatusTip(tr("Gaussian filtration of current image"));
     connect(mGaussianBlurAction, SIGNAL(triggered()), this, SLOT(GaussianBlur()));
 
-    mIIRGaussianBlurAction = new QAction(tr("Гауссов фильтр (БИХ)"), this);
+    mIIRGaussianBlurAction = new QAction(tr("IIR-gaussian filter"), this);
     mIIRGaussianBlurAction->setShortcut(tr("Ctrl+I"));
-    mIIRGaussianBlurAction->setStatusTip(tr("Гауссова фильтрация выбранного изображения"));
+    mIIRGaussianBlurAction->setStatusTip(tr("IIR-imitated gaussian blur"));
     connect(mIIRGaussianBlurAction, SIGNAL(triggered()), this, SLOT(IIRGaussianBlur()));
 }
 
 void MainWindow::CreateOperatorActions()
 {
-    mSobelAction = new QAction(tr("Оператор Собеля"), this);
-    mSobelAction->setStatusTip(tr("Выделение границ с помощью оператора Собеля"));
+    mSobelAction = new QAction(tr("Sobel operator"), this);
+    mSobelAction->setStatusTip(tr("Convolution of current image with Sobel operator"));
     connect(mSobelAction, SIGNAL(triggered()), this, SLOT(Sobel()));
 
-    mScharrAction = new QAction(tr("Оператор Щарра"), this);
-    mScharrAction->setStatusTip(tr("Выделение границ с помощью оператора Щарра"));
+    mScharrAction = new QAction(tr("Scharr operator"), this);
+    mScharrAction->setStatusTip(tr("Convolution of current image with Scharr operator"));
     connect(mScharrAction, SIGNAL(triggered()), this, SLOT(Scharr()));
 }
 
@@ -132,31 +131,31 @@ void MainWindow::CreateBodersDetectorsActions()
 
 void MainWindow::CreateParamsActions()
 {
-    mImgEntropyAction = new QAction(tr("Энтропия"), this);
+    mImgEntropyAction = new QAction(tr("Entropy"), this);
     mImgEntropyAction->setShortcut(tr("Ctrl+E"));
-    mImgEntropyAction->setStatusTip(tr("Расчет энтропии в качестве меры информативности изображения"));
+    mImgEntropyAction->setStatusTip(tr("Calculate the entropy of image (measure of informative)"));
     connect(mImgEntropyAction, SIGNAL(triggered()), this, SLOT(CalcEntropy()));
 
-    mImgAverBrightnessAction = new QAction(tr("Средняя яркость"), this);
-    mImgAverBrightnessAction->setStatusTip(tr("Расчет средней яркости изображения"));
+    mImgAverBrightnessAction = new QAction(tr("Average of brightness"), this);
+    mImgAverBrightnessAction->setStatusTip(tr("Calculate the average of brightness"));
     connect(mImgAverBrightnessAction, SIGNAL(triggered()), this, SLOT(CalcAverageBrightness()));
 }
 
 void MainWindow::CreateCombiningActions()
 {
-    mInfPriorCombAction = new QAction(tr("С приоритетом наиболее информативного"), this);
+    mInfPriorCombAction = new QAction(tr("Priority of the most informative image"), this);
     mInfPriorCombAction->setShortcut(tr("Ctrl+I"));
-    mInfPriorCombAction->setStatusTip(tr("Совместить все открытые изображения методом с приоритетом наиболее информативного"));
+    mInfPriorCombAction->setStatusTip(tr("Combine the all opened images by the method of priority of the most informative image"));
     connect(mInfPriorCombAction, SIGNAL(triggered()), this, SLOT(InformPriorityCombining()));
 
-    mMorphCombAction = new QAction(tr("Морфологическое комплексирование"), this);
+    mMorphCombAction = new QAction(tr("Morphological"), this);
     mMorphCombAction->setShortcut(tr("Ctrl+M"));
-    mMorphCombAction->setStatusTip(tr("Совместить все открытые изображения морфологическим методом"));
+    mMorphCombAction->setStatusTip(tr("Combine the all opened images by the morphological method"));
     connect(mMorphCombAction, SIGNAL(triggered()), this, SLOT(MorphologicalCombining()));
 
-    mLocEntrCombAction = new QAction(tr("Локально-энтропийное комплексирование"), this);
+    mLocEntrCombAction = new QAction(tr("Local-entropy"), this);
     mLocEntrCombAction->setShortcut(tr("Ctrl+L"));
-    mLocEntrCombAction->setStatusTip(tr("Совместить все открытые изображения локально-энтропийным методом"));
+    mLocEntrCombAction->setStatusTip(tr("Combine the all opened images by the local-entropy method"));
     connect(mLocEntrCombAction, SIGNAL(triggered()), this, SLOT(LocalEntropyCombining()));
 }
 
@@ -172,7 +171,7 @@ void MainWindow::CreateActions()
 
 void MainWindow::CreateFileMenu()
 {
-    mFileMenu = menuBar()->addMenu(tr("Файл"));
+    mFileMenu = menuBar()->addMenu(tr("File"));
 
     mFileMenu->addAction(mOpenAction);
     mFileMenu->addAction(mCloseAction);
@@ -183,7 +182,7 @@ void MainWindow::CreateFileMenu()
 
 void MainWindow::CreateFilteringMenu()
 {
-    mFilterMenu = mProcessingMenu->addMenu(tr("Фильтрация"));
+    mFilterMenu = mProcessingMenu->addMenu(tr("Filtration"));
 
     mFilterMenu->addAction(mMedianBlurAction);
     mFilterMenu->addAction(mGaussianBlurAction);
@@ -192,7 +191,7 @@ void MainWindow::CreateFilteringMenu()
 
 void MainWindow::CreateOperatorsMenu()
 {
-    mOperatorsMenu = mProcessingMenu->addMenu(tr("Операторы"));
+    mOperatorsMenu = mProcessingMenu->addMenu(tr("Operators"));
 
     mOperatorsMenu->addAction(mSobelAction);
     mOperatorsMenu->addAction(mScharrAction);
@@ -207,7 +206,7 @@ void MainWindow::CreateBordersDetectorsMenu()
 
 void MainWindow::CreateParamsMenu()
 {
-    mImgParams = mProcessingMenu->addMenu(tr("Параметры"));
+    mImgParams = mProcessingMenu->addMenu(tr("Parameters"));
 
     mImgParams->addAction(mImgEntropyAction);
     mImgParams->addAction(mImgAverBrightnessAction);
@@ -215,7 +214,7 @@ void MainWindow::CreateParamsMenu()
 
 void MainWindow::CreateCombiningMenu()
 {
-    mCombineMenu = menuBar()->addMenu(tr("Совмещение"));
+    mCombineMenu = menuBar()->addMenu(tr("Combination"));
 
     mCombineMenu->addAction(mInfPriorCombAction);
     mCombineMenu->addAction(mMorphCombAction);
@@ -225,8 +224,8 @@ void MainWindow::CreateCombiningMenu()
 void MainWindow::CreateMainMenus()
 {
     CreateFileMenu();
-    mImgsMenu = menuBar()->addMenu(tr("Изображения"));
-    mProcessingMenu = menuBar()->addMenu(tr("Обработка"));
+    mImgsMenu = menuBar()->addMenu(tr("Images"));
+    mProcessingMenu = menuBar()->addMenu(tr("Processing"));
     CreateParamsMenu();
     CreateFilteringMenu();
     CreateOperatorsMenu();
@@ -355,47 +354,58 @@ void MainWindow::IIRGaussianBlur()
     Filtering(acv::ImageFilter::FilterType::IIR_GAUSSIAN);
 }
 
-void MainWindow::Operator(acv::ImageFilter::OperatorType operatorType)
+void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
 {
     if (ImgWasSelected())
     {
-        acv::ImageFilter::SobelTypes type;
-        if (QMessageBox::question(this, tr("Оператор"), "Горизонтальный оператор? Иначе вертикальный.") == QMessageBox::Yes)
-            type = acv::ImageFilter::SobelTypes::HORIZONTAL;
+        acv::BordersDetector::SobelTypes type;
+        if (QMessageBox::question(this, tr("Operator"), "Need the horizontal operator? Else will be vertical.") == QMessageBox::Yes)
+            type = acv::BordersDetector::SobelTypes::HORIZONTAL;
         else
-            type = acv::ImageFilter::SobelTypes::VERTICAL;
+            type = acv::BordersDetector::SobelTypes::VERTICAL;
+
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        acv::Image& curImg = GetCurImg();
-        bool filtred = acv::ImageFilter::OperatorConvolution(curImg, operatorType, type);
+        bool filtred = acv::BordersDetector::OperatorConvolution(curImg, processedImg, operatorType, type);
 
         qint64 filterTime = timer.elapsed();
 
         if (filtred)
         {
+            mProcessedImgs.push_back(processedImg);
+
+            QString actionName = FormOperatorActionName(operatorType, type);
+
+            mCurOpenedImg = -1;
+            mCurProcessedImg = mProcessedImgs.size() - 1;
             emit CurImgWasUpdated();
 
-            QMessageBox::information(this, tr("Оператор"), tr("Время свертки: %1 мсек").arg(filterTime), QMessageBox::Ok);
+            AddProcessedImgAction(actionName);
+            emit ProcessedImgsChanged();
+
+            QMessageBox::information(this, tr("Operator"), tr("Time of convolution: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Оператор"), tr("Не удалось выполнить свертку"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Operator"), tr("Could not convolution"), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::warning(this, tr("Оператор"), tr("Изображение не выбрано"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Operator"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
 void MainWindow::Sobel()
 {
-    Operator(acv::ImageFilter::OperatorType::SOBEL);
+    Operator(acv::BordersDetector::OperatorType::SOBEL);
 }
 
 void MainWindow::Scharr()
 {
-    Operator(acv::ImageFilter::OperatorType::SCHARR);
+    Operator(acv::BordersDetector::OperatorType::SCHARR);
 }
 
 void MainWindow::Canny()
@@ -432,29 +442,44 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
     if (ImgWasSelected())
     {
         const int DEFAULT_FILTER_SIZE = 3, MIN_FILTER_SIZE = 1, MAX_FILTER_SIZE = 15, FILTER_SIZE_STEP = 2;
-        int filterSize = QInputDialog::getInt(this, tr("Введите размер фильтра (нечетное положительное число)"), tr("Размер фильтра"),
+        int filterSize = QInputDialog::getInt(this, tr("Enter the filter size (odd positive number)"), tr("Filter size"),
                                               DEFAULT_FILTER_SIZE, MIN_FILTER_SIZE, MAX_FILTER_SIZE, FILTER_SIZE_STEP);
+
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        acv::Image& curImg = GetCurImg();
-        bool filtred = acv::ImageFilter::Filter(curImg, filterSize, filterType);
+        bool filtred = (filterType== acv::ImageFilter::FilterType::IIR_GAUSSIAN)
+                ? acv::ImageFilter::Filter(const_cast<acv::Image&>(curImg), filterSize, filterType)
+                : acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
 
         qint64 filterTime = timer.elapsed();
 
         if (filtred)
         {
+            (filterType== acv::ImageFilter::FilterType::IIR_GAUSSIAN)
+                    ? mProcessedImgs.push_back(curImg)
+                    : mProcessedImgs.push_back(processedImg);
+
+            QString actionName = FormFilterActionName(filterType, filterSize);
+
+            mCurOpenedImg = -1;
+            mCurProcessedImg = mProcessedImgs.size() - 1;
             emit CurImgWasUpdated();
 
-            QMessageBox::information(this, tr("Фильтрация изображений"), tr("Время фильтрации: %1 мсек").arg(filterTime), QMessageBox::Ok);
+            AddProcessedImgAction(actionName);
+            emit ProcessedImgsChanged();
+
+            QMessageBox::information(this, tr("Image filtration"), tr("Time of filtration: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Фильтрация изображений"), tr("Не удалось выполнить фильтрацию"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Image filtration"), tr("Could not filtration"), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::warning(this, tr("Фильтрация изображений"), tr("Изображение не выбрано"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Image filtration"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
@@ -590,6 +615,48 @@ QString MainWindow::FormCombineActionName(acv::ImageCombiner::CombineType combTy
             ret += tr("+");
     }
 
+    return ret;
+}
+
+QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize)
+{
+    QString ret;
+
+    switch (filterType)
+    {
+    case acv::ImageFilter::FilterType::MEDIAN:
+        ret = tr("F_M_%1: ").arg(filterSize);
+        break;
+    case acv::ImageFilter::FilterType::GAUSSIAN:
+        ret = tr("F_G_%1: ").arg(filterSize);
+        break;
+    default:
+        return QString();
+    }
+
+    ret = FormProcessedImgActionName(ret);
+    return ret;
+}
+
+QString MainWindow::FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type)
+{
+    QString ret;
+
+    QString dirStr = (type == acv::BordersDetector::SobelTypes::VERTICAL) ? tr("V") : tr("H");
+
+    switch (operatorType)
+    {
+    case acv::BordersDetector::OperatorType::SOBEL:
+        ret = tr("O_SOB_%1: ").arg(dirStr);
+        break;
+    case acv::BordersDetector::OperatorType::SCHARR:
+        ret = tr("O_SCH_%1: ").arg(dirStr);
+        break;
+    default:
+        return QString();
+    }
+
+    ret = FormProcessedImgActionName(ret);
     return ret;
 }
 
