@@ -249,8 +249,8 @@ acv::Image& MainWindow::GetCurImg()
     else if (mCurProcessedImg != -1)
         return mProcessedImgs[mCurProcessedImg];
     else
-        // Такого не должно быть никогда!!!
-        throw std::out_of_range("Не выбрано ни одного изображения");
+        // This situation should not to be
+        throw std::out_of_range("No images selected");
 }
 
 const acv::Image& MainWindow::GetCurImg() const
@@ -260,8 +260,8 @@ const acv::Image& MainWindow::GetCurImg() const
     else if (mCurProcessedImg != -1)
         return mProcessedImgs[mCurProcessedImg];
     else
-        // Такого никогда не должно быть!!!
-        throw std::out_of_range("Не выбрано ни одного изображения");
+        // This situation should not to be
+        throw std::out_of_range("No images selected");
 }
 
 void MainWindow::DrawCurImg()
@@ -503,11 +503,11 @@ void MainWindow::CalcEntropy()
     if (ImgWasSelected())
     {
        double entropy = acv::ImageParametersCalculator::CalcEntropy(GetCurImg());
-       QMessageBox::information(this, tr("Расчет энтропии"), tr("Энтропия = %1").arg(entropy), QMessageBox::Ok);
+       QMessageBox::information(this, tr("Entropy calculation"), tr("Entropy = %1").arg(entropy), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::warning(this, tr("Расчет энтропии"), tr("Изображение не выбрано"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Entropy calculation"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
@@ -516,11 +516,11 @@ void MainWindow::CalcAverageBrightness()
     if (ImgWasSelected())
     {
        double averBrig = acv::ImageParametersCalculator::CalcAverageBrightness(GetCurImg());
-       QMessageBox::information(this, tr("Расчет средней яркости"), tr("Средняя яркость = %1").arg(averBrig), QMessageBox::Ok);
+       QMessageBox::information(this, tr("Average brightness calculation"), tr("Average brightness = %1").arg(averBrig), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::warning(this, tr("Расчет средней яркости"), tr("Изображение не выбрано"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Average brightness calculation"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
@@ -534,14 +534,14 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
     if (ImgsWereOpened())
     {
         int answer = QMessageBox::No;
-        // При локально-энтропийном комплексировании нет разницы какое изображение является базовым
+        // There is not difference which image is base in case of local-entropy combining
         if (combType != acv::ImageCombiner::CombineType::LOCAL_ENTROPY)
         {
-            answer = QMessageBox::question(this, "Комбинирование изображений",
-                                           "Необходимо ли выбрать базовым наиболее информативное (оценкой энтропии)? "
-                                           "Если нет, то базовым будет считаться первое открытое изображение!");
+            answer = QMessageBox::question(this, "Images combining",
+                                           "Do you want select the base image (with maximum of entropy)? "
+                                           "If not then the basic will be first image!");
 
-            // Закрыли окно с вопросом с помощью крестика - не проводим комбинирование
+            // This is the case when the dialog was closed
             if (answer != QMessageBox::Yes && answer != QMessageBox::No)
                 return;
         }
@@ -569,14 +569,14 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
             AddProcessedImgAction(FormCombineActionName(combType));
             emit ProcessedImgsChanged();
 
-            QMessageBox::information(this, tr("Совмещение изображений"), tr("Время комбинирования: %1 мсек").arg(combTime), QMessageBox::Ok);
+            QMessageBox::information(this, tr("Images combining"), tr("Time of combining: %1 мсек").arg(combTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Совмещение изображений"), tr("Не удалось выполнить совмещение"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Images combining"), tr("Could not combine the images"), QMessageBox::Ok);
     }
     else
     {
-        QMessageBox::warning(this, tr("Совмещение изображений"), tr("Не загружено ни одного изображения"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Images combining"), tr("No images were opened"), QMessageBox::Ok);
     }
 }
 
@@ -598,13 +598,13 @@ QString MainWindow::FormCombineActionName(acv::ImageCombiner::CombineType combTy
     switch (combType)
     {
     case acv::ImageCombiner::CombineType::INFORM_PRIORITY:
-        ret = tr("К_ПНИ: ");
+        ret = tr("C_IP: ");
         break;
     case acv::ImageCombiner::CombineType::MORPHOLOGICAL:
-        ret = tr("К_М: ");
+        ret = tr("C_M: ");
         break;
     case acv::ImageCombiner::CombineType::LOCAL_ENTROPY:
-        ret = tr("К_ЛЭ: ");
+        ret = tr("C_LE: ");
         break;
     }
 
@@ -695,8 +695,8 @@ bool MainWindow::ImgsWereOpened() const
 
 void MainWindow::OpenImgFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Открыть изображение"), ".",
-                                                    tr("Файлы изображений (*.bmp)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open image"), ".",
+                                                    tr("Image files (*.bmp)"));
     if (!fileName.isEmpty())
     {
         if (LoadImgFromFile(fileName))
@@ -713,14 +713,14 @@ void MainWindow::OpenImgFile()
 
 void MainWindow::DeleteImg(int& curImg, std::vector<acv::Image>& imgs, std::vector<QAction*>& actions)
 {
-    // Удаляем из массива текущее изображение
+    // Delete the current image from vector
     imgs.erase(imgs.begin() + curImg);
 
-    // Удаляем действие для данного изображения
+    // Delete the action for current image
     delete actions[curImg];
     actions.erase(actions.begin() + curImg);
 
-    // Выбираем новое изображение, если это возможно
+    // Select the new current image if we can
     if (!imgs.empty())
     {
         if (curImg > 0)
@@ -738,7 +738,7 @@ void MainWindow::CloseImgFile()
        {
            DeleteImg(mCurOpenedImg, mOpenedImgs, mOpenedImgsActions);
 
-           // Если удалили последнее открытое изображение, то текущим ставим первое обработанное, если оно есть
+           // In case of deleting all opened images the first processed image will be current
            if (mCurOpenedImg == -1 && !mProcessedImgs.empty())
                mCurProcessedImg = 0;
        }
@@ -746,7 +746,7 @@ void MainWindow::CloseImgFile()
        {
            DeleteImg(mCurProcessedImg, mProcessedImgs, mProcessedImgsActions);
 
-           // Если удалили последнее обработанное изображение, то текущим ставим первое открытое, если оно есть
+           // In case of deleting all processed images the first opened image will be current
            if (mCurProcessedImg == -1 && !mOpenedImgs.empty())
                mCurOpenedImg = 0;
        }
@@ -754,7 +754,7 @@ void MainWindow::CloseImgFile()
        if (ImgWasSelected())
        {
            emit CurImgWasUpdated();
-           emit OpenedImgsChanged(); // Равноценно вызову сигнала ProcessedImgsChanged (не важно какое изображение стало текущим)
+           emit OpenedImgsChanged(); // This is equivalent to call a signal ProcessedImgsChanged (no matter which image is current)
        }
        else
        {
@@ -763,26 +763,26 @@ void MainWindow::CloseImgFile()
     }
     else
     {
-        QMessageBox::warning(this, tr("Закрытие изображения"), tr("Изображение не выбрано"), QMessageBox::Ok);
+        QMessageBox::warning(this, tr("Close image"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
 void MainWindow::SaveImgFile()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить изображение"), ".",
-                                                    tr("Файлы изображений (*.bmp)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save image"), ".",
+                                                    tr("Image files (*.bmp)"));
     if (!fileName.isEmpty())
     {
         QImage img = ImageTransormer::AImage2QImage(GetCurImg());
         if (!img.save(fileName))
-            QMessageBox::warning(this, tr("Сохранение изображения"), tr("Не удалось выполнить сохранение"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Save image"), tr("Could not save image"), QMessageBox::Ok);
     }
 }
 
 void MainWindow::Exit()
 {
     if (!mProcessedImgs.empty())
-        if(QMessageBox::question(this, tr("Выход из приложения"), "Все несохраненные данные будут потеряны. Действительно выйти?") == QMessageBox::No)
+        if(QMessageBox::question(this, tr("Exit from application"), "Not saved data will be lose. Are you sure?") == QMessageBox::No)
             return;
     close();
 }

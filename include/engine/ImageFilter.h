@@ -1,4 +1,4 @@
-//
+﻿//
 // MIT License
 //
 // Copyright (c) 2018 Dmitriy Korobochkin, Vitaliy Garmash.
@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-// В данном заголовочном файле содержится описание класса, который занимается фильтрацией изображений
+// This header is used to define a class that filters images
 
 #ifndef IMAGE_FILTER_H
 #define IMAGE_FILTER_H
@@ -31,14 +31,14 @@ namespace acv {
 
 class Image;
 
-// Класс используется для фильтрации изображения различными методами
-// Содержит только статические методы
+// Class is used to filter images by several methods
+// Class contains only static methods
 class ImageFilter
 {
 
-public: // Публичные вспогательные типы
+public: // Public auxiliary types
 
-    // Допступные типы фильтрации
+    // Used types of filtration
     enum class FilterType
     {
         MEDIAN, // Медианная фильтрация
@@ -70,31 +70,31 @@ public: // Публичные вспогательные типы
             T b0, a[3], y[3];
     };
 
-public: // Публичные методы
+public: // Public methods
 
-    // Запуск фильтрации заданным методом
-    // В результате вызова метода изменяется ВХОДНОЕ ИЗОБРАЖЕНИЕ
-    // Возвращаемое значение говорит об успешности фильтрации
+    // Run a filtration by the specified method
+    // Source image WILL BE CHANGED!!!
+    // Return true if filtration was success
     static bool Filter(Image& img, const int filterSize, FilterType type);
 
     // Run a filtration by the specified method
     // Return true if filtration was success
     static bool Filter(const Image& srcImg, Image& dstImg, const int filterSize, FilterType type);
 
-private: // Закрытые методы
+private: // Private methods
 
-    // Медианная фильтрация изображения (размер фильтр должен быть нечетным)
-    // В результате вызова метода изменяется ВХОДНОЕ ИЗОБРАЖЕНИЕ
-    // Возвращаемое значение говорит об успешности фильтрации
+    // Median filtration (filter size must be odd)
+    // Source image WILL BE CHANGED!!!
+    // Return true if filtration was success
     static bool Median(Image& img, const int filterSize);
 
     // Median filtration (filter size must be odd)
     // Return true if filtration was success
     static bool Median(const Image& srcImg, Image& dstImg, const int filterSize);
 
-    // Гауссовая фильтрация
-    // В результате вызова метода изменяется ВХОДНОЕ ИЗОБРАЖЕНИЕ
-    // Возвращаемое значение говорит об успешности фильтрации
+    // Gaussian filtration (filter size must be odd)
+    // Source image WILL BE CHANGED!!!
+    // Return true if filtration was success
     static bool Gaussian(Image& img, const int filterSize);
 
     // Gaussian imitation by IIR-filter

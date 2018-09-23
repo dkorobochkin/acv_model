@@ -1,4 +1,4 @@
-//
+﻿//
 // MIT License
 //
 // Copyright (c) 2018 Dmitriy Korobochkin, Vitaliy Garmash.
@@ -54,137 +54,137 @@ public:
 
     ~MainWindow();
 
-private slots: // Закрытые слоты
+private slots: // Private slots
 
-    // Слот для открытия изображения
+    // Slot to open the image
     void OpenImgFile();
 
-    // Слот для закрытия изображения (закрывает текущее выбранное изображение)
+    // Slot to close the image (close the current image)
     void CloseImgFile();
 
-    // Слот для сохранения изображения (текущего выбранного)
+    // Slot to save the image (current selected image)
     void SaveImgFile();
 
-    // Слот для закрытия главного окна
+    // Slot to close the main window
     void Exit();
 
-    // Слот отображения текущего выбранного изображение
+    // Slot to draw the current selected image
     void DrawCurImg();
 
-    // Слот для расположения главного окна по центру экрана
+    // Slot to place the main window on center of screen
     void MoveToCenterOfDisplay();
 
-    // Слот для обновления меню открытых изображений
-    // Вызывает после добавления или закрытия изображений, в том числе и обработанных
+    // Slot to update the menu of images
+    // The slot will be called in cases of add or close images
     void UpdateImgsMenu();
 
-    // Установка текущего изображения по выбранному из меню
+    // Slot to set current image by selected image in menu
     void SetCurImage();
 
-    // Выполнение медианной фильтрации
+    // Slot to run the median blur
     void MedianBlur();
 
-    // Выполнение Гауссовой фильтрации
+    // Slot to run the Gaussian blur
     void GaussianBlur();
 
     // IIR-imitated gaussian blur
     void IIRGaussianBlur();
 
-    // Свертка изображения с оператором Собеля
+    // Slot to convolution the image with the Sobel operator
     void Sobel();
 
-    // Свертка изображения с оператором Щарра
+    // Slot to convolution the image with the Scharr operator
     void Scharr();
 
-    // Detect the borders by using Canny algorithm
+    // Slot to detect the borders by using Canny algorithm
     void Canny();
 
-    // Совмещение с приоритетом наиболее информативного изображения
+    // Slot to combine the images by method of priority of the most informative image
     void InformPriorityCombining();
 
-    // Морфологическое совмещение
+    // Slot to combine the images by morphological method
     void MorphologicalCombining();
 
-    // Локально-энтропийное комбинирование
+    // Slot to combine the images by local-entropy method
     void LocalEntropyCombining();
 
-    // Расчет энтропии изображения
+    // Slot to calculation of image entropy
     void CalcEntropy();
 
-    // Расчет средней яркости изображения
+    // Slot to calculation of image average brightness
     void CalcAverageBrightness();
 
-    // Очистка дисплея (вызывает когда закрыли все октрытые и обработанные изображения)
+    // Slot to clear the display (the slot will be called in case of all images closing)
     void ClearDisplay();
 
-signals: // Сигналы
+signals: // Signals
 
-    // Сигнал о том, что выбрано другое изображение
+    // Signal about select the other image
     void CurImgWasUpdated();
 
-    // Сигнал о том, что изменился массив открытых изображений
+    // Signal about change the vector of opened images
     void OpenedImgsChanged();
 
-    // Сигнал о том, что изменился массив обработанных изображений
+    // Signal about change the vector of processed images
     void ProcessedImgsChanged();
 
-    // Сигнал о том, что все изображения закрыты
+    // Signal about close all images
     void AllImgsAreClosed();
 
-private: // Закрытые методы
+private: // Private methods
 
-    // Создание действий для раздела "Файл"
+    // Creation the actions for section "File"
     void CreateFileActions();
 
-    // Создание действий для раздела "Фильтрация"
+    // Creation the actions for section "Filtration"
     void CreateFilteringActions();
 
-    // Создание действия для раздела "Операторы"
+    // Creation the actions for section "Operators"
     void CreateOperatorActions();
 
-    // Creation an actions for section "Detectors of borders"
+    // Creation the actions for section "Detectors of borders"
     void CreateBodersDetectorsActions();
 
-    // Создание действий для раздела "Параметры"
+    // Creation the actions for section "Parameters"
     void CreateParamsActions();
 
-    // Создание действий для раздела "Совмещение"
+    // Creation the actions for section "Combining"
     void CreateCombiningActions();
 
-    // Создание действий для работы с изображениями
+    // Creation all actions
     void CreateActions();
 
-    // Создание меню для раздела "Файл"
+    // Creation menu for section "File"
     void CreateFileMenu();
 
-    // Создание меню для раздела "Фильтрация"
+    // Creation menu for section "Filtration"
     void CreateFilteringMenu();
 
-    // Создание меню для раздела "Операторы"
+    // Creation menu for section "Operators
     void CreateOperatorsMenu();
 
-    // Creation a menu for section "Detectors of borders"
+    // Creation menu for section "Detectors of borders"
     void CreateBordersDetectorsMenu();
 
-    // Создание меню для раздела "Параметры"
+    // Creation menu for section "Parameters
     void CreateParamsMenu();
 
-    // Создание меню для раздела "Совмещение"
+    // Creation menu for section "Combining
     void CreateCombiningMenu();
 
-    // Создание главных меню
+    // Creation main menu
     void CreateMainMenus();
 
-    // Загрузка изображения из файла
+    // Load image from file
     bool LoadImgFromFile(const QString& fileName);
 
-    // Добавление действия для вновь открытого изображения из файла
+    // Adding the action for new open file
     void AddOpenedImgAction(const QString& fileName);
 
-    // Формирование имени для действия комбинированного изображения
+    // Forming the name for action of combined image
     QString FormCombineActionName(acv::ImageCombiner::CombineType combType);
 
-    // Формирование имени для действия по обработке изображений
+    // Forming the name for action of processed image
     QString FormProcessedImgActionName(const QString& prefix);
 
     // Forming the name for action of filtered image
@@ -193,46 +193,47 @@ private: // Закрытые методы
     // Forming the name for action of image that get in result of convolution with operator
     QString FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type);
 
-    // Добавление действия для обработанного изображения
+    // Adding the action for processed image
     void AddProcessedImgAction(const QString& actionName);
 
-    // Проверяет, было ли открыто хоть одно изображение
+    // Check if has been opened image
     bool ImgsWereOpened() const;
 
-    // Проверка, выбрано ли изображение
+    // Check if has been selected image
     bool ImgWasSelected() const;
 
-    // Совмещение с заданным типом
+    // Combining with the specified type
     void Combining(acv::ImageCombiner::CombineType combType);
 
-    // Фильтрация заданного типа
+    // Filtering with the specified type
     void Filtering(acv::ImageFilter::FilterType filterType);
 
-    // Свертка с оператором заданного типа
+    // Convolution the image with the operator of specified type
     void Operator(acv::BordersDetector::OperatorType operatorType);
 
-    // Получить номер выбранного действия из вектора действий (если не выбрано, то возвращает -1)
+    // Get the number of selected action from actions vector (if was not selected then will be return -1)
     int GetNumOfActionInVec(const QAction* action, const std::vector<QAction*>& actionsVec);
 
-    // Получить номер выбранного открытого изображения (если изображение не выбрано, то возвращает -1)
+    // Get the number of selected opened image (if was not selected then will be return -1)
     int GetNumOfOpenedImgByAction(const QAction* actions);
 
-    // Получить номер выбранного обработанного изображения (если изображение не выбрано, то возвращает -1)
+    // Get the number of selected processed image (if was not selected then will be return -1)
     int GetNumOfProcessedImgByAction(const QAction* action);
 
-    // Возвращает ссылку на текущее выбранное изображение
+    // Get the reference to the current selected image
     acv::Image& GetCurImg();
     const acv::Image& GetCurImg() const;
 
     // Удаляет изображение из массива изображений и удаляет действие для него, так же изменяет номер изображения
+    // Delete the current image and him action. Will be change the number of current image
     void DeleteImg(int& curImg, std::vector<acv::Image>& imgs, std::vector<QAction*>& actions);
 
-private: // Закрытые данные
+private: // Private members
 
-    // Пользовательский интерфейс
+    // UI
     Ui::MainWindow *mUi;
 
-    // Действия для работы с изображениями
+    // Actions to work with images
     std::vector<QAction*> mOpenedImgsActions;
     std::vector<QAction*> mProcessedImgsActions;
     QAction* mOpenAction;
@@ -251,7 +252,7 @@ private: // Закрытые данные
     QAction* mImgEntropyAction;
     QAction* mImgAverBrightnessAction;
 
-    // Главные меню
+    // Main menu
     QMenu* mFileMenu;
     QMenu* mImgsMenu;
     QMenu* mProcessingMenu;
@@ -262,19 +263,19 @@ private: // Закрытые данные
     QMenu* mCombineMenu;
     QMenu* mCombineTestMenu;
 
-    // Используется для отображения изображения на экране
+    // This member is used to draw the image on the screen
     ImageViewer* mViewer;
 
-    // Хранит все открытые изображения
+    // All opened images
     std::vector<acv::Image> mOpenedImgs;
 
-    // Хранит все обработанные изображения
+    // All processed images
     std::vector<acv::Image> mProcessedImgs;
 
-    // Номер текущего выбранного открытого изображения (-1 если не выбрано)
+    // Current selected opened image (-1 in case of not select)
     int mCurOpenedImg;
 
-    // Номер текущего выбранного обработанного (например, результат совмещения) изображения (-1 если не выбрано)
+    // Current selected processed image (-1 in case of not select)
     int mCurProcessedImg;
 
 };

@@ -32,23 +32,24 @@
 
 class QImage;
 
+// Class is used to draw the images on the screen
 class ImageViewer : public QWidget
 {
     Q_OBJECT
 
-public: // Публичные конструкторы и деструктор
+public: // Public constructors
 
     explicit ImageViewer(QWidget *parent = nullptr);
 
-public: // Публичные методы рисования
+public: // Public draw methods
 
-    // Метод используется для отображения QImage
+    // Method is used to draw QImage class
     void DrawImage(const QImage& img);
 
-    // Метод использует для отобображения AImage
+    // Method is used to draw Image class
     void DrawImage(const acv::Image& img);
 
-    // Метод очищает область вывода изображения
+    // Clear the screen
     void Clear();
 
 protected:
@@ -58,9 +59,9 @@ signals:
 
 public slots:
 
-private: // Закрытые данные
+private: // Private members
 
-    // Используется для хранения отображаемых в настоящее время данных
+    // This pixmap is used to storage the drawn data
     QPixmap mPixmap;
 
 };
