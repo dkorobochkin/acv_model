@@ -227,9 +227,11 @@ private: // Private methods
     acv::Image& GetCurImg();
     const acv::Image& GetCurImg() const;
 
-    // Удаляет изображение из массива изображений и удаляет действие для него, так же изменяет номер изображения
     // Delete the current image and him action. Will be change the number of current image
     void DeleteImg(int& curImg, std::vector<acv::Image>& imgs, std::vector<QAction*>& actions);
+
+    // Add processed image to menu, add his action. Also this image will be drawn and current image will be him
+    void AddProcessedImg(const acv::Image& processedImg, const QString& actionName);
 
 private: // Private members
 

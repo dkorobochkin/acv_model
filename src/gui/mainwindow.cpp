@@ -375,16 +375,8 @@ void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
 
         if (filtred)
         {
-            mProcessedImgs.push_back(processedImg);
-
             QString actionName = FormOperatorActionName(operatorType, type);
-
-            mCurOpenedImg = -1;
-            mCurProcessedImg = mProcessedImgs.size() - 1;
-            emit CurImgWasUpdated();
-
-            AddProcessedImgAction(actionName);
-            emit ProcessedImgsChanged();
+            AddProcessedImg(processedImg, actionName);
 
             QMessageBox::information(this, tr("Operator"), tr("Time of convolution: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
@@ -407,6 +399,18 @@ void MainWindow::Scharr()
     Operator(acv::BordersDetector::OperatorType::SCHARR);
 }
 
+void MainWindow::AddProcessedImg(const acv::Image& processedImg, const QString& actionName)
+{
+    mProcessedImgs.push_back(processedImg);
+
+    mCurOpenedImg = -1;
+    mCurProcessedImg = mProcessedImgs.size() - 1;
+    emit CurImgWasUpdated();
+
+    AddProcessedImgAction(actionName);
+    emit ProcessedImgsChanged();
+}
+
 void MainWindow::Canny()
 {
     if (ImgWasSelected())
@@ -425,16 +429,8 @@ void MainWindow::Canny()
 
         if (detected)
         {
-            mProcessedImgs.push_back(processedImg);
-
             QString actionName = FormCannyActionName();
-
-            mCurOpenedImg = -1;
-            mCurProcessedImg = mProcessedImgs.size() - 1;
-            emit CurImgWasUpdated();
-
-            AddProcessedImgAction(actionName);
-            emit ProcessedImgsChanged();
+            AddProcessedImg(processedImg, actionName);
 
             QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
         }
@@ -467,16 +463,8 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
 
         if (filtred)
         {
-            mProcessedImgs.push_back(processedImg);
-
             QString actionName = FormFilterActionName(filterType, filterSize);
-
-            mCurOpenedImg = -1;
-            mCurProcessedImg = mProcessedImgs.size() - 1;
-            emit CurImgWasUpdated();
-
-            AddProcessedImgAction(actionName);
-            emit ProcessedImgsChanged();
+            AddProcessedImg(processedImg, actionName);
 
             QMessageBox::information(this, tr("Image filtration"), tr("Time of filtration: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
@@ -566,14 +554,8 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
 
         if (combined && combImg.IsInitialized())
         {
-            mProcessedImgs.push_back(combImg);
-
-            mCurOpenedImg = -1;
-            mCurProcessedImg = mProcessedImgs.size() - 1;
-            emit CurImgWasUpdated();
-
-            AddProcessedImgAction(FormCombineActionName(combType));
-            emit ProcessedImgsChanged();
+            QString actionName = FormCombineActionName(combType);
+            AddProcessedImg(combImg, actionName);
 
             QMessageBox::information(this, tr("Images combining"), tr("Time of combining: %1 мсек").arg(combTime), QMessageBox::Ok);
         }
