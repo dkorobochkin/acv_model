@@ -33,7 +33,7 @@
 
 namespace acv {
 
-bool ImageFilter::Filter(Image& img, const int filterSize, ImageFilter::FilterType type)
+FiltrationResult ImageFilter::Filter(Image& img, const int filterSize, ImageFilter::FilterType type)
 {
     switch (type)
     {
@@ -44,11 +44,11 @@ bool ImageFilter::Filter(Image& img, const int filterSize, ImageFilter::FilterTy
     case FilterType::IIR_GAUSSIAN:
         return GaussianIIR( img, static_cast<float>(filterSize/6.0) );
     default:
-        return false;
+        return FiltrationResult::INCORRECT_FILTER_TYPE;
     }
 }
 
-bool ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSize, ImageFilter::FilterType type)
+FiltrationResult ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSize, ImageFilter::FilterType type)
 {
     switch (type)
     {
@@ -57,13 +57,13 @@ bool ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSiz
     case FilterType::GAUSSIAN:
         return Gaussian(srcImg, dstImg, filterSize);
     case FilterType::IIR_GAUSSIAN:
-        return GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize/6.0));
+        return GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize / 6.0));
     default:
-        return false;
+        return FiltrationResult::INCORRECT_FILTER_TYPE;
     }
 }
 
-bool ImageFilter::Median(Image& img, const int filterSize)
+FiltrationResult ImageFilter::Median(Image& img, const int filterSize)
 {
     if (filterSize % 2 != 0) // The filter size should be odd
     {
@@ -73,20 +73,20 @@ bool ImageFilter::Median(Image& img, const int filterSize)
         Median(img, tmpImg, filterSize);
 
         img = std::move(tmpImg);
-        return true;
+        return FiltrationResult::SUCCESS;
     }
 
-    return false;
+    return FiltrationResult::INCORRECT_FILTER_SIZE;
 }
 
-bool ImageFilter::Median(const Image& srcImg, Image& dstImg, const int filterSize)
+FiltrationResult ImageFilter::Median(const Image& srcImg, Image& dstImg, const int filterSize)
 {
     if (filterSize % 2 != 0) // The filter size should be odd
     {
         const int APERTURE = filterSize / 2; // Aparture size
         const int MEDIAN = filterSize * filterSize / 2; // Median index (the index of element that will be a new value)
 
-       //  We collect all pixels from the window of size filterSize*filterSize to vector for each pixel
+        // We collect all pixels from the window of size filterSize*filterSize to vector for each pixel
         std::vector<Image::Byte> pixelsWindow(filterSize * filterSize);
 
         for (int row = 0; row < dstImg.GetHeight(); ++row)
@@ -112,13 +112,13 @@ bool ImageFilter::Median(const Image& srcImg, Image& dstImg, const int filterSiz
             }
         }
 
-        return true;
+        return FiltrationResult::SUCCESS;
     }
 
-    return false;
+    return FiltrationResult::INCORRECT_FILTER_SIZE;
 }
 
-bool ImageFilter::Gaussian(Image& img, const int filterSize)
+FiltrationResult ImageFilter::Gaussian(Image& img, const int filterSize)
 {
     if (filterSize % 2 != 0) // The filter size should be odd
     {
@@ -142,13 +142,14 @@ bool ImageFilter::Gaussian(Image& img, const int filterSize)
         }
         filter.SetDivider(divider);
 
-        return MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
+        bool ret = MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
+        return (ret) ? FiltrationResult::SUCCESS : FiltrationResult::INTERNAL_ERROR;
     }
 
-    return false;
+    return FiltrationResult::INCORRECT_FILTER_SIZE;
 }
 
-bool ImageFilter::GaussianIIR(Image& img, float sigma)
+FiltrationResult ImageFilter::GaussianIIR(Image& img, float sigma)
 {
     if (sigma >= 1.)
     {
@@ -198,35 +199,30 @@ bool ImageFilter::GaussianIIR(Image& img, float sigma)
             }
         }
 
-        return true;
+        return FiltrationResult::SUCCESS;
     }
 
-    return false;
-
+    return FiltrationResult::SMALL_FILTER_SIZE;
 }
 
-bool ImageFilter::GaussianIIR(const Image& srcImg, Image& dstImg, float sigma)
+FiltrationResult ImageFilter::GaussianIIR(const Image& srcImg, Image& dstImg, float sigma)
 {
-    bool ret = sigma >= 1.;
+    if (sigma < 1.0)
+        return FiltrationResult::SMALL_FILTER_SIZE;
 
-    if (ret)
-    {
-        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
-        ret = ret && GaussianIIR(dstImg, sigma);
-    }
+    memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+    FiltrationResult ret = GaussianIIR(dstImg, sigma);
 
     return ret;
 }
 
-bool ImageFilter::Gaussian(const Image& srcImg, Image& dstImg, const int filterSize)
+FiltrationResult ImageFilter::Gaussian(const Image& srcImg, Image& dstImg, const int filterSize)
 {
-    bool ret = filterSize % 2 != 0;
+    if (filterSize % 2 == 0)
+        return FiltrationResult::INCORRECT_FILTER_SIZE;
 
-    if (ret)
-    {
-        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
-        ret = ret && Gaussian(dstImg, filterSize);
-    }
+    memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+    FiltrationResult ret = Gaussian(dstImg, filterSize);
 
     return ret;
 }

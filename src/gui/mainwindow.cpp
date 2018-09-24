@@ -443,6 +443,25 @@ void MainWindow::Canny()
     }
 }
 
+QString MainWindow::FormFiltrationResultStr(acv::FiltrationResult filtRes)
+{
+    switch (filtRes)
+    {
+    case acv::FiltrationResult::INCORRECT_FILTER_SIZE:
+        return tr("Incorrect filter size. Filter size should be odd.");
+    case acv::FiltrationResult::INCORRECT_FILTER_TYPE:
+        return tr("Unknown filter type");
+    case acv::FiltrationResult::INTERNAL_ERROR:
+        return tr("Error during filtration");
+    case acv::FiltrationResult::SMALL_FILTER_SIZE:
+        return tr("Filter size should be >= 6");
+    case acv::FiltrationResult::SUCCESS:
+        return tr("Success of filtration");
+    default:
+        return tr("Unknown error");
+    }
+}
+
 void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
 {
     if (ImgWasSelected())
@@ -457,11 +476,11 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
         QElapsedTimer timer;
         timer.start();
 
-        bool filtred = acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
+        acv::FiltrationResult filtRes = acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
 
         qint64 filterTime = timer.elapsed();
 
-        if (filtred)
+        if (filtRes == acv::FiltrationResult::SUCCESS)
         {
             QString actionName = FormFilterActionName(filterType, filterSize);
             AddProcessedImg(processedImg, actionName);
@@ -469,7 +488,7 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
             QMessageBox::information(this, tr("Image filtration"), tr("Time of filtration: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Image filtration"), tr("Could not filtration"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Image filtration"), FormFiltrationResultStr(filtRes), QMessageBox::Ok);
     }
     else
     {

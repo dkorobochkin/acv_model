@@ -211,6 +211,9 @@ private: // Private methods
     // Filtering with the specified type
     void Filtering(acv::ImageFilter::FilterType filterType);
 
+    // Forming the text about result of filtration
+    QString FormFiltrationResultStr(acv::FiltrationResult filtRes);
+
     // Convolution the image with the operator of specified type
     void Operator(acv::BordersDetector::OperatorType operatorType);
 
