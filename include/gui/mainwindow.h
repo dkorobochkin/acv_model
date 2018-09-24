@@ -87,8 +87,11 @@ private slots: // Private slots
     // Slot to run the Gaussian blur
     void GaussianBlur();
 
-    // IIR-imitated gaussian blur
+    // Slot to run IIR-imitated gaussian blur
     void IIRGaussianBlur();
+
+    // Slot to run Single Scale Retinex
+    void SingleScaleRetinex();
 
     // Slot to convolution the image with the Sobel operator
     void Sobel();
@@ -248,6 +251,7 @@ private: // Private members
     QAction* mMedianBlurAction;
     QAction* mGaussianBlurAction;
     QAction* mIIRGaussianBlurAction;
+    QAction* mSingleScaleRetinexAction;
     QAction* mSobelAction;
     QAction* mScharrAction;
     QAction* mCannyAction;

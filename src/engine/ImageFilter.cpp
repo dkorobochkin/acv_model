@@ -58,6 +58,8 @@ bool ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSiz
         return Gaussian(srcImg, dstImg, filterSize);
     case FilterType::IIR_GAUSSIAN:
         return GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize/6.0));
+    case FilterType::SSRETINEX:
+        return SingleScaleRetinex(srcImg, dstImg, static_cast<float>(filterSize/6.0));
     default:
         return false;
     }
@@ -216,6 +218,41 @@ bool ImageFilter::GaussianIIR(const Image& srcImg, Image& dstImg, float sigma)
     }
 
     return ret;
+}
+
+bool ImageFilter::SingleScaleRetinex(const Image& srcImg, Image& dstImg, float sigma)
+{
+        size_t size = dstImg.GetWidth() * dstImg.GetHeight();
+
+        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), size);
+        if ( !GaussianIIR(dstImg,12.) ) return false;
+
+        std::vector<float> Ret(size);
+
+        auto srcIt= const_cast<Image&>(srcImg).GetData().cbegin();
+        auto dstIt= dstImg.GetData().begin();
+        auto retIt= Ret.begin();
+        float retAvg=0.;
+
+        for (size_t i = 0; i < size; ++i, ++srcIt, ++dstIt, ++retIt)
+        {
+             *retIt = (!*srcIt || !*dstIt) ? 0. : (static_cast<float>(*srcIt) / *dstIt) * log(*srcIt);
+             retAvg += *retIt;
+        }
+        retAvg /= size;
+
+        float Pmin = 0., Pmax = 2.5 * retAvg, DP = Pmax - Pmin;
+        dstIt = dstImg.GetData().begin();
+        retIt = Ret.begin();
+
+        for (size_t i = 0; i < size; ++i, ++dstIt, ++retIt)
+        {
+           int px = Image::MAX_PIXEL_VALUE * (*retIt - Pmin) / DP;
+           Image::CheckPixelValue(px);
+           *dstIt = px;
+        }
+
+        return true;
 }
 
 bool ImageFilter::Gaussian(const Image& srcImg, Image& dstImg, const int filterSize)

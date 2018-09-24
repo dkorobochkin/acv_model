@@ -108,6 +108,10 @@ void MainWindow::CreateFilteringActions()
     mIIRGaussianBlurAction = new QAction(tr("IIR-gaussian filter"), this);
     mIIRGaussianBlurAction->setStatusTip(tr("IIR-imitated gaussian blur"));
     connect(mIIRGaussianBlurAction, SIGNAL(triggered()), this, SLOT(IIRGaussianBlur()));
+
+    mSingleScaleRetinexAction = new QAction(tr("Single Scale Retinex"), this);
+    mSingleScaleRetinexAction->setStatusTip(tr("Single Scale Retinex"));
+    connect(mSingleScaleRetinexAction, SIGNAL(triggered()), this, SLOT(SingleScaleRetinex()));
 }
 
 void MainWindow::CreateOperatorActions()
@@ -186,6 +190,7 @@ void MainWindow::CreateFilteringMenu()
     mFilterMenu->addAction(mMedianBlurAction);
     mFilterMenu->addAction(mGaussianBlurAction);
     mFilterMenu->addAction(mIIRGaussianBlurAction);
+    mFilterMenu->addAction(mSingleScaleRetinexAction);
 }
 
 void MainWindow::CreateOperatorsMenu()
@@ -351,6 +356,11 @@ void MainWindow::GaussianBlur()
 void MainWindow::IIRGaussianBlur()
 {
     Filtering(acv::ImageFilter::FilterType::IIR_GAUSSIAN);
+}
+
+void MainWindow::SingleScaleRetinex()
+{
+    Filtering(acv::ImageFilter::FilterType::SSRETINEX);
 }
 
 void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
@@ -620,6 +630,9 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
         break;
     case acv::ImageFilter::FilterType::IIR_GAUSSIAN:
         ret = tr("F_G_IIR_%1: ").arg(filterSize);
+        break;
+    case acv::ImageFilter::FilterType::SSRETINEX:
+        ret = tr("F_SSR_%1: ").arg(filterSize);
         break;
     default:
         return QString();

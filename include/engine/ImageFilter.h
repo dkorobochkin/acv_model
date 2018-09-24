@@ -43,7 +43,8 @@ public: // Public auxiliary types
     {
         MEDIAN, // Median filtration
         GAUSSIAN, // Gaissian filtration
-        IIR_GAUSSIAN // IIR-imitated gaussian filtration
+        IIR_GAUSSIAN, // IIR-imitated gaussian filtration
+        SSRETINEX  // Single-scale Retinex
     };
 
     template <typename T>
@@ -92,6 +93,8 @@ private: // Private methods
     static bool GaussianIIR(Image& img, float sigma);
     static bool GaussianIIR(const Image& srcImg, Image& dstImg, float sigma);
 
+    // SSR algorith
+    static bool SingleScaleRetinex(const Image& srcImg, Image& dstImg, float sigma);
 };
 
 
