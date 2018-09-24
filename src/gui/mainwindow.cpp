@@ -542,6 +542,23 @@ void MainWindow::ClearDisplay()
     mViewer->Clear();
 }
 
+QString MainWindow::FormCombinationResultStr(acv::CombinationResult combRes)
+{
+    switch (combRes)
+    {
+    case acv::CombinationResult::INCORRECT_COMBINER_TYPE:
+        return tr("Unknown combiner type");
+    case acv::CombinationResult::FEW_IMAGES:
+        return tr("The number of images should be >= 2");
+    case acv::CombinationResult::NOT_SAME_IMAGES:
+        return tr("The combined images are not the same");
+    case acv::CombinationResult::SUCCESS:
+        return tr("Success of combining");
+    default:
+        return tr("Unknown error");
+    }
+}
+
 void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
 {
     if (ImgsWereOpened())
@@ -566,12 +583,12 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
         QElapsedTimer timer;
         timer.start();
 
-        bool combined;
-        acv::Image combImg = combiner.Combine(combType, combined, answer == QMessageBox::Yes);
+        acv::CombinationResult combRes;
+        acv::Image combImg = combiner.Combine(combType, combRes, answer == QMessageBox::Yes);
 
         qint64 combTime = timer.elapsed();
 
-        if (combined && combImg.IsInitialized())
+        if (combRes == acv::CombinationResult::SUCCESS && combImg.IsInitialized())
         {
             QString actionName = FormCombineActionName(combType);
             AddProcessedImg(combImg, actionName);
@@ -579,7 +596,7 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
             QMessageBox::information(this, tr("Images combining"), tr("Time of combining: %1 мсек").arg(combTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Images combining"), tr("Could not combine the images"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Images combining"), FormCombinationResultStr(combRes), QMessageBox::Ok);
     }
     else
     {

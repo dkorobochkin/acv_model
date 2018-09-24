@@ -77,28 +77,26 @@ void ImageCombiner::ClearImages()
     mCombinedImages.clear();
 }
 
-Image ImageCombiner::Combine(ImageCombiner::CombineType combineType, bool& combined, const bool needSort)
+Image ImageCombiner::Combine(ImageCombiner::CombineType combineType, CombinationResult& combRes, const bool needSort)
 {
-    combined = false;
+    combRes = CombinationResult::INCORRECT_COMBINER_TYPE;
 
     switch (combineType)
     {
     case ImageCombiner::CombineType::INFORM_PRIORITY:
-        return InformativePriority(combined, needSort);
+        return InformativePriority(combRes, needSort);
     case ImageCombiner::CombineType::MORPHOLOGICAL:
-        return Morphological(DEFAULT_NUM_MODS, combined, needSort);
+        return Morphological(DEFAULT_NUM_MODS, combRes, needSort);
     case ImageCombiner::CombineType::LOCAL_ENTROPY:
-        return LocalEntropy(combined);
+        return LocalEntropy(combRes);
     default:
         return Image();
     }
 }
 
-Image ImageCombiner::InformativePriority(bool& combined, const bool needSort)
+Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool needSort)
 {
-    combined = CanCombine();
-
-    if (combined)
+    if (CanCombine(combRes))
     {
         std::vector<const Image*> sortedImages;
         if (needSort)
@@ -129,26 +127,25 @@ Image ImageCombiner::InformativePriority(bool& combined, const bool needSort)
             auto baseIt = baseImg.GetData().begin();
             for (auto projPix : projImg.GetData())
             {
-                    int delta = static_cast<int>(projPix - A);
+                int delta = static_cast<int>(projPix - A);
 
-                    int px = static_cast<int>(*baseIt + delta - dA);
-                    Image::CheckPixelValue(px);
+                int px = static_cast<int>(*baseIt + delta - dA);
+                Image::CheckPixelValue(px);
 
-                    *baseIt++ = px;
+                *baseIt++ = px;
             }
         }
 
+        combRes = CombinationResult::SUCCESS;
         return baseImg;
     }
 
     return Image();
 }
 
-Image ImageCombiner::Morphological(const size_t numMods, bool& combined, const bool needSort)
+Image ImageCombiner::Morphological(const size_t numMods, CombinationResult& combRes, const bool needSort)
 {
-    combined = CanCombine();
-
-    if (combined)
+    if (CanCombine(combRes))
     {
         std::vector<const Image*> sortedImages;
         if (needSort)
@@ -168,19 +165,18 @@ Image ImageCombiner::Morphological(const size_t numMods, bool& combined, const b
 
         MergeImages(baseImg, projections);
 
+        combRes = CombinationResult::SUCCESS;
         return baseImg;
     }
 
     return Image();
 }
 
-Image ImageCombiner::LocalEntropy(bool& combined)
+Image ImageCombiner::LocalEntropy(CombinationResult& combRes)
 {
     const int APERTURE = 2;
 
-    combined = CanCombine();
-
-    if (combined)
+    if (CanCombine(combRes))
     {
         Image resImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
 
@@ -206,20 +202,33 @@ Image ImageCombiner::LocalEntropy(bool& combined)
             }
         }
 
+        combRes = CombinationResult::SUCCESS;
         return resImg;
     }
 
     return Image();
 }
 
-bool ImageCombiner::CanCombine() const
+bool ImageCombiner::CanCombine(CombinationResult& combRes) const
 {
     bool ret = mCombinedImages.size() >= 2;
+
+    if (!ret)
+    {
+        combRes = CombinationResult::FEW_IMAGES;
+        return ret;
+    }
 
     for (size_t i = 1; ret && i < mCombinedImages.size(); ++i)
     {
         ret = ret && (mCombinedImages[i]->GetWidth() == mCombinedImages[0]->GetWidth());
         ret = ret && (mCombinedImages[i]->GetHeight() == mCombinedImages[0]->GetHeight());
+    }
+
+    if (!ret)
+    {
+        combRes = CombinationResult::NOT_SAME_IMAGES;
+        return ret;
     }
 
     return ret;

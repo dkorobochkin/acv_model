@@ -214,6 +214,9 @@ private: // Private methods
     // Forming the text about result of filtration
     QString FormFiltrationResultStr(acv::FiltrationResult filtRes);
 
+    // Forming the text about result of combination
+    QString FormCombinationResultStr(acv::CombinationResult combRes);
+
     // Convolution the image with the operator of specified type
     void Operator(acv::BordersDetector::OperatorType operatorType);
 
