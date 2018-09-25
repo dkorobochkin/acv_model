@@ -31,6 +31,16 @@ namespace acv {
 
 class Image;
 
+// This enum is used to represent the result of image filtering
+enum class FiltrationResult
+{
+    SUCCESS, // Success of filtration
+    INTERNAL_ERROR, // Error during filtration
+    INCORRECT_FILTER_TYPE, // Incorrect type of filter
+    INCORRECT_FILTER_SIZE, // Incorrect filter size (he should be odd)
+    SMALL_FILTER_SIZE, // Filter size is small (this code is used for IIR Gaussian filtration)
+};
+
 // Class is used to filter images by several methods
 // Class contains only static methods
 class ImageFilter
@@ -62,39 +72,33 @@ public: // Public methods
 
     // Run a filtration by the specified method
     // Source image WILL BE CHANGED!!!
-    // Return true if filtration was success
-    static bool Filter(Image& img, const int filterSize, FilterType type);
+    static FiltrationResult Filter(Image& img, const int filterSize, FilterType type);
 
     // Run a filtration by the specified method
-    // Return true if filtration was success
-    static bool Filter(const Image& srcImg, Image& dstImg, const int filterSize, FilterType type);
+    static FiltrationResult Filter(const Image& srcImg, Image& dstImg, const int filterSize, FilterType type);
 
 private: // Private methods
 
     // Median filtration (filter size must be odd)
     // Source image WILL BE CHANGED!!!
-    // Return true if filtration was success
-    static bool Median(Image& img, const int filterSize);
+    static FiltrationResult Median(Image& img, const int filterSize);
 
     // Median filtration (filter size must be odd)
-    // Return true if filtration was success
-    static bool Median(const Image& srcImg, Image& dstImg, const int filterSize);
+    static FiltrationResult Median(const Image& srcImg, Image& dstImg, const int filterSize);
 
     // Gaussian filtration (filter size must be odd)
     // Source image WILL BE CHANGED!!!
-    // Return true if filtration was success
-    static bool Gaussian(Image& img, const int filterSize);
+    static FiltrationResult Gaussian(Image& img, const int filterSize);
 
     // Gaussian filtration (filter size must be odd)
-    // Return true if filtration was success
-    static bool Gaussian(const Image& srcImg, Image& dstImg, const int filterSize);
+    static FiltrationResult Gaussian(const Image& srcImg, Image& dstImg, const int filterSize);
 
     // Gaussian imitation by IIR-filter
-    static bool GaussianIIR(Image& img, float sigma);
-    static bool GaussianIIR(const Image& srcImg, Image& dstImg, float sigma);
+    static FiltrationResult GaussianIIR(Image& img, float sigma);
+    static FiltrationResult GaussianIIR(const Image& srcImg, Image& dstImg, float sigma);
 
     // SSR algorith
-    static bool SingleScaleRetinex(const Image& srcImg, Image& dstImg, float sigma);
+    static FiltrationResult SingleScaleRetinex(const Image& srcImg, Image& dstImg, float sigma);
 };
 
 

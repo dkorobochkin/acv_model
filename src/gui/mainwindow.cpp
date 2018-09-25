@@ -453,6 +453,25 @@ void MainWindow::Canny()
     }
 }
 
+QString MainWindow::FormFiltrationResultStr(acv::FiltrationResult filtRes)
+{
+    switch (filtRes)
+    {
+    case acv::FiltrationResult::INCORRECT_FILTER_SIZE:
+        return tr("Incorrect filter size. Filter size should be odd.");
+    case acv::FiltrationResult::INCORRECT_FILTER_TYPE:
+        return tr("Unknown filter type");
+    case acv::FiltrationResult::INTERNAL_ERROR:
+        return tr("Error during filtration");
+    case acv::FiltrationResult::SMALL_FILTER_SIZE:
+        return tr("Filter size should be >= 6");
+    case acv::FiltrationResult::SUCCESS:
+        return tr("Success of filtration");
+    default:
+        return tr("Unknown error");
+    }
+}
+
 void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
 {
     if (ImgWasSelected())
@@ -467,11 +486,11 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
         QElapsedTimer timer;
         timer.start();
 
-        bool filtred = acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
+        acv::FiltrationResult filtRes = acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
 
         qint64 filterTime = timer.elapsed();
 
-        if (filtred)
+        if (filtRes == acv::FiltrationResult::SUCCESS)
         {
             QString actionName = FormFilterActionName(filterType, filterSize);
             AddProcessedImg(processedImg, actionName);
@@ -479,7 +498,7 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
             QMessageBox::information(this, tr("Image filtration"), tr("Time of filtration: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Image filtration"), tr("Could not filtration"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Image filtration"), FormFiltrationResultStr(filtRes), QMessageBox::Ok);
     }
     else
     {
@@ -533,6 +552,23 @@ void MainWindow::ClearDisplay()
     mViewer->Clear();
 }
 
+QString MainWindow::FormCombinationResultStr(acv::CombinationResult combRes)
+{
+    switch (combRes)
+    {
+    case acv::CombinationResult::INCORRECT_COMBINER_TYPE:
+        return tr("Unknown combiner type");
+    case acv::CombinationResult::FEW_IMAGES:
+        return tr("The number of images should be >= 2");
+    case acv::CombinationResult::NOT_SAME_IMAGES:
+        return tr("The combined images are not the same");
+    case acv::CombinationResult::SUCCESS:
+        return tr("Success of combining");
+    default:
+        return tr("Unknown error");
+    }
+}
+
 void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
 {
     if (ImgsWereOpened())
@@ -557,12 +593,12 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
         QElapsedTimer timer;
         timer.start();
 
-        bool combined;
-        acv::Image combImg = combiner.Combine(combType, combined, answer == QMessageBox::Yes);
+        acv::CombinationResult combRes;
+        acv::Image combImg = combiner.Combine(combType, combRes, answer == QMessageBox::Yes);
 
         qint64 combTime = timer.elapsed();
 
-        if (combined && combImg.IsInitialized())
+        if (combRes == acv::CombinationResult::SUCCESS && combImg.IsInitialized())
         {
             QString actionName = FormCombineActionName(combType);
             AddProcessedImg(combImg, actionName);
@@ -570,7 +606,7 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
             QMessageBox::information(this, tr("Images combining"), tr("Time of combining: %1 мсек").arg(combTime), QMessageBox::Ok);
         }
         else
-            QMessageBox::warning(this, tr("Images combining"), tr("Could not combine the images"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Images combining"), FormCombinationResultStr(combRes), QMessageBox::Ok);
     }
     else
     {

@@ -34,6 +34,15 @@ namespace acv {
 class Image;
 class AMorphologicalForm;
 
+// This enum is used to represent the result of images combining
+enum class CombinationResult
+{
+    SUCCESS, // Success of combining
+    INCORRECT_COMBINER_TYPE, // Incorrect type of combiner
+    FEW_IMAGES, // The number of images should be more than 2
+    NOT_SAME_IMAGES // The images should have the same sizes
+};
+
 // Class to combine of images by several methods
 class ImageCombiner
 {
@@ -58,25 +67,25 @@ public: // Public mathods
 
     // Run of combining with specified type
     // Flag needSort is used to sort container of image by entropy
-    Image Combine(CombineType combineType, bool& combined, const bool needSort = true);
+    Image Combine(CombineType combineType, CombinationResult& combRes, const bool needSort = true);
 
 private: // Private methods
 
     // Combining with priority of image with the biggest entropy
     // Flag needSort is used to sort container of image by entropy. If flag value is "false" first image in container is basic
-    Image InformativePriority(bool& combined, const bool needSort = true);
+    Image InformativePriority(CombinationResult& combRes, const bool needSort = true);
 
     // Morphological combining
     // Flag needSort is used to sort container of image by entropy. If flag value is "false" first image in container is basic
-    Image Morphological(const size_t numMods, bool& combined, const bool needSort = true);
+    Image Morphological(const size_t numMods, CombinationResult& combRes, const bool needSort = true);
 
     // Local-entropy combining
     // Each pixel is pixel from image with the biggest local entropy in this pixel
-    Image LocalEntropy(bool& combined);
+    Image LocalEntropy(CombinationResult& combRes);
 
     // Check the possibility of combining images in container
     // All images should have same dimensions
-    bool CanCombine() const;
+    bool CanCombine(CombinationResult& combRes) const;
 
     // Form the images vector that is sorted by descending of images entropy
     void FormSortedImagesArray(std::vector<const Image*>& sortedVec);
