@@ -33,7 +33,7 @@
 
 namespace acv {
 
-FiltrationResult ImageFilter::Filter(Image& img, const int filterSize, ImageFilter::FilterType type)
+FiltrationResult ImageFilter::Filter(Image& img, ImageFilter::FilterType type, const int filterSize/* = -1*/)
 {
     switch (type)
     {
@@ -42,13 +42,15 @@ FiltrationResult ImageFilter::Filter(Image& img, const int filterSize, ImageFilt
     case FilterType::GAUSSIAN:
         return Gaussian(img, filterSize);
     case FilterType::IIR_GAUSSIAN:
-        return GaussianIIR( img, static_cast<float>(filterSize/6.0) );
+        return GaussianIIR(img, static_cast<float>(filterSize/6.0));
+    case FilterType::SHARPEN:
+        return Sharpen(img);
     default:
         return FiltrationResult::INCORRECT_FILTER_TYPE;
     }
 }
 
-FiltrationResult ImageFilter::Filter(const Image& srcImg, Image& dstImg, const int filterSize, ImageFilter::FilterType type)
+FiltrationResult ImageFilter::Filter(const Image& srcImg, Image& dstImg, ImageFilter::FilterType type, const int filterSize/* = -1*/)
 {
     switch (type)
     {
@@ -61,7 +63,9 @@ FiltrationResult ImageFilter::Filter(const Image& srcImg, Image& dstImg, const i
     case FilterType::IIR_GAUSSIAN:
         return GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize / 6.0));
     case FilterType::SSRETINEX:
-        return SingleScaleRetinex(srcImg, dstImg, static_cast<float>(filterSize / 6.0));
+        return SingleScaleRetinex(srcImg, dstImg);
+    case FilterType::SHARPEN:
+        return Sharpen(srcImg, dstImg);
     default:
         return FiltrationResult::INCORRECT_FILTER_TYPE;
     }
@@ -155,7 +159,6 @@ FiltrationResult ImageFilter::Gaussian(Image& img, const int filterSize)
 
 FiltrationResult ImageFilter::SeparateGaussian(const Image& srcImg, Image& dstImg, const int filterSize)
 {
-
     if (filterSize % 2 != 0) // The filter size should be odd
     {
         auto width = srcImg.GetWidth();
@@ -325,7 +328,7 @@ FiltrationResult ImageFilter::GaussianIIR(const Image& srcImg, Image& dstImg, fl
     return ret;
 }
 
-FiltrationResult ImageFilter::SingleScaleRetinex(const Image& srcImg, Image& dstImg, float sigma)
+FiltrationResult ImageFilter::SingleScaleRetinex(const Image& srcImg, Image& dstImg)
 {
         size_t size = dstImg.GetWidth() * dstImg.GetHeight();
 
@@ -368,6 +371,27 @@ FiltrationResult ImageFilter::Gaussian(const Image& srcImg, Image& dstImg, const
 
     memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
     FiltrationResult ret = Gaussian(dstImg, filterSize);
+
+    return ret;
+}
+
+FiltrationResult ImageFilter::Sharpen(Image& img)
+{
+    // Creation of the sharpen filter
+    MatrixFilter<int> filter(3, 1);
+
+    filter[0][0] = -1; filter[0][1] = -1; filter[0][2] = -1;
+    filter[1][0] = -1; filter[1][1] =  9; filter[1][2] = -1;
+    filter[2][0] = -1; filter[2][1] = -1; filter[2][2] = -1;
+
+    bool ret = MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
+    return (ret) ? FiltrationResult::SUCCESS : FiltrationResult::INTERNAL_ERROR;
+}
+
+FiltrationResult ImageFilter::Sharpen(const Image& srcImg, Image& dstImg)
+{
+    memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+    FiltrationResult ret = Sharpen(dstImg);
 
     return ret;
 }

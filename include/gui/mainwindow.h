@@ -87,6 +87,9 @@ private slots: // Private slots
     // Slot to run the Gaussian blur
     void GaussianBlur();
 
+    // Slot to run the sharpen filtration
+    void Sharpen();
+
     // Slot to run separated gaussian blur
     void SeparateGaussianBlur();
 
@@ -261,6 +264,7 @@ private: // Private members
     QAction* mGaussianBlurAction;
     QAction* mSepGaussianBlurAction;
     QAction* mIIRGaussianBlurAction;
+    QAction* mSharpenAction;
     QAction* mSingleScaleRetinexAction;
     QAction* mSobelAction;
     QAction* mScharrAction;

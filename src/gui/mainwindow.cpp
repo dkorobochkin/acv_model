@@ -113,6 +113,10 @@ void MainWindow::CreateFilteringActions()
     mIIRGaussianBlurAction->setStatusTip(tr("IIR-imitated gaussian blur"));
     connect(mIIRGaussianBlurAction, SIGNAL(triggered()), this, SLOT(IIRGaussianBlur()));
 
+    mSharpenAction = new QAction(tr("Sharpen filter"), this);
+    mSharpenAction->setStatusTip(tr("Increase the sharpness of the image"));
+    connect(mSharpenAction, SIGNAL(triggered()), this, SLOT(Sharpen()));
+
     mSingleScaleRetinexAction = new QAction(tr("Single Scale Retinex"), this);
     mSingleScaleRetinexAction->setStatusTip(tr("Single Scale Retinex"));
     connect(mSingleScaleRetinexAction, SIGNAL(triggered()), this, SLOT(SingleScaleRetinex()));
@@ -195,6 +199,7 @@ void MainWindow::CreateFilteringMenu()
     mFilterMenu->addAction(mGaussianBlurAction);
     mFilterMenu->addAction(mSepGaussianBlurAction);
     mFilterMenu->addAction(mIIRGaussianBlurAction);
+    mFilterMenu->addAction(mSharpenAction);
     mFilterMenu->addAction(mSingleScaleRetinexAction);
 }
 
@@ -358,6 +363,11 @@ void MainWindow::GaussianBlur()
     Filtering(acv::ImageFilter::FilterType::GAUSSIAN);
 }
 
+void MainWindow::Sharpen()
+{
+    Filtering(acv::ImageFilter::FilterType::SHARPEN);
+}
+
 void MainWindow::SeparateGaussianBlur()
 {
     Filtering(acv::ImageFilter::FilterType::SEP_GAUSSIAN);
@@ -487,8 +497,12 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
     if (ImgWasSelected())
     {
         const int DEFAULT_FILTER_SIZE = 3, MIN_FILTER_SIZE = 1, MAX_FILTER_SIZE = 15, FILTER_SIZE_STEP = 2;
-        int filterSize = QInputDialog::getInt(this, tr("Enter the filter size (odd positive number)"), tr("Filter size"),
+        int filterSize = -1;
+        if (filterType != acv::ImageFilter::FilterType::SHARPEN && filterType != acv::ImageFilter::FilterType::SSRETINEX)
+        {
+            filterSize = QInputDialog::getInt(this, tr("Enter the filter size (odd positive number)"), tr("Filter size"),
                                               DEFAULT_FILTER_SIZE, MIN_FILTER_SIZE, MAX_FILTER_SIZE, FILTER_SIZE_STEP);
+        }
 
         const acv::Image& curImg = GetCurImg();
         acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
@@ -496,7 +510,7 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
         QElapsedTimer timer;
         timer.start();
 
-        acv::FiltrationResult filtRes = acv::ImageFilter::Filter(curImg, processedImg, filterSize, filterType);
+        acv::FiltrationResult filtRes = acv::ImageFilter::Filter(curImg, processedImg, filterType, filterSize);
 
         qint64 filterTime = timer.elapsed();
 
@@ -681,7 +695,10 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
         ret = tr("F_G_IIR_%1: ").arg(filterSize);
         break;
     case acv::ImageFilter::FilterType::SSRETINEX:
-        ret = tr("F_SSR_%1: ").arg(filterSize);
+        ret = tr("F_SSR: ");
+        break;
+    case acv::ImageFilter::FilterType::SHARPEN:
+        ret = tr("F_SHARP: ");
         break;
     default:
         return QString();

@@ -55,14 +55,15 @@ public: // Public auxiliary types
         GAUSSIAN, // Gaissian filtration
         SEP_GAUSSIAN, // Separated gaussian filtration
         IIR_GAUSSIAN, // IIR-imitated gaussian filtration
-        SSRETINEX  // Single-scale Retinex
+        SSRETINEX, // Single-scale Retinex
+        SHARPEN // Increase the sharpness of the image
     };
 
     template <typename T>
     class IIRfilter{
         public:
-            IIRfilter(T sigma);   // Расчет коэффициентов Бих-фильтра для имитации гауссиана с заданной сигмой
-            T Solve(T input);  // Вычисление выходного сигнала
+            IIRfilter(T sigma); // Расчет коэффициентов Бих-фильтра для имитации гауссиана с заданной сигмой
+            T Solve(T input); // Вычисление выходного сигнала
             void Reset(){ y[0] = y[1] = y[2] = 0.; }
             void Reset(T s0, T s1, T s2){ y[0] = s0, y[1] = s1, y[2] = s2; }
         private:
@@ -73,10 +74,10 @@ public: // Public methods
 
     // Run a filtration by the specified method
     // Source image WILL BE CHANGED!!!
-    static FiltrationResult Filter(Image& img, const int filterSize, FilterType type);
+    static FiltrationResult Filter(Image& img, FilterType type, const int filterSize = -1);
 
     // Run a filtration by the specified method
-    static FiltrationResult Filter(const Image& srcImg, Image& dstImg, const int filterSize, FilterType type);
+    static FiltrationResult Filter(const Image& srcImg, Image& dstImg, FilterType type, const int filterSize = -1);
 
 private: // Private methods
 
@@ -102,7 +103,11 @@ private: // Private methods
     static FiltrationResult GaussianIIR(const Image& srcImg, Image& dstImg, float sigma);
 
     // SSR algorith
-    static FiltrationResult SingleScaleRetinex(const Image& srcImg, Image& dstImg, float sigma);
+    static FiltrationResult SingleScaleRetinex(const Image& srcImg, Image& dstImg);
+
+    // Increase the sharpness of the image
+    static FiltrationResult Sharpen(Image& img);
+    static FiltrationResult Sharpen(const Image& srcImg, Image& dstImg);
 };
 
 
