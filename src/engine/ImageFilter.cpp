@@ -56,6 +56,8 @@ FiltrationResult ImageFilter::Filter(const Image& srcImg, Image& dstImg, const i
         return Median(srcImg, dstImg, filterSize);
     case FilterType::GAUSSIAN:
         return Gaussian(srcImg, dstImg, filterSize);
+    case FilterType::SEP_GAUSSIAN:
+        return SeparateGaussian(srcImg, dstImg, filterSize);
     case FilterType::IIR_GAUSSIAN:
         return GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize / 6.0));
     case FilterType::SSRETINEX:
@@ -151,6 +153,111 @@ FiltrationResult ImageFilter::Gaussian(Image& img, const int filterSize)
     return FiltrationResult::INCORRECT_FILTER_SIZE;
 }
 
+FiltrationResult ImageFilter::SeparateGaussian(const Image& srcImg, Image& dstImg, const int filterSize)
+{
+
+    if (filterSize % 2 != 0) // The filter size should be odd
+    {
+        auto width = srcImg.GetWidth();
+        auto height = srcImg.GetHeight();
+        auto size = width * height;
+        Image tmpImg(height, width);
+
+        // Creation of the Gaussian 1D filter
+        std::vector<int> filter(filterSize);
+
+        const float SIGMA = (filterSize / 2.0 - 1.0) * 0.3 + 0.8, SIGMA2 = SIGMA * SIGMA;
+        const int APERTURE = filterSize / 2, APERTURE2 = APERTURE * APERTURE;
+        const float MIN = exp(-(2.0 * APERTURE2) / (2.0 * SIGMA2)) / (2.0 * M_PI * SIGMA2);
+
+        int divider = 0;
+        for (int i = -APERTURE; i <= APERTURE; ++i)
+        {
+                int filterVal = exp(-(i * i) / (2.0 * SIGMA2)) / (2.0 * M_PI * SIGMA2 * MIN);
+                divider += filterVal;
+                filter[i + APERTURE] = filterVal;
+        }
+
+        const Image::Byte* ptrSrc = srcImg.GetRawPointer(0);
+        Image::Byte* ptrDst = tmpImg.GetRawPointer(0);
+
+        for (int rowNum = 0; rowNum < height; ++rowNum)    // Horizontal filter movement
+        {
+            for (int colNum = 0; colNum < APERTURE; ++colNum, ++ptrSrc, ++ptrDst)
+            {
+                int acc = 0;
+                for (int i = -APERTURE; i <= APERTURE; ++i)
+                       acc += (colNum + i < 0)
+                               ? *(ptrSrc - i) * filter[i + APERTURE]
+                               : *(ptrSrc + i) * filter[i + APERTURE];
+                int ycurr = acc / divider;
+                *ptrDst = static_cast<Image::Byte>(ycurr);
+            }
+
+            for (int colNum = APERTURE; colNum < width - APERTURE; ++colNum, ++ptrSrc, ++ptrDst)
+            {
+                int acc = 0;
+                for (int i = -APERTURE; i <= APERTURE; ++i)
+                       acc += *(ptrSrc + i) * filter[i + APERTURE];
+                int ycurr = acc / divider;
+                *ptrDst = static_cast<Image::Byte>(ycurr);
+            }
+
+            for (int colNum = width - APERTURE; colNum < width; ++colNum, ++ptrSrc, ++ptrDst)
+            {
+                int acc = 0;
+                for (int i = -APERTURE; i <= APERTURE; ++i)
+                       acc += (colNum + i >= width)
+                               ? *(ptrSrc - i) * filter[i + APERTURE]
+                               : *(ptrSrc + i) * filter[i + APERTURE];
+                int ycurr = acc / divider;
+                *ptrDst = static_cast<Image::Byte>(ycurr);
+            }
+        }
+
+        ptrSrc = tmpImg.GetRawPointer(0);
+        ptrDst = dstImg.GetRawPointer(0);
+
+        for (int colNum = 0; colNum < width; ++colNum, ptrSrc -= size - 1, ptrDst -= size - 1)    // Vertical filter movement
+        {
+            for (int rowNum = 0; rowNum < APERTURE; ++rowNum, ptrSrc += width, ptrDst += width)
+            {
+                int acc = 0;
+                for (int i = -APERTURE; i <= APERTURE; ++i)
+                       acc += (rowNum + i < 0)
+                               ? *(ptrSrc - i * width) * filter[i + APERTURE]
+                               : *(ptrSrc + i * width) * filter[i + APERTURE];
+                int ycurr = acc / divider;
+                *ptrDst = static_cast<Image::Byte>(ycurr);
+            }
+
+            for (int rowNum = APERTURE; rowNum < height - APERTURE; ++rowNum, ptrSrc += width, ptrDst += width)
+            {
+                int acc = 0;
+                for (int i = -APERTURE; i <= APERTURE; ++i)
+                       acc += *(ptrSrc + i * width) * filter[i + APERTURE];
+                int ycurr = acc / divider;
+                *ptrDst = static_cast<Image::Byte>(ycurr);
+            }
+
+            for (int rowNum = height - APERTURE; rowNum < height; ++rowNum, ptrSrc += width, ptrDst += width)
+            {
+                int acc = 0;
+                for (int i = -APERTURE; i <= APERTURE; ++i)
+                       acc += (rowNum + i >= height)
+                               ? *(ptrSrc - i * width) * filter[i + APERTURE]
+                               : *(ptrSrc + i * width) * filter[i + APERTURE];
+                int ycurr = acc / divider;
+                *ptrDst = static_cast<Image::Byte>(ycurr);
+            }
+        }
+
+        return FiltrationResult::SUCCESS;
+    }
+
+    return FiltrationResult::INCORRECT_FILTER_SIZE;
+}
+
 FiltrationResult ImageFilter::GaussianIIR(Image& img, float sigma)
 {
     if (sigma >= 1.)
@@ -161,7 +268,7 @@ FiltrationResult ImageFilter::GaussianIIR(Image& img, float sigma)
         auto width = img.GetWidth();
         auto height = img.GetHeight();
 
-        for (int rowNum = 0; rowNum < height; ++rowNum, ptr += width+1)    // Горизонтальные проходы БИХ-фильтра
+        for (int rowNum = 0; rowNum < height; ++rowNum, ptr += width+1)    // Horizontal IIR-filter movement
         {
             Filter.Reset();
             for (int colNum = 0; colNum < width; ++colNum, ++ptr)
@@ -182,7 +289,7 @@ FiltrationResult ImageFilter::GaussianIIR(Image& img, float sigma)
         }
 
         ptr = img.GetRawPointer(0);
-        for (int colNum = 0; colNum < width; ++colNum , ptr += width+1)    // Вертикальные проходы БИХ-фильтра
+        for (int colNum = 0; colNum < width; ++colNum , ptr += width+1)    // Vertical IIR-filter movement
         {
             Filter.Reset();
             for (int rowNum = 0; rowNum < height; ++rowNum, ptr += width)

@@ -105,6 +105,10 @@ void MainWindow::CreateFilteringActions()
     mGaussianBlurAction->setStatusTip(tr("Gaussian filtration of current image"));
     connect(mGaussianBlurAction, SIGNAL(triggered()), this, SLOT(GaussianBlur()));
 
+    mSepGaussianBlurAction = new QAction(tr("Separated gaussian filter"), this);
+    mSepGaussianBlurAction->setStatusTip(tr("Separated gaussian blur"));
+    connect(mSepGaussianBlurAction, SIGNAL(triggered()), this, SLOT(SeparateGaussianBlur()));
+
     mIIRGaussianBlurAction = new QAction(tr("IIR-gaussian filter"), this);
     mIIRGaussianBlurAction->setStatusTip(tr("IIR-imitated gaussian blur"));
     connect(mIIRGaussianBlurAction, SIGNAL(triggered()), this, SLOT(IIRGaussianBlur()));
@@ -189,6 +193,7 @@ void MainWindow::CreateFilteringMenu()
 
     mFilterMenu->addAction(mMedianBlurAction);
     mFilterMenu->addAction(mGaussianBlurAction);
+    mFilterMenu->addAction(mSepGaussianBlurAction);
     mFilterMenu->addAction(mIIRGaussianBlurAction);
     mFilterMenu->addAction(mSingleScaleRetinexAction);
 }
@@ -351,6 +356,11 @@ void MainWindow::MedianBlur()
 void MainWindow::GaussianBlur()
 {
     Filtering(acv::ImageFilter::FilterType::GAUSSIAN);
+}
+
+void MainWindow::SeparateGaussianBlur()
+{
+    Filtering(acv::ImageFilter::FilterType::SEP_GAUSSIAN);
 }
 
 void MainWindow::IIRGaussianBlur()
@@ -663,6 +673,9 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
         break;
     case acv::ImageFilter::FilterType::GAUSSIAN:
         ret = tr("F_G_%1: ").arg(filterSize);
+        break;
+    case acv::ImageFilter::FilterType::SEP_GAUSSIAN:
+        ret = tr("F_G_SEP_%1: ").arg(filterSize);
         break;
     case acv::ImageFilter::FilterType::IIR_GAUSSIAN:
         ret = tr("F_G_IIR_%1: ").arg(filterSize);

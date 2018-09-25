@@ -87,6 +87,9 @@ private slots: // Private slots
     // Slot to run the Gaussian blur
     void GaussianBlur();
 
+    // Slot to run separated gaussian blur
+    void SeparateGaussianBlur();
+
     // Slot to run IIR-imitated gaussian blur
     void IIRGaussianBlur();
 
@@ -256,6 +259,7 @@ private: // Private members
     QAction* mExitAction;
     QAction* mMedianBlurAction;
     QAction* mGaussianBlurAction;
+    QAction* mSepGaussianBlurAction;
     QAction* mIIRGaussianBlurAction;
     QAction* mSingleScaleRetinexAction;
     QAction* mSobelAction;

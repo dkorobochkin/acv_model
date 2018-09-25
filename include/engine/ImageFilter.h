@@ -53,6 +53,7 @@ public: // Public auxiliary types
     {
         MEDIAN, // Median filtration
         GAUSSIAN, // Gaissian filtration
+        SEP_GAUSSIAN, // Separated gaussian filtration
         IIR_GAUSSIAN, // IIR-imitated gaussian filtration
         SSRETINEX  // Single-scale Retinex
     };
@@ -92,6 +93,9 @@ private: // Private methods
 
     // Gaussian filtration (filter size must be odd)
     static FiltrationResult Gaussian(const Image& srcImg, Image& dstImg, const int filterSize);
+
+    // Separate Gaussian filtration
+    static FiltrationResult SeparateGaussian(const Image& srcImg, Image& dstImg, const int filterSize);
 
     // Gaussian imitation by IIR-filter
     static FiltrationResult GaussianIIR(Image& img, float sigma);
