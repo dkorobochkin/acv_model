@@ -33,6 +33,7 @@
 #include "ImageFilter.h"
 #include "ImageCombiner.h"
 #include "BordersDetector.h"
+#include "ImageCorrector.h"
 
 namespace Ui {
 class MainWindow;
@@ -148,6 +149,9 @@ private: // Private methods
     // Creation the actions for section "Filtration"
     void CreateFilteringActions();
 
+    // Creation the actions for section "Correction"
+    void CreateCorrectorActions();
+
     // Creation the actions for section "Operators"
     void CreateOperatorActions();
 
@@ -168,6 +172,9 @@ private: // Private methods
 
     // Creation menu for section "Filtration"
     void CreateFilteringMenu();
+
+    // Creation menu for section "Correction"
+    void CreateCorrectorMenu();
 
     // Creation menu for section "Operators
     void CreateOperatorsMenu();
@@ -199,6 +206,9 @@ private: // Private methods
     // Forming the name for action of filtered image
     QString FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize);
 
+    // Forming the name for action of corrected image
+    QString FormCorrectorActionName(acv::ImageCorrector::CorrectorType corType);
+
     // Forming the name for action of image that get in result of convolution with operator
     QString FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type);
 
@@ -219,6 +229,9 @@ private: // Private methods
 
     // Filtering with the specified type
     void Filtering(acv::ImageFilter::FilterType filterType);
+
+    // Correction with the specified type
+    void Correct(acv::ImageCorrector::CorrectorType corType);
 
     // Forming the text about result of filtration
     QString FormFiltrationResultStr(acv::FiltrationResult filtRes);
@@ -280,6 +293,7 @@ private: // Private members
     QMenu* mImgsMenu;
     QMenu* mProcessingMenu;
     QMenu* mFilterMenu;
+    QMenu* mCorrectorMenu;
     QMenu* mOperatorsMenu;
     QMenu* mBordersDetectorsMenu;
     QMenu* mImgParams;

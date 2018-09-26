@@ -116,7 +116,10 @@ void MainWindow::CreateFilteringActions()
     mSharpenAction = new QAction(tr("Sharpen filter"), this);
     mSharpenAction->setStatusTip(tr("Increase the sharpness of the image"));
     connect(mSharpenAction, SIGNAL(triggered()), this, SLOT(Sharpen()));
+}
 
+void MainWindow::CreateCorrectorActions()
+{
     mSingleScaleRetinexAction = new QAction(tr("Single Scale Retinex"), this);
     mSingleScaleRetinexAction->setStatusTip(tr("Single Scale Retinex"));
     connect(mSingleScaleRetinexAction, SIGNAL(triggered()), this, SLOT(SingleScaleRetinex()));
@@ -174,6 +177,7 @@ void MainWindow::CreateActions()
 {
     CreateFileActions();
     CreateFilteringActions();
+    CreateCorrectorActions();
     CreateParamsActions();
     CreateOperatorActions();
     CreateBodersDetectorsActions();
@@ -200,7 +204,13 @@ void MainWindow::CreateFilteringMenu()
     mFilterMenu->addAction(mSepGaussianBlurAction);
     mFilterMenu->addAction(mIIRGaussianBlurAction);
     mFilterMenu->addAction(mSharpenAction);
-    mFilterMenu->addAction(mSingleScaleRetinexAction);
+}
+
+void MainWindow::CreateCorrectorMenu()
+{
+    mCorrectorMenu = mProcessingMenu->addMenu(tr("Correction"));
+
+    mCorrectorMenu->addAction(mSingleScaleRetinexAction);
 }
 
 void MainWindow::CreateOperatorsMenu()
@@ -242,6 +252,7 @@ void MainWindow::CreateMainMenus()
     mProcessingMenu = menuBar()->addMenu(tr("Processing"));
     CreateParamsMenu();
     CreateFilteringMenu();
+    CreateCorrectorMenu();
     CreateOperatorsMenu();
     CreateBordersDetectorsMenu();
     CreateCombiningMenu();
@@ -380,7 +391,7 @@ void MainWindow::IIRGaussianBlur()
 
 void MainWindow::SingleScaleRetinex()
 {
-    Filtering(acv::ImageFilter::FilterType::SSRETINEX);
+    Correct(acv::ImageCorrector::CorrectorType::SSRETINEX);
 }
 
 void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
@@ -498,7 +509,7 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
     {
         const int DEFAULT_FILTER_SIZE = 3, MIN_FILTER_SIZE = 1, MAX_FILTER_SIZE = 15, FILTER_SIZE_STEP = 2;
         int filterSize = -1;
-        if (filterType != acv::ImageFilter::FilterType::SHARPEN && filterType != acv::ImageFilter::FilterType::SSRETINEX)
+        if (filterType != acv::ImageFilter::FilterType::SHARPEN)
         {
             filterSize = QInputDialog::getInt(this, tr("Enter the filter size (odd positive number)"), tr("Filter size"),
                                               DEFAULT_FILTER_SIZE, MIN_FILTER_SIZE, MAX_FILTER_SIZE, FILTER_SIZE_STEP);
@@ -527,6 +538,36 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
     else
     {
         QMessageBox::warning(this, tr("Image filtration"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
+void MainWindow::Correct(acv::ImageCorrector::CorrectorType corType)
+{
+    if (ImgWasSelected())
+    {
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+
+        QElapsedTimer timer;
+        timer.start();
+
+        bool corrected = acv::ImageCorrector::Correct(curImg, processedImg, corType);
+
+        qint64 correctionTime = timer.elapsed();
+
+        if (corrected)
+        {
+            QString actionName = FormCorrectorActionName(corType);
+            AddProcessedImg(processedImg, actionName);
+
+            QMessageBox::information(this, tr("Image correction"), tr("Time of correction: %1 msec").arg(correctionTime), QMessageBox::Ok);
+        }
+        else
+            QMessageBox::warning(this, tr("Image correction"), tr("Could not correct the image"), QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Image correction"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
@@ -694,11 +735,25 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
     case acv::ImageFilter::FilterType::IIR_GAUSSIAN:
         ret = tr("F_G_IIR_%1: ").arg(filterSize);
         break;
-    case acv::ImageFilter::FilterType::SSRETINEX:
-        ret = tr("F_SSR: ");
-        break;
     case acv::ImageFilter::FilterType::SHARPEN:
         ret = tr("F_SHARP: ");
+        break;
+    default:
+        return QString();
+    }
+
+    ret = FormProcessedImgActionName(ret);
+    return ret;
+}
+
+QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType corType)
+{
+    QString ret;
+
+    switch (corType)
+    {
+    case acv::ImageCorrector::CorrectorType::SSRETINEX:
+        ret = tr("CORR_SSR: ");
         break;
     default:
         return QString();

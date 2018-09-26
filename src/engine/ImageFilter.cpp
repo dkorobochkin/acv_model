@@ -62,9 +62,7 @@ FiltrationResult ImageFilter::Filter(const Image& srcImg, Image& dstImg, ImageFi
         return SeparateGaussian(srcImg, dstImg, filterSize);
     case FilterType::IIR_GAUSSIAN:
         return GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize / 6.0));
-    case FilterType::SSRETINEX:
-        return SingleScaleRetinex(srcImg, dstImg);
-    case FilterType::SHARPEN:
+   case FilterType::SHARPEN:
         return Sharpen(srcImg, dstImg);
     default:
         return FiltrationResult::INCORRECT_FILTER_TYPE;
@@ -326,42 +324,6 @@ FiltrationResult ImageFilter::GaussianIIR(const Image& srcImg, Image& dstImg, fl
     FiltrationResult ret = GaussianIIR(dstImg, sigma);
 
     return ret;
-}
-
-FiltrationResult ImageFilter::SingleScaleRetinex(const Image& srcImg, Image& dstImg)
-{
-        size_t size = dstImg.GetWidth() * dstImg.GetHeight();
-
-        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), size);
-        if ( GaussianIIR(dstImg,12.) == FiltrationResult::SMALL_FILTER_SIZE) 
-        	return FiltrationResult::SMALL_FILTER_SIZE;
-
-        std::vector<float> Ret(size);
-
-        auto srcIt= const_cast<Image&>(srcImg).GetData().cbegin();
-        auto dstIt= dstImg.GetData().begin();
-        auto retIt= Ret.begin();
-        float retAvg=0.;
-
-        for (size_t i = 0; i < size; ++i, ++srcIt, ++dstIt, ++retIt)
-        {
-             *retIt = (!*srcIt || !*dstIt) ? 0. : (static_cast<float>(*srcIt) / *dstIt) * log(*srcIt);
-             retAvg += *retIt;
-        }
-        retAvg /= size;
-
-        float Pmin = 0., Pmax = 2.5 * retAvg, DP = Pmax - Pmin;
-        dstIt = dstImg.GetData().begin();
-        retIt = Ret.begin();
-
-        for (size_t i = 0; i < size; ++i, ++dstIt, ++retIt)
-        {
-           int px = Image::MAX_PIXEL_VALUE * (*retIt - Pmin) / DP;
-           Image::CheckPixelValue(px);
-           *dstIt = px;
-        }
-
-        return FiltrationResult::SUCCESS;
 }
 
 FiltrationResult ImageFilter::Gaussian(const Image& srcImg, Image& dstImg, const int filterSize)

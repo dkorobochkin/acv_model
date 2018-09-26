@@ -55,15 +55,14 @@ public: // Public auxiliary types
         GAUSSIAN, // Gaissian filtration
         SEP_GAUSSIAN, // Separated gaussian filtration
         IIR_GAUSSIAN, // IIR-imitated gaussian filtration
-        SSRETINEX, // Single-scale Retinex
         SHARPEN // Increase the sharpness of the image
     };
 
     template <typename T>
     class IIRfilter{
         public:
-            IIRfilter(T sigma); // Расчет коэффициентов Бих-фильтра для имитации гауссиана с заданной сигмой
-            T Solve(T input); // Вычисление выходного сигнала
+            IIRfilter(T sigma); // Calculation of the IIR-filter's ratios to imit gaussian with specified sigma
+            T Solve(T input); // Calculation of the IIR-filter's output signal
             void Reset(){ y[0] = y[1] = y[2] = 0.; }
             void Reset(T s0, T s1, T s2){ y[0] = s0, y[1] = s1, y[2] = s2; }
         private:
@@ -102,16 +101,12 @@ private: // Private methods
     static FiltrationResult GaussianIIR(Image& img, float sigma);
     static FiltrationResult GaussianIIR(const Image& srcImg, Image& dstImg, float sigma);
 
-    // SSR algorith
-    static FiltrationResult SingleScaleRetinex(const Image& srcImg, Image& dstImg);
-
     // Increase the sharpness of the image
     static FiltrationResult Sharpen(Image& img);
     static FiltrationResult Sharpen(const Image& srcImg, Image& dstImg);
 };
 
 
-// Calculation of the IIR-filter's ratios to imit gaussian with specified sigma
 template <typename T>
 ImageFilter::IIRfilter<T>::IIRfilter(T sigma)
 {
@@ -142,7 +137,6 @@ ImageFilter::IIRfilter<T>::IIRfilter(T sigma)
 
 }
 
-// Calculation of the IIR-filter's output signal
 template <typename T>
 T ImageFilter::IIRfilter<T>::Solve(T input)
 {
