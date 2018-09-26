@@ -29,7 +29,6 @@
 #include <map>
 
 #include "ImageParametersCalculator.h"
-#include "Image.h"
 
 namespace acv {
 
@@ -124,6 +123,46 @@ double ImageParametersCalculator::CalcAverageBrightness(const Image& img)
     aver /= img.GetHeight() * img.GetWidth();
 
     return aver;
+}
+
+Image::Byte ImageParametersCalculator::CalcMinBrightness(const Image& img)
+{
+    Image::Byte minBr = Image::MAX_PIXEL_VALUE;
+
+    for (auto imgPix : img.GetData())
+    {
+        if (imgPix < minBr)
+            minBr = imgPix;
+    }
+
+    return minBr;
+}
+
+Image::Byte ImageParametersCalculator::CalcMaxBrightness(const Image& img)
+{
+    Image::Byte maxBr = Image::MIN_PIXEL_VALUE;
+
+    for (auto imgPix : img.GetData())
+    {
+        if (imgPix > maxBr)
+            maxBr = imgPix;
+    }
+
+    return maxBr;
+}
+
+void ImageParametersCalculator::CalcMinMaxBrightness(const Image& img, Image::Byte& minBrig, Image::Byte& maxBrig)
+{
+    minBrig = Image::MAX_PIXEL_VALUE;
+    maxBrig = Image::MIN_PIXEL_VALUE;
+
+    for (auto imgPix : img.GetData())
+    {
+        if (imgPix < minBrig)
+            minBrig = imgPix;
+        else if (imgPix > maxBrig)
+            maxBrig = imgPix;
+    }
 }
 
 }

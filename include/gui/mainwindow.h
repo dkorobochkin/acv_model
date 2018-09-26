@@ -124,6 +124,9 @@ private slots: // Private slots
     // Slot to calculation of image average brightness
     void CalcAverageBrightness();
 
+    // Slot to calculation of image minimum and maximum brightness
+    void CalcMinMaxBrightness();
+
     // Slot to clear the display (the slot will be called in case of all images closing)
     void ClearDisplay();
 
@@ -287,6 +290,7 @@ private: // Private members
     QAction* mLocEntrCombAction;
     QAction* mImgEntropyAction;
     QAction* mImgAverBrightnessAction;
+    QAction* mImgMinMaxBrightnessAction;
 
     // Main menu
     QMenu* mFileMenu;

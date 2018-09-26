@@ -27,9 +27,9 @@
 #ifndef IMAGE_PARAMETERS_CALCULATOR_H
 #define IMAGE_PARAMETERS_CALCULATOR_H
 
-namespace acv {
+#include "Image.h"
 
-class Image;
+namespace acv {
 
 // Class is used to calculate parameters of image
 // He contains only static methods
@@ -47,6 +47,14 @@ public: // Public methods
     // Calculate the average brightness of image
     static double CalcAverageBrightness(const Image& img);
 
+    // Calculate the minimum brightness of image
+    static Image::Byte CalcMinBrightness(const Image& img);
+
+    // Calculate the maximum brightness of image
+    static Image::Byte CalcMaxBrightness(const Image& img);
+
+    // Calculate the minimum and maximum brightness of image
+    static void CalcMinMaxBrightness(const Image& img, Image::Byte& minBrig, Image::Byte& maxBrig);
 };
 
 }

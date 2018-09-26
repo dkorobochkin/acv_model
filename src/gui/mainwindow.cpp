@@ -153,6 +153,10 @@ void MainWindow::CreateParamsActions()
     mImgAverBrightnessAction = new QAction(tr("Average of brightness"), this);
     mImgAverBrightnessAction->setStatusTip(tr("Calculate the average of brightness"));
     connect(mImgAverBrightnessAction, SIGNAL(triggered()), this, SLOT(CalcAverageBrightness()));
+
+    mImgMinMaxBrightnessAction = new QAction(tr("Minimum and maximum of brightness"), this);
+    mImgMinMaxBrightnessAction->setStatusTip(tr("Calculate minimum and maximum of brightness"));
+    connect(mImgMinMaxBrightnessAction, SIGNAL(triggered()), this, SLOT(CalcMinMaxBrightness()));
 }
 
 void MainWindow::CreateCombiningActions()
@@ -234,6 +238,7 @@ void MainWindow::CreateParamsMenu()
 
     mImgParams->addAction(mImgEntropyAction);
     mImgParams->addAction(mImgAverBrightnessAction);
+    mImgParams->addAction(mImgMinMaxBrightnessAction);
 }
 
 void MainWindow::CreateCombiningMenu()
@@ -603,12 +608,26 @@ void MainWindow::CalcAverageBrightness()
 {
     if (ImgWasSelected())
     {
-       double averBrig = acv::ImageParametersCalculator::CalcAverageBrightness(GetCurImg());
-       QMessageBox::information(this, tr("Average brightness calculation"), tr("Average brightness = %1").arg(averBrig), QMessageBox::Ok);
+        double averBrig = acv::ImageParametersCalculator::CalcAverageBrightness(GetCurImg());
+        QMessageBox::information(this, tr("Average brightness calculation"), tr("Average brightness = %1").arg(averBrig), QMessageBox::Ok);
     }
     else
     {
         QMessageBox::warning(this, tr("Average brightness calculation"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
+void MainWindow::CalcMinMaxBrightness()
+{
+    if (ImgWasSelected())
+    {
+        acv::Image::Byte minBr, maxBr;
+        acv::ImageParametersCalculator::CalcMinMaxBrightness(GetCurImg(), minBr, maxBr);
+        QMessageBox::information(this, tr("Minimum and maximum brightness calculation"), tr("Minimum = %1, maximum = %2").arg(minBr).arg(maxBr), QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Minimum and maximum brightness calculation"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
