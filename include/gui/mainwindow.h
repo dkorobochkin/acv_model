@@ -100,6 +100,9 @@ private slots: // Private slots
     // Slot to run Single Scale Retinex
     void SingleScaleRetinex();
 
+    // Slot to run the autolevels algorithm
+    void AutoLevels();
+
     // Slot to convolution the image with the Sobel operator
     void Sobel();
 
@@ -282,6 +285,7 @@ private: // Private members
     QAction* mIIRGaussianBlurAction;
     QAction* mSharpenAction;
     QAction* mSingleScaleRetinexAction;
+    QAction* mAutoLevelsAction;
     QAction* mSobelAction;
     QAction* mScharrAction;
     QAction* mCannyAction;

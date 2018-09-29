@@ -123,6 +123,10 @@ void MainWindow::CreateCorrectorActions()
     mSingleScaleRetinexAction = new QAction(tr("Single Scale Retinex"), this);
     mSingleScaleRetinexAction->setStatusTip(tr("Single Scale Retinex"));
     connect(mSingleScaleRetinexAction, SIGNAL(triggered()), this, SLOT(SingleScaleRetinex()));
+
+    mAutoLevelsAction = new QAction(tr("Autolevels"), this);
+    mAutoLevelsAction->setStatusTip(tr("Run the autolevels algorithm"));
+    connect(mAutoLevelsAction, SIGNAL(triggered()), this, SLOT(AutoLevels()));
 }
 
 void MainWindow::CreateOperatorActions()
@@ -215,6 +219,7 @@ void MainWindow::CreateCorrectorMenu()
     mCorrectorMenu = mProcessingMenu->addMenu(tr("Correction"));
 
     mCorrectorMenu->addAction(mSingleScaleRetinexAction);
+    mCorrectorMenu->addAction(mAutoLevelsAction);
 }
 
 void MainWindow::CreateOperatorsMenu()
@@ -397,6 +402,11 @@ void MainWindow::IIRGaussianBlur()
 void MainWindow::SingleScaleRetinex()
 {
     Correct(acv::ImageCorrector::CorrectorType::SSRETINEX);
+}
+
+void MainWindow::AutoLevels()
+{
+    Correct(acv::ImageCorrector::CorrectorType::AUTO_LEVELS);
 }
 
 void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
@@ -773,6 +783,9 @@ QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType c
     {
     case acv::ImageCorrector::CorrectorType::SSRETINEX:
         ret = tr("CORR_SSR: ");
+        break;
+    case acv::ImageCorrector::CorrectorType::AUTO_LEVELS:
+        ret = tr("CORR_AL: ");
         break;
     default:
         return QString();

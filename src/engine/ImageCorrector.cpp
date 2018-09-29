@@ -26,9 +26,10 @@
 
 #include <vector>
 #include <cmath>
+#include <cstring>
 
+#include "ImageParametersCalculator.h"
 #include "ImageCorrector.h"
-#include "Image.h"
 #include "ImageFilter.h"
 
 namespace acv {
@@ -39,6 +40,8 @@ bool ImageCorrector::Correct(const Image& srcImg, Image& dstImg, CorrectorType c
     {
     case CorrectorType::SSRETINEX:
         return SingleScaleRetinex(srcImg, dstImg);
+    case CorrectorType::AUTO_LEVELS:
+        return AutoLevels(srcImg, dstImg);
     default:
         return false;
     }
@@ -74,6 +77,34 @@ bool ImageCorrector::SingleScaleRetinex(const Image& srcImg, Image& dstImg)
        Image::CheckPixelValue(px);
        *dstIt = px;
     }
+
+    return true;
+}
+
+void ImageCorrector::ExpandBrightnessRange(const Image& srcImg, const Image::Byte minBr, const Image::Byte maxBr, Image& dstImg)
+{
+    double coef = static_cast<double>(Image::MAX_PIXEL_VALUE) / (maxBr - minBr);
+
+    auto srcEnd = srcImg.GetData().end();
+    auto dstIt = dstImg.GetData().begin();
+    for (auto srcIt = srcImg.GetData().begin(); srcIt != srcEnd; ++srcIt)
+    {
+        int newVal = (*srcIt - minBr) * coef;
+        Image::CheckPixelValue(newVal);
+
+        *dstIt++ = newVal;
+    }
+}
+
+bool ImageCorrector::AutoLevels(const Image& srcImg, Image& dstImg)
+{
+    Image::Byte minBr, maxBr;
+    ImageParametersCalculator::CalcMinMaxBrightness(srcImg, minBr, maxBr);
+
+    if (minBr > Image::MIN_PIXEL_VALUE || maxBr < Image::MAX_PIXEL_VALUE)
+        ExpandBrightnessRange(srcImg, minBr, maxBr, dstImg);
+    else
+        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
 
     return true;
 }
