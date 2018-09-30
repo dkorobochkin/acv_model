@@ -103,6 +103,9 @@ private slots: // Private slots
     // Slot to run the autolevels algorithm
     void AutoLevels();
 
+    // Slot to run the norm autolevels algorithm
+    void NormAutoLevels();
+
     // Slot to convolution the image with the Sobel operator
     void Sobel();
 
@@ -126,6 +129,9 @@ private slots: // Private slots
 
     // Slot to calculation of image average brightness
     void CalcAverageBrightness();
+
+    // Slot to calculation of image standard deviation
+    void CalcStandardDeviation();
 
     // Slot to calculation of image minimum and maximum brightness
     void CalcMinMaxBrightness();
@@ -286,6 +292,7 @@ private: // Private members
     QAction* mSharpenAction;
     QAction* mSingleScaleRetinexAction;
     QAction* mAutoLevelsAction;
+    QAction* mNormAutoLevelsAction;
     QAction* mSobelAction;
     QAction* mScharrAction;
     QAction* mCannyAction;
@@ -294,6 +301,7 @@ private: // Private members
     QAction* mLocEntrCombAction;
     QAction* mImgEntropyAction;
     QAction* mImgAverBrightnessAction;
+    QAction* mImgStdDeviationAction;
     QAction* mImgMinMaxBrightnessAction;
 
     // Main menu

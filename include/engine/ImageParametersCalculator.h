@@ -55,6 +55,10 @@ public: // Public methods
 
     // Calculate the minimum and maximum brightness of image
     static void CalcMinMaxBrightness(const Image& img, Image::Byte& minBrig, Image::Byte& maxBrig);
+
+    // Calculate the standard deviation of image brightness
+    static double CalcStandardDeviation(const Image& img, const double aver);
+
 };
 
 }

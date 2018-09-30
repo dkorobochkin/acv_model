@@ -127,6 +127,10 @@ void MainWindow::CreateCorrectorActions()
     mAutoLevelsAction = new QAction(tr("Autolevels"), this);
     mAutoLevelsAction->setStatusTip(tr("Run the autolevels algorithm"));
     connect(mAutoLevelsAction, SIGNAL(triggered()), this, SLOT(AutoLevels()));
+
+    mNormAutoLevelsAction = new QAction(tr("Norm autolevels"), this);
+    mNormAutoLevelsAction->setStatusTip(tr("Run the norm autolevels algorithm"));
+    connect(mNormAutoLevelsAction, SIGNAL(triggered()), this, SLOT(NormAutoLevels()));
 }
 
 void MainWindow::CreateOperatorActions()
@@ -157,6 +161,10 @@ void MainWindow::CreateParamsActions()
     mImgAverBrightnessAction = new QAction(tr("Average of brightness"), this);
     mImgAverBrightnessAction->setStatusTip(tr("Calculate the average of brightness"));
     connect(mImgAverBrightnessAction, SIGNAL(triggered()), this, SLOT(CalcAverageBrightness()));
+
+    mImgStdDeviationAction = new QAction(tr("Standard deviation"), this);
+    mImgStdDeviationAction->setStatusTip(tr("Calculate the image standard deviation"));
+    connect(mImgStdDeviationAction, SIGNAL(triggered()), this, SLOT(CalcStandardDeviation()));
 
     mImgMinMaxBrightnessAction = new QAction(tr("Minimum and maximum of brightness"), this);
     mImgMinMaxBrightnessAction->setStatusTip(tr("Calculate minimum and maximum of brightness"));
@@ -220,6 +228,7 @@ void MainWindow::CreateCorrectorMenu()
 
     mCorrectorMenu->addAction(mSingleScaleRetinexAction);
     mCorrectorMenu->addAction(mAutoLevelsAction);
+    mCorrectorMenu->addAction(mNormAutoLevelsAction);
 }
 
 void MainWindow::CreateOperatorsMenu()
@@ -243,6 +252,7 @@ void MainWindow::CreateParamsMenu()
 
     mImgParams->addAction(mImgEntropyAction);
     mImgParams->addAction(mImgAverBrightnessAction);
+    mImgParams->addAction(mImgStdDeviationAction);
     mImgParams->addAction(mImgMinMaxBrightnessAction);
 }
 
@@ -407,6 +417,11 @@ void MainWindow::SingleScaleRetinex()
 void MainWindow::AutoLevels()
 {
     Correct(acv::ImageCorrector::CorrectorType::AUTO_LEVELS);
+}
+
+void MainWindow::NormAutoLevels()
+{
+    Correct(acv::ImageCorrector::CorrectorType::NORM_AUTO_LEVELS);
 }
 
 void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
@@ -627,6 +642,21 @@ void MainWindow::CalcAverageBrightness()
     }
 }
 
+void MainWindow::CalcStandardDeviation()
+{
+    if (ImgWasSelected())
+    {
+        double averBrig = acv::ImageParametersCalculator::CalcAverageBrightness(GetCurImg());
+        double sd = acv::ImageParametersCalculator::CalcStandardDeviation(GetCurImg(), averBrig);
+
+        QMessageBox::information(this, tr("Standard deviation"), tr("Standard deviation = %1").arg(sd), QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Standard deviation"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
 void MainWindow::CalcMinMaxBrightness()
 {
     if (ImgWasSelected())
@@ -786,6 +816,9 @@ QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType c
         break;
     case acv::ImageCorrector::CorrectorType::AUTO_LEVELS:
         ret = tr("CORR_AL: ");
+        break;
+    case acv::ImageCorrector::CorrectorType::NORM_AUTO_LEVELS:
+        ret = tr("CORR_NAL: ");
         break;
     default:
         return QString();

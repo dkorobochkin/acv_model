@@ -42,6 +42,8 @@ bool ImageCorrector::Correct(const Image& srcImg, Image& dstImg, CorrectorType c
         return SingleScaleRetinex(srcImg, dstImg);
     case CorrectorType::AUTO_LEVELS:
         return AutoLevels(srcImg, dstImg);
+    case CorrectorType::NORM_AUTO_LEVELS:
+        return NormAutoLevels(srcImg, dstImg);
     default:
         return false;
     }
@@ -100,6 +102,27 @@ bool ImageCorrector::AutoLevels(const Image& srcImg, Image& dstImg)
 {
     Image::Byte minBr, maxBr;
     ImageParametersCalculator::CalcMinMaxBrightness(srcImg, minBr, maxBr);
+
+    if (minBr > Image::MIN_PIXEL_VALUE || maxBr < Image::MAX_PIXEL_VALUE)
+        ExpandBrightnessRange(srcImg, minBr, maxBr, dstImg);
+    else
+        memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+
+    return true;
+}
+
+bool ImageCorrector::NormAutoLevels(const Image& srcImg, Image& dstImg)
+{
+    double aver = ImageParametersCalculator::CalcAverageBrightness(srcImg);
+    double sd = ImageParametersCalculator::CalcStandardDeviation(srcImg, aver);
+
+    int left = aver - 3 * sd;
+    Image::CheckPixelValue(left);
+    int right = aver + 3 * sd;
+    Image::CheckPixelValue(right);
+
+    Image::Byte minBr = static_cast<Image::Byte>(left);
+    Image::Byte maxBr = static_cast<Image::Byte>(right);
 
     if (minBr > Image::MIN_PIXEL_VALUE || maxBr < Image::MAX_PIXEL_VALUE)
         ExpandBrightnessRange(srcImg, minBr, maxBr, dstImg);

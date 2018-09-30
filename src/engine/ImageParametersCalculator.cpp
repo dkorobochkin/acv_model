@@ -165,4 +165,23 @@ void ImageParametersCalculator::CalcMinMaxBrightness(const Image& img, Image::By
     }
 }
 
+double ImageParametersCalculator::CalcStandardDeviation(const Image& img, const double aver)
+{
+    double sd = 0.0;
+
+    if (!img.IsInitialized())
+        return sd;
+
+    auto end = img.GetData().end();
+    for (auto it = img.GetData().begin(); it != end; ++it)
+    {
+        double dev = static_cast<double>(*it - aver);
+        sd += dev * dev;
+    }
+
+    sd /= img.GetHeight() * img.GetWidth() - 1;
+
+    return sqrt(sd);
+}
+
 }
