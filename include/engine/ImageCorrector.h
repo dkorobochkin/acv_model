@@ -42,8 +42,9 @@ public: // Public auxiliary types
     enum class CorrectorType
     {
         SSRETINEX, // Single-scale Retinex
-        AUTO_LEVELS, // Brightness correction using the auto-levels algorithm
-        NORM_AUTO_LEVELS // Algorithm of auto-levels with pixels correction in three sigma range
+        AUTO_LEVELS, // Contrast correction using the auto-levels algorithm
+        NORM_AUTO_LEVELS, // Algorithm of auto-levels with pixels correction in three sigma range
+        GAMMA // Gamma-correction
     };
 
 public: // Public methods
@@ -60,6 +61,9 @@ public: // Public methods
 
     // Algorithm of auto-levels with pixels correction in three sigma range
     static bool NormAutoLevels(const Image& srcImg, Image& dstImg);
+
+    // Gamma-correction
+    static bool GammaCorrection(const Image& srcImg, Image& dstImg);
 
     // The method is used to expand the specified range of brightness to all range
     static void ExpandBrightnessRange(const Image& srcImg, const Image::Byte minBr, const Image::Byte maxBr, Image& dstImg);

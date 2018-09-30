@@ -131,6 +131,10 @@ void MainWindow::CreateCorrectorActions()
     mNormAutoLevelsAction = new QAction(tr("Norm autolevels"), this);
     mNormAutoLevelsAction->setStatusTip(tr("Run the norm autolevels algorithm"));
     connect(mNormAutoLevelsAction, SIGNAL(triggered()), this, SLOT(NormAutoLevels()));
+
+    mGammaAction = new QAction(tr("Gamma-correction"), this);
+    mGammaAction->setStatusTip(tr("Run the gamma-correction"));
+    connect(mGammaAction, SIGNAL(triggered()), this, SLOT(Gamma()));
 }
 
 void MainWindow::CreateOperatorActions()
@@ -229,6 +233,7 @@ void MainWindow::CreateCorrectorMenu()
     mCorrectorMenu->addAction(mSingleScaleRetinexAction);
     mCorrectorMenu->addAction(mAutoLevelsAction);
     mCorrectorMenu->addAction(mNormAutoLevelsAction);
+    mCorrectorMenu->addAction(mGammaAction);
 }
 
 void MainWindow::CreateOperatorsMenu()
@@ -422,6 +427,11 @@ void MainWindow::AutoLevels()
 void MainWindow::NormAutoLevels()
 {
     Correct(acv::ImageCorrector::CorrectorType::NORM_AUTO_LEVELS);
+}
+
+void MainWindow::Gamma()
+{
+    Correct(acv::ImageCorrector::CorrectorType::GAMMA);
 }
 
 void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
@@ -819,6 +829,9 @@ QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType c
         break;
     case acv::ImageCorrector::CorrectorType::NORM_AUTO_LEVELS:
         ret = tr("CORR_NAL: ");
+        break;
+    case acv::ImageCorrector::CorrectorType::GAMMA:
+        ret = tr("CORR_GAM: ");
         break;
     default:
         return QString();

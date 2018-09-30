@@ -106,6 +106,9 @@ private slots: // Private slots
     // Slot to run the norm autolevels algorithm
     void NormAutoLevels();
 
+    // Slot to run the gamma-correction
+    void Gamma();
+
     // Slot to convolution the image with the Sobel operator
     void Sobel();
 
@@ -293,6 +296,7 @@ private: // Private members
     QAction* mSingleScaleRetinexAction;
     QAction* mAutoLevelsAction;
     QAction* mNormAutoLevelsAction;
+    QAction* mGammaAction;
     QAction* mSobelAction;
     QAction* mScharrAction;
     QAction* mCannyAction;

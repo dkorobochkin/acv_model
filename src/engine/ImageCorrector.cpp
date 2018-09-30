@@ -44,6 +44,8 @@ bool ImageCorrector::Correct(const Image& srcImg, Image& dstImg, CorrectorType c
         return AutoLevels(srcImg, dstImg);
     case CorrectorType::NORM_AUTO_LEVELS:
         return NormAutoLevels(srcImg, dstImg);
+    case CorrectorType::GAMMA:
+        return GammaCorrection(srcImg, dstImg);
     default:
         return false;
     }
@@ -128,6 +130,27 @@ bool ImageCorrector::NormAutoLevels(const Image& srcImg, Image& dstImg)
         ExpandBrightnessRange(srcImg, minBr, maxBr, dstImg);
     else
         memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
+
+    return true;
+}
+
+bool ImageCorrector::GammaCorrection(const Image& srcImg, Image& dstImg)
+{
+    const double Y = 1.0 / 2.2; // Gamma-correction factor
+
+    Image::Byte gammaValues[Image::MAX_PIXEL_VALUE + 1];
+    for (size_t i = 0; i <= Image::MAX_PIXEL_VALUE; ++i)
+    {
+        int newVal = Image::MAX_PIXEL_VALUE * pow(static_cast<double>(i) / Image::MAX_PIXEL_VALUE, Y);
+        Image::CheckPixelValue(newVal);
+
+        gammaValues[i] = newVal;
+    }
+
+    auto srcEnd = srcImg.GetData().end();
+    auto dstIt = dstImg.GetData().begin();
+    for (auto srcIt = srcImg.GetData().begin(); srcIt != srcEnd; ++srcIt)
+        *dstIt++ = gammaValues[*srcIt];
 
     return true;
 }
