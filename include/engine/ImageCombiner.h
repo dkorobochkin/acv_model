@@ -67,21 +67,25 @@ public: // Public mathods
 
     // Run of combining with specified type
     // Flag needSort is used to sort container of image by entropy
-    Image Combine(CombineType combineType, CombinationResult& combRes, const bool needSort = true);
+    Image Combine(CombineType combineType, CombinationResult& combRes, const bool needSort = true);    
+    CombinationResult Combine(CombineType combineType, Image& combImg, const bool needSort = true);
 
 private: // Private methods
 
     // Combining with priority of image with the biggest entropy
     // Flag needSort is used to sort container of image by entropy. If flag value is "false" first image in container is basic
     Image InformativePriority(CombinationResult& combRes, const bool needSort = true);
+    CombinationResult InformativePriority(Image& combImg, const bool needSort = true);
 
     // Morphological combining
     // Flag needSort is used to sort container of image by entropy. If flag value is "false" first image in container is basic
     Image Morphological(const size_t numMods, CombinationResult& combRes, const bool needSort = true);
+    CombinationResult Morphological(const size_t numMods, Image& combImg, const bool needSort = true);
 
     // Local-entropy combining
     // Each pixel is pixel from image with the biggest local entropy in this pixel
     Image LocalEntropy(CombinationResult& combRes);
+    CombinationResult LocalEntropy(Image& combImg);
 
     // Check the possibility of combining images in container
     // All images should have same dimensions

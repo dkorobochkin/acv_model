@@ -724,11 +724,12 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
         for (const auto& img : mOpenedImgs)
             combiner.AddImage(img);
 
+        acv::Image combImg(mOpenedImgs[0].GetHeight(), mOpenedImgs[0].GetWidth());
+
         QElapsedTimer timer;
         timer.start();
 
-        acv::CombinationResult combRes;
-        acv::Image combImg = combiner.Combine(combType, combRes, answer == QMessageBox::Yes);
+        acv::CombinationResult combRes = combiner.Combine(combType, combImg, answer == QMessageBox::Yes);
 
         qint64 combTime = timer.elapsed();
 

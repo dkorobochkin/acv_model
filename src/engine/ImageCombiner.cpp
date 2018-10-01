@@ -77,7 +77,7 @@ void ImageCombiner::ClearImages()
     mCombinedImages.clear();
 }
 
-Image ImageCombiner::Combine(ImageCombiner::CombineType combineType, CombinationResult& combRes, const bool needSort)
+Image ImageCombiner::Combine(CombineType combineType, CombinationResult& combRes, const bool needSort)
 {
     combRes = CombinationResult::INCORRECT_COMBINER_TYPE;
 
@@ -94,8 +94,35 @@ Image ImageCombiner::Combine(ImageCombiner::CombineType combineType, Combination
     }
 }
 
+CombinationResult ImageCombiner::Combine(CombineType combineType, Image& combImg, const bool needSort)
+{
+    CombinationResult combRes = CombinationResult::INCORRECT_COMBINER_TYPE;
+
+    switch (combineType)
+    {
+    case ImageCombiner::CombineType::INFORM_PRIORITY:
+        return InformativePriority(combImg, needSort);
+    case ImageCombiner::CombineType::MORPHOLOGICAL:
+        return Morphological(DEFAULT_NUM_MODS, combImg, needSort);
+    case ImageCombiner::CombineType::LOCAL_ENTROPY:
+        return LocalEntropy(combImg);
+    }
+
+    return combRes;
+}
+
 Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool needSort)
 {
+    Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
+    combRes = InformativePriority(combImg, needSort);
+
+    return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
+}
+
+CombinationResult ImageCombiner::InformativePriority(Image& combImg, const bool needSort)
+{
+    CombinationResult combRes;
+
     if (CanCombine(combRes))
     {
         std::vector<const Image*> sortedImages;
@@ -105,7 +132,7 @@ Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool 
             sortedImages = mCombinedImages;
 
         // Basic image. To this image will be projected other images
-        Image baseImg = *sortedImages[0];
+        memcpy(combImg.GetRawPointer(), sortedImages[0]->GetRawPointer(), sortedImages[0]->GetHeight() * sortedImages[0]->GetWidth());
 
         // Projection images to basic image
         for (size_t i = 1; i < sortedImages.size(); ++i)
@@ -124,7 +151,7 @@ Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool 
             }
             dA /= projImg.GetWidth() * projImg.GetHeight();
 
-            auto baseIt = baseImg.GetData().begin();
+            auto baseIt = combImg.GetData().begin();
             for (auto projPix : projImg.GetData())
             {
                 int delta = static_cast<int>(projPix - A);
@@ -137,14 +164,23 @@ Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool 
         }
 
         combRes = CombinationResult::SUCCESS;
-        return baseImg;
     }
 
-    return Image();
+    return combRes;
 }
 
 Image ImageCombiner::Morphological(const size_t numMods, CombinationResult& combRes, const bool needSort)
 {
+    Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
+    combRes = Morphological(numMods, combImg, needSort);
+
+    return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
+}
+
+CombinationResult ImageCombiner::Morphological(const size_t numMods, Image& combImg, const bool needSort)
+{
+    CombinationResult combRes;
+
     if (CanCombine(combRes))
     {
         std::vector<const Image*> sortedImages;
@@ -153,36 +189,44 @@ Image ImageCombiner::Morphological(const size_t numMods, CombinationResult& comb
         else
             sortedImages = mCombinedImages;
 
-        Image baseImg = *sortedImages[0];
-        std::vector<AMorphologicalForm> forms = CalcForms(baseImg, numMods);
+        memcpy(combImg.GetRawPointer(), sortedImages[0]->GetRawPointer(), sortedImages[0]->GetHeight() * sortedImages[0]->GetWidth());
 
-        std::vector<Image> projections(sortedImages.size() - 1, Image(baseImg.GetHeight(), baseImg.GetWidth()));
+        std::vector<AMorphologicalForm> forms = CalcForms(combImg, numMods);
+
+        std::vector<Image> projections(sortedImages.size() - 1, Image(combImg.GetHeight(), combImg.GetWidth()));
         for (size_t imgIdx = 1; imgIdx < sortedImages.size(); ++imgIdx) // First image is basic
         {
             Image& projection = projections[imgIdx - 1];
             CalcProjectionToForms(forms, *sortedImages[imgIdx], projection);
         }
 
-        MergeImages(baseImg, projections);
+        MergeImages(combImg, projections);
 
         combRes = CombinationResult::SUCCESS;
-        return baseImg;
     }
 
-    return Image();
+    return combRes;
 }
 
 Image ImageCombiner::LocalEntropy(CombinationResult& combRes)
 {
+    Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
+    combRes = LocalEntropy(combImg);
+
+    return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
+}
+
+CombinationResult ImageCombiner::LocalEntropy(Image& combImg)
+{
     const int APERTURE = 2;
+
+    CombinationResult combRes;
 
     if (CanCombine(combRes))
     {
-        Image resImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
-
-        for (int row = 0; row < resImg.GetHeight(); ++row)
+        for (int row = 0; row < combImg.GetHeight(); ++row)
         {
-            for (int col = 0; col < resImg.GetWidth(); ++col)
+            for (int col = 0; col < combImg.GetWidth(); ++col)
             {
                 // Select the pixel with maximum entropy
                 double Emax = 0.0;
@@ -198,15 +242,14 @@ Image ImageCombiner::LocalEntropy(CombinationResult& combRes)
                     }
                 }
 
-                resImg(row, col) = mCombinedImages[iMax]->GetPixel(row, col);
+                combImg(row, col) = mCombinedImages[iMax]->GetPixel(row, col);
             }
         }
 
         combRes = CombinationResult::SUCCESS;
-        return resImg;
     }
 
-    return Image();
+    return combRes;
 }
 
 bool ImageCombiner::CanCombine(CombinationResult& combRes) const
