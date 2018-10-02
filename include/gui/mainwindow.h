@@ -127,6 +127,9 @@ private slots: // Private slots
     // Slot to combine the images by local-entropy method
     void LocalEntropyCombining();
 
+    // Slot to combine the images by the differences adding algorithm
+    void DifferencesAddingCombining();
+
     // Slot to calculation of image entropy
     void CalcEntropy();
 
@@ -303,6 +306,7 @@ private: // Private members
     QAction* mInfPriorCombAction;
     QAction* mMorphCombAction;
     QAction* mLocEntrCombAction;
+    QAction* mDifAddCombAction;
     QAction* mImgEntropyAction;
     QAction* mImgAverBrightnessAction;
     QAction* mImgStdDeviationAction;

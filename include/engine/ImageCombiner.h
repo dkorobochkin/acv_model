@@ -39,8 +39,9 @@ enum class CombinationResult
 {
     SUCCESS, // Success of combining
     INCORRECT_COMBINER_TYPE, // Incorrect type of combiner
-    FEW_IMAGES, // The number of images should be more than 2
-    NOT_SAME_IMAGES // The images should have the same sizes
+    FEW_IMAGES, // The number of images should be more than 1
+    NOT_SAME_IMAGES, // The images should have the same sizes
+    MANY_IMAGES // Combining based on adding the differences use only two images
 };
 
 // Class to combine of images by several methods
@@ -54,7 +55,8 @@ public: // Public auxiliary types
     {
         INFORM_PRIORITY, // Combining with priority of image with the biggest entropy
         MORPHOLOGICAL, // Morphological combining
-        LOCAL_ENTROPY // Local-entropy combining
+        LOCAL_ENTROPY, // Local-entropy combining
+        DIFFERENCES_ADDING // Adding the differences
     };
 
 public: // Public mathods
@@ -86,6 +88,10 @@ private: // Private methods
     // Each pixel is pixel from image with the biggest local entropy in this pixel
     Image LocalEntropy(CombinationResult& combRes);
     CombinationResult LocalEntropy(Image& combImg);
+
+    // Adding the differences
+    Image DifferencesAdding(CombinationResult& combRes, const bool needSort = true);
+    CombinationResult DifferencesAdding(Image& combImg, const bool needSort = true);
 
     // Check the possibility of combining images in container
     // All images should have same dimensions

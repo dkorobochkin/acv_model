@@ -191,6 +191,11 @@ void MainWindow::CreateCombiningActions()
     mLocEntrCombAction->setShortcut(tr("Ctrl+L"));
     mLocEntrCombAction->setStatusTip(tr("Combine the all opened images by the local-entropy method"));
     connect(mLocEntrCombAction, SIGNAL(triggered()), this, SLOT(LocalEntropyCombining()));
+
+    mDifAddCombAction = new QAction(tr("Differences adding"), this);
+    mDifAddCombAction->setShortcut(tr("Ctrl+A"));
+    mDifAddCombAction->setStatusTip(tr("Combine the all opened images by the differences adding algorithm"));
+    connect(mDifAddCombAction, SIGNAL(triggered()), this, SLOT(DifferencesAddingCombining()));
 }
 
 void MainWindow::CreateActions()
@@ -268,6 +273,7 @@ void MainWindow::CreateCombiningMenu()
     mCombineMenu->addAction(mInfPriorCombAction);
     mCombineMenu->addAction(mMorphCombAction);
     mCombineMenu->addAction(mLocEntrCombAction);
+    mCombineMenu->addAction(mDifAddCombAction);
 }
 
 void MainWindow::CreateMainMenus()
@@ -626,6 +632,11 @@ void MainWindow::LocalEntropyCombining()
     Combining(acv::ImageCombiner::CombineType::LOCAL_ENTROPY);
 }
 
+void MainWindow::DifferencesAddingCombining()
+{
+    Combining(acv::ImageCombiner::CombineType::DIFFERENCES_ADDING);
+}
+
 void MainWindow::CalcEntropy()
 {
     if (ImgWasSelected())
@@ -696,6 +707,8 @@ QString MainWindow::FormCombinationResultStr(acv::CombinationResult combRes)
         return tr("The number of images should be >= 2");
     case acv::CombinationResult::NOT_SAME_IMAGES:
         return tr("The combined images are not the same");
+    case acv::CombinationResult::MANY_IMAGES:
+        return tr("The number of images should be 2");
     case acv::CombinationResult::SUCCESS:
         return tr("Success of combining");
     default:
@@ -774,6 +787,9 @@ QString MainWindow::FormCombineActionName(acv::ImageCombiner::CombineType combTy
         break;
     case acv::ImageCombiner::CombineType::LOCAL_ENTROPY:
         ret = tr("C_LE: ");
+        break;
+    case acv::ImageCombiner::CombineType::DIFFERENCES_ADDING:
+        ret = tr("C_DA: ");
         break;
     }
 

@@ -77,7 +77,7 @@ void ImageCombiner::ClearImages()
     mCombinedImages.clear();
 }
 
-Image ImageCombiner::Combine(CombineType combineType, CombinationResult& combRes, const bool needSort)
+Image ImageCombiner::Combine(CombineType combineType, CombinationResult& combRes, const bool needSort/* = true*/)
 {
     combRes = CombinationResult::INCORRECT_COMBINER_TYPE;
 
@@ -89,12 +89,14 @@ Image ImageCombiner::Combine(CombineType combineType, CombinationResult& combRes
         return Morphological(DEFAULT_NUM_MODS, combRes, needSort);
     case ImageCombiner::CombineType::LOCAL_ENTROPY:
         return LocalEntropy(combRes);
+    case ImageCombiner::CombineType::DIFFERENCES_ADDING:
+        return DifferencesAdding(combRes, needSort);
     default:
         return Image();
     }
 }
 
-CombinationResult ImageCombiner::Combine(CombineType combineType, Image& combImg, const bool needSort)
+CombinationResult ImageCombiner::Combine(CombineType combineType, Image& combImg, const bool needSort/* = true*/)
 {
     CombinationResult combRes = CombinationResult::INCORRECT_COMBINER_TYPE;
 
@@ -106,12 +108,14 @@ CombinationResult ImageCombiner::Combine(CombineType combineType, Image& combImg
         return Morphological(DEFAULT_NUM_MODS, combImg, needSort);
     case ImageCombiner::CombineType::LOCAL_ENTROPY:
         return LocalEntropy(combImg);
+    case ImageCombiner::CombineType::DIFFERENCES_ADDING:
+        return DifferencesAdding(combImg, needSort);
     }
 
     return combRes;
 }
 
-Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool needSort)
+Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool needSort/* = true*/)
 {
     Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
     combRes = InformativePriority(combImg, needSort);
@@ -119,7 +123,7 @@ Image ImageCombiner::InformativePriority(CombinationResult& combRes, const bool 
     return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
 }
 
-CombinationResult ImageCombiner::InformativePriority(Image& combImg, const bool needSort)
+CombinationResult ImageCombiner::InformativePriority(Image& combImg, const bool needSort/* = true*/)
 {
     CombinationResult combRes;
 
@@ -169,7 +173,7 @@ CombinationResult ImageCombiner::InformativePriority(Image& combImg, const bool 
     return combRes;
 }
 
-Image ImageCombiner::Morphological(const size_t numMods, CombinationResult& combRes, const bool needSort)
+Image ImageCombiner::Morphological(const size_t numMods, CombinationResult& combRes, const bool needSort/* = true*/)
 {
     Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
     combRes = Morphological(numMods, combImg, needSort);
@@ -177,7 +181,7 @@ Image ImageCombiner::Morphological(const size_t numMods, CombinationResult& comb
     return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
 }
 
-CombinationResult ImageCombiner::Morphological(const size_t numMods, Image& combImg, const bool needSort)
+CombinationResult ImageCombiner::Morphological(const size_t numMods, Image& combImg, const bool needSort/* = true*/)
 {
     CombinationResult combRes;
 
@@ -244,6 +248,73 @@ CombinationResult ImageCombiner::LocalEntropy(Image& combImg)
 
                 combImg(row, col) = mCombinedImages[iMax]->GetPixel(row, col);
             }
+        }
+
+        combRes = CombinationResult::SUCCESS;
+    }
+
+    return combRes;
+}
+
+Image ImageCombiner::DifferencesAdding(CombinationResult& combRes, const bool needSort/* = true*/)
+{
+    Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
+    combRes = DifferencesAdding(combImg, needSort);
+
+    return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
+}
+
+CombinationResult ImageCombiner::DifferencesAdding(Image& combImg, const bool needSort/* = true*/)
+{
+    CombinationResult combRes;
+
+    if (mCombinedImages.size() != 2)
+      return CombinationResult::MANY_IMAGES;
+
+    if (CanCombine(combRes))
+    {
+        std::vector<const Image*> sortedImages;
+        if (needSort)
+            FormSortedImagesArray(sortedImages);
+        else
+            sortedImages = mCombinedImages;
+
+        Image::Byte Dmin = Image::MAX_PIXEL_VALUE, Dmax = Image::MIN_PIXEL_VALUE;
+
+        // Search of minimum and maximum of brightness differences
+        Image::Matrix::const_iterator it1, it2;
+        Image::Matrix::iterator itDst;
+        for (it1 = sortedImages[0]->GetData().cbegin(), it2 = sortedImages[1]->GetData().cbegin(), itDst = combImg.GetData().begin();
+             it1 != sortedImages[0]->GetData().cend();
+             ++it1, ++it2, ++itDst)
+        {
+            Image::Byte D = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
+
+            if (D < Dmin)
+                Dmin = D;
+            if (D > Dmax)
+                Dmax = D;
+
+            *itDst = D;
+        }
+
+        double k1 = (Dmax + 3.0 * Dmin) / 1020.0;
+        double k2 = (3.0 * Dmax + Dmin) / 1020.0;
+
+        Image::Byte b1 = Dmin + k1 * (Dmax - Dmin);
+        Image::Byte b2 = Dmin + k2 * (Dmax - Dmin);
+        Image::Byte db = b2 - b1;
+
+        for (it1 = sortedImages[0]->GetData().cbegin(), it2 = sortedImages[1]->GetData().cbegin(), itDst = combImg.GetData().begin();
+             it1 != sortedImages[0]->GetData().cend();
+             ++it1, ++it2, ++itDst)
+        {
+            if (*itDst <= b1)
+                *itDst = *it1;
+            else if (*itDst >= b2)
+                *itDst = *it2;
+            else
+                *itDst = *it1 + (b1 - *itDst) * (*it1 - *it2) / db;
         }
 
         combRes = CombinationResult::SUCCESS;
