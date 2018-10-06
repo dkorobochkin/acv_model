@@ -57,7 +57,7 @@ bool Image::IsInitialized() const
     return (mWidth != -1 || mHeight != -1);
 }
 
-bool Image::IsInvalidCoordinates(const int rowNum, const int colNum)
+bool Image::IsInvalidCoordinates(const int rowNum, const int colNum) const
 {
     return (rowNum < 0 || rowNum >= mHeight || colNum < 0 || colNum >= mWidth);
 }

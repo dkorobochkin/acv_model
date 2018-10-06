@@ -96,7 +96,7 @@ public: // Public methods
     bool IsInitialized() const;
 
     // Check pixel coordinates out of image boundaries
-    bool IsInvalidCoordinates(const int rowNum, const int colNum);
+    bool IsInvalidCoordinates(const int rowNum, const int colNum) const;
 
     // Adjust pixel coordinates if they are out of image boundaries
     // In this case the coordinates are mirrored

@@ -62,7 +62,8 @@ SOURCES += \
         src/engine/MatrixFilter.cpp \
         src/engine/BordersDetector.cpp \
         src/engine/Point.cpp \
-        src/engine/ImageCorrector.cpp
+        src/engine/ImageCorrector.cpp \
+        src/engine/HuMomentsCalculator.cpp
 
 HEADERS += \
         include/gui/mainwindow.h \
@@ -75,7 +76,8 @@ HEADERS += \
         include/engine/MatrixFilter.h \
         include/engine/BordersDetector.h \
         include/engine/Point.h \
-        include/engine/ImageCorrector.h
+        include/engine/ImageCorrector.h \
+        include/engine/HuMomentsCalculator.h
 
 FORMS += \
         ui/mainwindow.ui
