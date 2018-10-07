@@ -35,6 +35,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QElapsedTimer>
+#include <QMouseEvent>
 
 #include <exception>
 
@@ -43,9 +44,11 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     mUi(new Ui::MainWindow),
+    mRubberBand(nullptr),
     mViewer(new ImageViewer),
     mCurOpenedImg(-1),
-    mCurProcessedImg(-1)
+    mCurProcessedImg(-1),
+    mMouseMode(MouseMode::SELECT_PIXEL)
 {
     mUi->setupUi(this);
     setCentralWidget(mViewer);
@@ -60,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(ProcessedImgsChanged()), this, SLOT(UpdateImgsMenu()));
     connect(this, SIGNAL(AllImgsAreClosed()), this, SLOT(ClearDisplay()));
     connect(this, SIGNAL(AllImgsAreClosed()), this, SLOT(UpdateImgsMenu()));
+    connect(this, SIGNAL(ExecuteHuMomentsForBoundary(int,int,int,int)),
+            this, SLOT(CalcHuMomentsExecute(int,int,int,int)));
 
     move((qApp->desktop()->width() - width()) / 2, (qApp->desktop()->height() - height()) / 2);
 }
@@ -173,6 +178,11 @@ void MainWindow::CreateParamsActions()
     mImgMinMaxBrightnessAction = new QAction(tr("Minimum and maximum of brightness"), this);
     mImgMinMaxBrightnessAction->setStatusTip(tr("Calculate minimum and maximum of brightness"));
     connect(mImgMinMaxBrightnessAction, SIGNAL(triggered()), this, SLOT(CalcMinMaxBrightness()));
+
+    mHuMomentsAction = new QAction(tr("Hu's moments"), this);
+    mHuMomentsAction->setShortcut(tr("Ctrl+H"));
+    mHuMomentsAction->setStatusTip(tr("Calculate the Hu's moments"));
+    connect(mHuMomentsAction, SIGNAL(triggered()), this, SLOT(CalcHuMomentsStart()));
 }
 
 void MainWindow::CreateCombiningActions()
@@ -264,6 +274,7 @@ void MainWindow::CreateParamsMenu()
     mImgParams->addAction(mImgAverBrightnessAction);
     mImgParams->addAction(mImgStdDeviationAction);
     mImgParams->addAction(mImgMinMaxBrightnessAction);
+    mImgParams->addAction(mHuMomentsAction);
 }
 
 void MainWindow::CreateCombiningMenu()
@@ -498,6 +509,66 @@ void MainWindow::AddProcessedImg(const acv::Image& processedImg, const QString& 
     emit ProcessedImgsChanged();
 }
 
+void MainWindow::mousePressEvent(QMouseEvent* event)
+{
+    switch (mMouseMode)
+    {
+    case MouseMode::SELECT_PIXEL:
+        break;
+    case MouseMode::SELECT_BOUNDARY:
+        mRBBeginPos = event->pos();
+        if (!mRubberBand)
+            mRubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+        mRubberBand->setGeometry(QRect(mRBBeginPos, QSize()));
+        mRubberBand->show();
+
+        break;
+    }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent* event)
+{
+    switch (mMouseMode)
+    {
+    case MouseMode::SELECT_PIXEL:
+        break;
+    case MouseMode::SELECT_BOUNDARY:
+        mRBEndPos = event->pos();
+        mRubberBand->setGeometry(QRect(mRBBeginPos, mRBEndPos).normalized());
+
+        break;
+    }
+}
+
+void MainWindow::RecalcToCentralWidgetCoordinates(QPoint& pnt)
+{
+    pnt.setX(pnt.x() - mViewer->x());
+    pnt.setY(pnt.y() - mViewer->y());
+}
+
+void MainWindow::mouseReleaseEvent(QMouseEvent* /*event*/)
+{
+    switch (mMouseMode)
+    {
+    case MouseMode::SELECT_PIXEL:
+        break;
+    case MouseMode::SELECT_BOUNDARY:
+        mRubberBand->hide();
+
+        RecalcToCentralWidgetCoordinates(mRBBeginPos);
+        RecalcToCentralWidgetCoordinates(mRBEndPos);
+
+        int xMin = std::min(mRBBeginPos.x(), mRBEndPos.x());
+        int xMax = std::max(mRBBeginPos.x(), mRBEndPos.x());
+        int yMin = std::min(mRBBeginPos.y(), mRBEndPos.y());
+        int yMax = std::max(mRBBeginPos.y(), mRBEndPos.y());
+
+        emit ExecuteHuMomentsForBoundary(xMin, xMax, yMin, yMax);
+
+        break;
+    }
+}
+
 void MainWindow::Canny()
 {
     if (ImgWasSelected())
@@ -690,6 +761,52 @@ void MainWindow::CalcMinMaxBrightness()
     {
         QMessageBox::warning(this, tr("Minimum and maximum brightness calculation"), tr("No image selected"), QMessageBox::Ok);
     }
+}
+
+QString MainWindow::FormHuMomentsStr(const acv::HuMoments& moments, int xMin, int xMax, int yMin, int yMax)
+{
+    QString resStr = tr("X: %1..%2 Y: %3..%4").arg(xMin).arg(xMax).arg(yMin).arg(yMax);
+
+    for (size_t i = 0; i < moments.size(); ++i)
+        resStr += tr("\nHu[%1] = %2").arg(i + 1).arg(moments[i]);
+    return resStr;
+}
+
+void MainWindow::CalcHuMomentsStart()
+{
+    if (ImgWasSelected())
+    {
+        QMessageBox::information(this, tr("Hu's moments"),
+                                 tr("You should select an area of pixels. "
+                                    "Hu's moments will be calculated in this area."),
+                                 QMessageBox::Ok);
+
+        mMouseMode = MouseMode::SELECT_BOUNDARY;
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Hu's moments"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
+void MainWindow::CalcHuMomentsExecute(int xMin, int xMax, int yMin, int yMax)
+{
+    if (ImgWasSelected())
+    {
+        const acv::Image& curImg = GetCurImg();
+        acv::HuMomentsCalculator calculator(curImg, xMin, yMin, xMax, yMax);
+        const acv::HuMoments& moments = calculator.GetHuMoments();
+
+        QMessageBox::information(this, tr("Hu's moments"),
+                                 FormHuMomentsStr(moments, xMin, xMax, yMin, yMax),
+                                 QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Hu's moments"), tr("No image selected"), QMessageBox::Ok);
+    }
+
+    mMouseMode = MouseMode::SELECT_PIXEL;
 }
 
 void MainWindow::ClearDisplay()

@@ -26,6 +26,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QRubberBand>
 
 #include <vector>
 
@@ -34,6 +35,7 @@
 #include "ImageCombiner.h"
 #include "BordersDetector.h"
 #include "ImageCorrector.h"
+#include "HuMomentsCalculator.h"
 
 namespace Ui {
 class MainWindow;
@@ -142,6 +144,10 @@ private slots: // Private slots
     // Slot to calculation of image minimum and maximum brightness
     void CalcMinMaxBrightness();
 
+    // Slots to calculation the Hu's moments
+    void CalcHuMomentsStart();
+    void CalcHuMomentsExecute(int xMin, int xMax, int yMin, int yMax);
+
     // Slot to clear the display (the slot will be called in case of all images closing)
     void ClearDisplay();
 
@@ -158,6 +164,8 @@ signals: // Signals
 
     // Signal about close all images
     void AllImgsAreClosed();
+
+    void ExecuteHuMomentsForBoundary(int xMin, int xMax, int yMin, int yMax);
 
 private: // Private methods
 
@@ -257,6 +265,9 @@ private: // Private methods
     // Forming the text about result of combination
     QString FormCombinationResultStr(acv::CombinationResult combRes);
 
+    // Forming the text about result of Hu's moments calculation
+    QString FormHuMomentsStr(const acv::HuMoments& moments, int xMin, int xMax, int yMin, int yMax);
+
     // Convolution the image with the operator of specified type
     void Operator(acv::BordersDetector::OperatorType operatorType);
 
@@ -279,10 +290,36 @@ private: // Private methods
     // Add processed image to menu, add his action. Also this image will be drawn and current image will be him
     void AddProcessedImg(const acv::Image& processedImg, const QString& actionName);
 
+    // Recalculation from coordinates of main window to coordinates of central widget
+    void RecalcToCentralWidgetCoordinates(QPoint& pnt);
+
+protected: // Protected methods
+
+    // Processing of the mouse events
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
+
+private: // Private types
+
+    // Mode of mouse working
+    enum class MouseMode
+    {
+        SELECT_PIXEL, // Selecting the pixel (default mode)
+        SELECT_BOUNDARY // Selecting the boundary of pixels (for example, during the calculation of Hu's moments)
+    };
+
 private: // Private members
 
     // UI
     Ui::MainWindow *mUi;
+
+    // Rubber band for selecting the boundary of pixels
+    QRubberBand* mRubberBand;
+
+    // Rubber band's positions
+    QPoint mRBBeginPos;
+    QPoint mRBEndPos;
 
     // Actions to work with images
     std::vector<QAction*> mOpenedImgsActions;
@@ -311,6 +348,7 @@ private: // Private members
     QAction* mImgAverBrightnessAction;
     QAction* mImgStdDeviationAction;
     QAction* mImgMinMaxBrightnessAction;
+    QAction* mHuMomentsAction;
 
     // Main menu
     QMenu* mFileMenu;
@@ -338,6 +376,9 @@ private: // Private members
 
     // Current selected processed image (-1 in case of not select)
     int mCurProcessedImg;
+
+    // Mouse working mode
+    MouseMode mMouseMode;
 
 };
 
