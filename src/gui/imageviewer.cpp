@@ -31,6 +31,7 @@
 ImageViewer::ImageViewer(QWidget *parent)
     : QWidget(parent)
 {
+    setMouseTracking(true);
 }
 
 void ImageViewer::DrawImage(const QImage& img)

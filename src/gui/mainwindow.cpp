@@ -53,8 +53,11 @@ MainWindow::MainWindow(QWidget *parent) :
     mUi->setupUi(this);
     setCentralWidget(mViewer);
 
+    setMouseTracking(true);
+
     CreateActions();
     CreateMainMenus();
+    CreateStatusBar();
 
     connect(this, SIGNAL(CurImgWasUpdated()), this, SLOT(DrawCurImg()));
     connect(this, SIGNAL(CurImgWasUpdated()), this, SLOT(MoveToCenterOfDisplay()));
@@ -300,6 +303,18 @@ void MainWindow::CreateMainMenus()
     CreateCombiningMenu();
 }
 
+void MainWindow::CreateStatusBar()
+{
+    statusBarLabel = new QLabel(this);
+    statusBarLabel->setAlignment(Qt::AlignHCenter);
+    statusBarLabel->setMinimumSize(statusBarLabel->sizeHint());
+
+    statusBar()->addWidget(statusBarLabel);
+
+    connect(this, SIGNAL(UpdateCoordsAndBrigInStatusBar(int,int)),
+            this, SLOT(DisplayCoordsAndBrigInStatusBar(int,int)));
+}
+
 bool MainWindow::LoadImgFromFile(const QString& fileName)
 {
     QImage img(fileName);
@@ -531,7 +546,14 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event)
     switch (mMouseMode)
     {
     case MouseMode::SELECT_PIXEL:
+    {
+        QPoint curPos = event->pos();
+        RecalcToCentralWidgetCoordinates(curPos);
+
+        emit UpdateCoordsAndBrigInStatusBar(curPos.x(), curPos.y());
+
         break;
+    }
     case MouseMode::SELECT_BOUNDARY:
         mRBEndPos = event->pos();
         mRubberBand->setGeometry(QRect(mRBBeginPos, mRBEndPos).normalized());
@@ -772,6 +794,29 @@ QString MainWindow::FormHuMomentsStr(const acv::HuMoments& moments, int xMin, in
     return resStr;
 }
 
+void MainWindow::SetMouseMode(MouseMode mouseMode)
+{
+    switch (mouseMode)
+    {
+    case MouseMode::SELECT_PIXEL:
+        mMouseMode = MouseMode::SELECT_PIXEL;
+
+        setMouseTracking(true);
+        mViewer->setMouseTracking(true);
+
+        break;
+    case MouseMode::SELECT_BOUNDARY:
+        mMouseMode = MouseMode::SELECT_BOUNDARY;
+
+        setMouseTracking(false);
+        mViewer->setMouseTracking(false);
+
+        emit UpdateCoordsAndBrigInStatusBar(-1, -1);
+
+        break;
+    }
+}
+
 void MainWindow::CalcHuMomentsStart()
 {
     if (ImgWasSelected())
@@ -781,7 +826,7 @@ void MainWindow::CalcHuMomentsStart()
                                     "Hu's moments will be calculated in this area."),
                                  QMessageBox::Ok);
 
-        mMouseMode = MouseMode::SELECT_BOUNDARY;
+        SetMouseMode(MouseMode::SELECT_BOUNDARY);
     }
     else
     {
@@ -806,12 +851,26 @@ void MainWindow::CalcHuMomentsExecute(int xMin, int xMax, int yMin, int yMax)
         QMessageBox::warning(this, tr("Hu's moments"), tr("No image selected"), QMessageBox::Ok);
     }
 
-    mMouseMode = MouseMode::SELECT_PIXEL;
+    SetMouseMode(MouseMode::SELECT_PIXEL);
 }
 
 void MainWindow::ClearDisplay()
 {
     mViewer->Clear();
+}
+
+void MainWindow::DisplayCoordsAndBrigInStatusBar(int x, int y)
+{
+    QString statusBarStr;
+
+    if (ImgWasSelected())
+    {
+        const acv::Image& curImg = GetCurImg();
+        if (!curImg.IsInvalidCoordinates(y, x))
+            statusBarStr = tr("X=%1 Y=%2 B=%3").arg(x).arg(y).arg(curImg.GetPixel(y, x));
+    }
+
+    statusBarLabel->setText(statusBarStr);
 }
 
 QString MainWindow::FormCombinationResultStr(acv::CombinationResult combRes)

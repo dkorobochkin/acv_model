@@ -27,6 +27,7 @@
 
 #include <QMainWindow>
 #include <QRubberBand>
+#include <QLabel>
 
 #include <vector>
 
@@ -56,6 +57,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
 
     ~MainWindow();
+
+private: // Private types
+
+    // Mode of mouse working
+    enum class MouseMode
+    {
+        SELECT_PIXEL, // Selecting the pixel (default mode)
+        SELECT_BOUNDARY // Selecting the boundary of pixels (for example, during the calculation of Hu's moments)
+    };
 
 private slots: // Private slots
 
@@ -151,6 +161,9 @@ private slots: // Private slots
     // Slot to clear the display (the slot will be called in case of all images closing)
     void ClearDisplay();
 
+    // Slot to display the coordinates and brightness of selected pixel in status bar
+    void DisplayCoordsAndBrigInStatusBar(int x, int y);
+
 signals: // Signals
 
     // Signal about select the other image
@@ -165,7 +178,11 @@ signals: // Signals
     // Signal about close all images
     void AllImgsAreClosed();
 
+    // Signal about start of calculation the Hu's moments
     void ExecuteHuMomentsForBoundary(int xMin, int xMax, int yMin, int yMax);
+
+    // Signal to update the coordinates and brightness of selected pixel in status bar
+    void UpdateCoordsAndBrigInStatusBar(int x, int y);
 
 private: // Private methods
 
@@ -216,6 +233,9 @@ private: // Private methods
 
     // Creation main menu
     void CreateMainMenus();
+
+    // Creation the status bar
+    void CreateStatusBar();
 
     // Load image from file
     bool LoadImgFromFile(const QString& fileName);
@@ -268,6 +288,9 @@ private: // Private methods
     // Forming the text about result of Hu's moments calculation
     QString FormHuMomentsStr(const acv::HuMoments& moments, int xMin, int xMax, int yMin, int yMax);
 
+    // Set the mouse mode
+    void SetMouseMode(MouseMode mouseMode);
+
     // Convolution the image with the operator of specified type
     void Operator(acv::BordersDetector::OperatorType operatorType);
 
@@ -299,15 +322,6 @@ protected: // Protected methods
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
-
-private: // Private types
-
-    // Mode of mouse working
-    enum class MouseMode
-    {
-        SELECT_PIXEL, // Selecting the pixel (default mode)
-        SELECT_BOUNDARY // Selecting the boundary of pixels (for example, during the calculation of Hu's moments)
-    };
 
 private: // Private members
 
@@ -361,6 +375,9 @@ private: // Private members
     QMenu* mImgParams;
     QMenu* mCombineMenu;
     QMenu* mCombineTestMenu;
+
+    // Label in status bar
+    QLabel* statusBarLabel;
 
     // This member is used to draw the image on the screen
     ImageViewer* mViewer;
