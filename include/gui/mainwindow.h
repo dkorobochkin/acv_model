@@ -130,6 +130,9 @@ private slots: // Private slots
     // Slot to detect the borders by using Canny algorithm
     void Canny();
 
+    // Slot to detect the borders by using Sobel algorithm
+    void SobelDetector();
+
     // Slot to combine the images by method of priority of the most informative image
     void InformPriorityCombining();
 
@@ -261,6 +264,9 @@ private: // Private methods
     // Forming the name for action of detected borders by Canny algorithm
     QString FormCannyActionName();
 
+    // Forming the name for action of detected borders by Sobel algorithm
+    QString FormSobelDetectorActionName();
+
     // Adding the action for processed image
     void AddProcessedImgAction(const QString& actionName);
 
@@ -354,6 +360,7 @@ private: // Private members
     QAction* mSobelAction;
     QAction* mScharrAction;
     QAction* mCannyAction;
+    QAction* mSobelDetectorAction;
     QAction* mInfPriorCombAction;
     QAction* mMorphCombAction;
     QAction* mLocEntrCombAction;

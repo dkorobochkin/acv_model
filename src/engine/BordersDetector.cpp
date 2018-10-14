@@ -131,6 +131,50 @@ bool BordersDetector::Canny(const Image& srcImg, Image& dstImg, const Image::Byt
     return Canny(dstImg, thresholdMin, thresholdMax);
 }
 
+bool BordersDetector::Sobel(Image& img)
+{
+    Image tmpImg(img.GetHeight(), img.GetWidth());
+
+    bool ret = Sobel(img, tmpImg);
+    if (ret)
+        img = std::move(tmpImg);
+
+    return ret;
+}
+
+bool BordersDetector::Sobel(const Image& srcImg, Image& dstImg)
+{
+    Image tmpImg1(srcImg.GetHeight(), srcImg.GetWidth());
+    Image tmpImg2(srcImg.GetHeight(), srcImg.GetWidth());
+
+    bool ret = NonConvSobelH(srcImg, tmpImg1);
+    ret = ret && NonConvSobelV(srcImg, tmpImg2);
+
+    if (ret)
+    {
+        Image::Matrix::const_iterator it1 = tmpImg1.GetData().begin();
+        Image::Matrix::const_iterator it2 = tmpImg2.GetData().begin();
+        Image::Matrix::iterator itDst = dstImg.GetData().begin();
+        Image::Matrix::iterator itDstEnd = dstImg.GetData().end();
+
+        int prodBuf[Image::MAX_PIXEL_VALUE + 1][Image::MAX_PIXEL_VALUE + 1];
+        for (size_t i = 0; i <= Image::MAX_PIXEL_VALUE; ++i)
+            for (size_t j = 0; j <= Image::MAX_PIXEL_VALUE; ++j)
+                prodBuf[i][j] = hypot(i, j);
+
+        while (itDst != itDstEnd)
+        {
+            *itDst = prodBuf[*it1][*it2];
+
+            ++itDst;
+            ++it1;
+            ++it2;
+        }
+    }
+
+    return ret;
+}
+
 bool BordersDetector::MaximumSuppression(std::vector<std::vector<BordersDetector::Gradient>>& gradients)
 {
     int leftCol, leftRow, rightCol, rightRow;

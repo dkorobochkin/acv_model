@@ -161,6 +161,10 @@ void MainWindow::CreateBodersDetectorsActions()
     mCannyAction = new QAction(tr("Canny algorithm"), this);
     mCannyAction->setStatusTip(tr("Detect the borders by using Canny algorithm"));
     connect(mCannyAction, SIGNAL(triggered()), this, SLOT(Canny()));
+
+    mSobelDetectorAction = new QAction(tr("Sobel algorithm"), this);
+    mSobelDetectorAction->setStatusTip(tr("Detect the borders by using Sobel algorithm"));
+    connect(mSobelDetectorAction, SIGNAL(triggered()), this, SLOT(SobelDetector()));
 }
 
 void MainWindow::CreateParamsActions()
@@ -267,6 +271,7 @@ void MainWindow::CreateBordersDetectorsMenu()
     mBordersDetectorsMenu = mProcessingMenu->addMenu(tr("Detectors of borders"));
 
     mBordersDetectorsMenu->addAction(mCannyAction);
+    mBordersDetectorsMenu->addAction(mSobelDetectorAction);
 }
 
 void MainWindow::CreateParamsMenu()
@@ -610,6 +615,36 @@ void MainWindow::Canny()
         if (detected)
         {
             QString actionName = FormCannyActionName();
+            AddProcessedImg(processedImg, actionName);
+
+            QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
+        }
+        else
+            QMessageBox::warning(this, tr("Detecting of the borders"), tr("Could not detect the borders"), QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Detecting of the borders"), tr("Image was not selected"), QMessageBox::Ok);
+    }
+}
+
+void MainWindow::SobelDetector()
+{
+    if (ImgWasSelected())
+    {
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+
+        QElapsedTimer timer;
+        timer.start();
+
+        bool detected = acv::BordersDetector::Sobel(curImg, processedImg);
+
+        qint64 filterTime = timer.elapsed();
+
+        if (detected)
+        {
+            QString actionName = FormSobelDetectorActionName();
             AddProcessedImg(processedImg, actionName);
 
             QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
@@ -1059,6 +1094,13 @@ QString MainWindow::FormOperatorActionName(acv::BordersDetector::OperatorType op
 QString MainWindow::FormCannyActionName()
 {
     QString ret = tr("BD_C: ");
+    ret = FormProcessedImgActionName(ret);
+    return ret;
+}
+
+QString MainWindow::FormSobelDetectorActionName()
+{
+    QString ret = tr("BD_S: ");
     ret = FormProcessedImgActionName(ret);
     return ret;
 }

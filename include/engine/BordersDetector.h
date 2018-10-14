@@ -60,6 +60,10 @@ public: // Public methods
     static bool Canny(Image& img, const Image::Byte thresholdMin, const Image::Byte thresholdMax);
     static bool Canny(const Image& srcImg, Image& dstImg, const Image::Byte thresholdMin, const Image::Byte thresholdMax);
 
+    // Detect the borders by using Sobel algorithm
+    static bool Sobel(Image& img);
+    static bool Sobel(const Image& srcImg, Image& dstImg);
+
     // Convolution of image with specified operator
     static bool OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type);
     static bool OperatorConvolution(const Image& srcImg, Image& dstImg, OperatorType operatorType, SobelTypes type);
