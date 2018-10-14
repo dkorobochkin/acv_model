@@ -49,27 +49,22 @@ bool BordersDetector::Canny(Image& img, const Image::Byte thresholdMin, const Im
         return false;
 
     // Calculation the gradients for each pixel
-    MatrixFilter<int> hMask(3, 1);
-    hMask[0][0] =  1; hMask[0][1] =  2; hMask[0][2] =  1;
-    hMask[1][0] =  0; hMask[1][1] =  0; hMask[1][2] =  0;
-    hMask[2][0] = -1; hMask[2][1] = -2; hMask[2][2] = -1;
+    Image tmpImg1(img.GetHeight(), img.GetWidth());
+    Image tmpImg2(img.GetHeight(), img.GetWidth());
 
-    MatrixFilter<int> vMask(3, 1);
-    vMask[0][0] = 1;  vMask[0][1] = 0; vMask[0][2] = -1;
-    vMask[1][0] = 2;  vMask[1][1] = 0; vMask[1][2] = -2;
-    vMask[2][0] = 1;  vMask[2][1] = 0; vMask[2][2] = -1;
+    bool ret = NonConvSobelH(img, tmpImg1);
+    ret = ret && NonConvSobelV(img, tmpImg2);
+
+    if (!ret)
+        return false;
 
     std::vector<std::vector<Gradient>> gradients(img.GetHeight(), std::vector<Gradient>(img.GetWidth()));
 
+    Image::Matrix::const_iterator it1 = tmpImg1.GetData().begin();
+    Image::Matrix::const_iterator it2 = tmpImg2.GetData().begin();
     for (int row = 0; row < img.GetHeight(); ++row)
-    {
         for (int col = 0; col < img.GetWidth(); ++col)
-        {
-            int vConv = MatrixFilterOperations::ConvolutionPixel<int>(img, row, col, vMask, 1);
-            int hConv = MatrixFilterOperations::ConvolutionPixel<int>(img, row, col, hMask, 1);            
-            gradients[row][col] = Gradient(hConv, vConv);
-        }
-    }
+            gradients[row][col] = Gradient(*it1++, *it2++);
 
     // Maximum suppression
     if (!BordersDetector::MaximumSuppression(gradients))
