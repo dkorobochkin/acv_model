@@ -41,20 +41,42 @@ class BordersDetector
 
 public: // Public auxiliary types
 
-    enum class OperatorType
+    // Types of border detectors
+    enum class DetectorType
     {
-        SOBEL, // Sobel operator
-        SCHARR // Scharr operator
+        SOBEL, // Sobel detector
+        SCHARR, // Scharr detector
+        CANNY // Canny detector
     };
 
-    // Types of Sobel and Scharr operators
-    enum class SobelTypes
+    // Types of border detection operators
+    enum class OperatorTypes
     {
-        VERTICAL, // Vertical
-        HORIZONTAL // Horizontal
+        VERTICAL, // Vertical operator
+        HORIZONTAL // Horizontal operator
+    };
+
+private: // Constants
+
+    enum
+    {
+        DEFAULT_MIN_THRESHOLD = 20, // Default minimum threshold for Canny algorithm
+        DEFAULT_MAX_THRESHOLD = 90 // Default maximum threshold for Canny algorithm
     };
 
 public: // Public methods
+
+    // Detect the borders of image
+    static bool DetectBorders(Image& img, DetectorType detectorType,
+                              const Image::Byte thresholdMin = DEFAULT_MIN_THRESHOLD, const Image::Byte thresholdMax = DEFAULT_MAX_THRESHOLD);
+    static bool DetectBorders(const Image& srcImg, Image& dstImg, DetectorType detectorType,
+                              const Image::Byte thresholdMin = DEFAULT_MIN_THRESHOLD, const Image::Byte thresholdMax = DEFAULT_MAX_THRESHOLD);
+
+    // Convolution of image with specified operator
+    static bool OperatorConvolution(Image& img, DetectorType operatorType, OperatorTypes type);
+    static bool OperatorConvolution(const Image& srcImg, Image& dstImg, DetectorType operatorType, OperatorTypes type);
+
+private: // Private methods
 
     // Detect borders by using the Canny algorithm
     static bool Canny(Image& img, const Image::Byte thresholdMin, const Image::Byte thresholdMax);
@@ -64,25 +86,13 @@ public: // Public methods
     static bool Sobel(Image& img);
     static bool Sobel(const Image& srcImg, Image& dstImg);
 
-    // Convolution of image with specified operator
-    static bool OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type);
-    static bool OperatorConvolution(const Image& srcImg, Image& dstImg, OperatorType operatorType, SobelTypes type);
+    // Detect the borders by using Scharr algorithm
+    static bool Scharr(Image& img);
+    static bool Scharr(const Image& srcImg, Image& dstImg);
 
-private: // Private methods for Canny algorithm
-
-    // An edge thinning technique by using maximum suppression
-    static bool MaximumSuppression(std::vector<std::vector<Gradient>>& gradients);
-
-    // An auxiliary method to tracing the ambiguity area
-    static void AmbiguityTrace(const int row, const int col, const int height, const int width,
-                               std::vector<std::vector<BordersDetector::Gradient>>& gradients,
-                               std::list<Point>& pixelGroup, int& closer);
-
-private: // Private methods
-
-    // Convolution of image with Sobel operator
-    static bool Sobel(Image& img, SobelTypes type);
-    static bool Sobel(const Image& srcImg, Image& dstImg, SobelTypes type);
+    // Non-convolutional of image with Sobel operator
+    static bool NonConvSobel(Image& img, OperatorTypes type);
+    static bool NonConvSobel(const Image& srcImg, Image& dstImg, OperatorTypes type);
 
     // Non-convolutional horizontal Sobel operator
     static bool NonConvSobelH(Image& img);
@@ -93,8 +103,21 @@ private: // Private methods
     static bool NonConvSobelV(const Image& srcImg, Image& dstImg);
 
     // Convolution of image with Scharr operator
-    static bool Scharr(Image& img, SobelTypes type);
-    static bool Scharr(const Image& srcImg, Image& dstImg, SobelTypes type);
+    static bool ConvScharr(Image& img, OperatorTypes type);
+    static bool ConvScharr(const Image& srcImg, Image& dstImg, OperatorTypes type);
+
+    // Calculate the modules of two image to third image
+    static void FormGradientModules(const Image& horizImg, const Image& vertImg, Image& modImg);
+
+private: // Private methods for Canny algorithm
+
+    // An edge thinning technique by using maximum suppression
+    static bool MaximumSuppression(std::vector<std::vector<Gradient>>& gradients);
+
+    // An auxiliary method to tracing the ambiguity area
+    static void AmbiguityTrace(const int row, const int col, const int height, const int width,
+                               std::vector<std::vector<BordersDetector::Gradient>>& gradients,
+                               std::list<Point>& pixelGroup, int& closer);
 
 private: // Private types
 

@@ -137,6 +137,28 @@ bool BordersDetector::Sobel(Image& img)
     return ret;
 }
 
+void BordersDetector::FormGradientModules(const Image& horizImg, const Image& vertImg, Image& modImg)
+{
+    Image::Matrix::const_iterator it1 = horizImg.GetData().begin();
+    Image::Matrix::const_iterator it2 = vertImg.GetData().begin();
+    Image::Matrix::iterator itDst = modImg.GetData().begin();
+    Image::Matrix::iterator itDstEnd = modImg.GetData().end();
+
+    int prodBuf[Image::MAX_PIXEL_VALUE + 1][Image::MAX_PIXEL_VALUE + 1];
+    for (size_t i = 0; i <= Image::MAX_PIXEL_VALUE; ++i)
+        for (size_t j = 0; j <= Image::MAX_PIXEL_VALUE; ++j)
+            prodBuf[i][j] = hypot(i, j);
+
+    while (itDst != itDstEnd)
+    {
+        *itDst = prodBuf[*it1][*it2];
+
+        ++itDst;
+        ++it1;
+        ++it2;
+    }
+}
+
 bool BordersDetector::Sobel(const Image& srcImg, Image& dstImg)
 {
     Image tmpImg1(srcImg.GetHeight(), srcImg.GetWidth());
@@ -146,26 +168,32 @@ bool BordersDetector::Sobel(const Image& srcImg, Image& dstImg)
     ret = ret && NonConvSobelV(srcImg, tmpImg2);
 
     if (ret)
-    {
-        Image::Matrix::const_iterator it1 = tmpImg1.GetData().begin();
-        Image::Matrix::const_iterator it2 = tmpImg2.GetData().begin();
-        Image::Matrix::iterator itDst = dstImg.GetData().begin();
-        Image::Matrix::iterator itDstEnd = dstImg.GetData().end();
+        BordersDetector::FormGradientModules(tmpImg1, tmpImg2, dstImg);
 
-        int prodBuf[Image::MAX_PIXEL_VALUE + 1][Image::MAX_PIXEL_VALUE + 1];
-        for (size_t i = 0; i <= Image::MAX_PIXEL_VALUE; ++i)
-            for (size_t j = 0; j <= Image::MAX_PIXEL_VALUE; ++j)
-                prodBuf[i][j] = hypot(i, j);
+    return ret;
+}
 
-        while (itDst != itDstEnd)
-        {
-            *itDst = prodBuf[*it1][*it2];
+bool BordersDetector::Scharr(Image& img)
+{
+    Image tmpImg(img.GetHeight(), img.GetWidth());
 
-            ++itDst;
-            ++it1;
-            ++it2;
-        }
-    }
+    bool ret = Sobel(img, tmpImg);
+    if (ret)
+        img = std::move(tmpImg);
+
+    return ret;
+}
+
+bool BordersDetector::Scharr(const Image& srcImg, Image& dstImg)
+{
+    Image tmpImg1(srcImg.GetHeight(), srcImg.GetWidth());
+    Image tmpImg2(srcImg.GetHeight(), srcImg.GetWidth());
+
+    bool ret = ConvScharr(srcImg, tmpImg1, OperatorTypes::HORIZONTAL);
+    ret = ret && ConvScharr(srcImg, tmpImg2, OperatorTypes::VERTICAL);
+
+    if (ret)
+        BordersDetector::FormGradientModules(tmpImg1, tmpImg2, dstImg);
 
     return ret;
 }
@@ -349,41 +377,73 @@ BordersDetector::Gradient::Gradient(int horiz, int vert)
         arg = ((vert > 0 && horiz > 0) || (vert < 0 && horiz < 0)) ? 45 : 135;
 }
 
-bool BordersDetector::OperatorConvolution(Image& img, OperatorType operatorType, SobelTypes type)
+bool BordersDetector::DetectBorders(Image& img, DetectorType detectorType,
+                                    const Image::Byte thresholdMin /*= DEFAULT_MIN_THRESHOLD*/, const Image::Byte thresholdMax /*= DEFAULT_MAX_THRESHOLD*/)
 {
-    switch (operatorType)
+    switch (detectorType)
     {
-    case OperatorType::SOBEL:
-        return Sobel(img, type);
-    case OperatorType::SCHARR:
-        return Scharr(img, type);
+    case DetectorType::CANNY:
+        return Canny(img, thresholdMin, thresholdMax);
+    case DetectorType::SOBEL:
+        return Sobel(img);
+    case DetectorType::SCHARR:
+        return Scharr(img);
     default:
         return false;
     }
 }
 
-bool BordersDetector::OperatorConvolution(const Image& srcImg, Image& dstImg, BordersDetector::OperatorType operatorType, BordersDetector::SobelTypes type)
+bool BordersDetector::DetectBorders(const Image& srcImg, Image& dstImg, DetectorType detectorType,
+                                    const Image::Byte thresholdMin /*= DEFAULT_MIN_THRESHOLD*/, const Image::Byte thresholdMax /*= DEFAULT_MAX_THRESHOLD*/)
 {
-    switch (operatorType)
+    switch (detectorType)
     {
-    case OperatorType::SOBEL:
-        return Sobel(srcImg, dstImg, type);
-    case OperatorType::SCHARR:
-        return Scharr(srcImg, dstImg, type);
+    case DetectorType::CANNY:
+        return Canny(srcImg, dstImg, thresholdMin, thresholdMax);
+    case DetectorType::SOBEL:
+        return Sobel(srcImg, dstImg);
+    case DetectorType::SCHARR:
+        return Scharr(srcImg, dstImg);
     default:
         return false;
     }
 }
 
-bool BordersDetector::Sobel(Image& img, SobelTypes type)
+bool BordersDetector::OperatorConvolution(Image& img, DetectorType operatorType, OperatorTypes type)
 {
-    bool res = (type == SobelTypes::HORIZONTAL) ? NonConvSobelH(img) : NonConvSobelV(img);
+    switch (operatorType)
+    {
+    case DetectorType::SOBEL:
+        return NonConvSobel(img, type);
+    case DetectorType::SCHARR:
+        return ConvScharr(img, type);
+    default:
+        return false;
+    }
+}
+
+bool BordersDetector::OperatorConvolution(const Image& srcImg, Image& dstImg, BordersDetector::DetectorType operatorType, BordersDetector::OperatorTypes type)
+{
+    switch (operatorType)
+    {
+    case DetectorType::SOBEL:
+        return NonConvSobel(srcImg, dstImg, type);
+    case DetectorType::SCHARR:
+        return ConvScharr(srcImg, dstImg, type);
+    default:
+        return false;
+    }
+}
+
+bool BordersDetector::NonConvSobel(Image& img, OperatorTypes type)
+{
+    bool res = (type == OperatorTypes::HORIZONTAL) ? NonConvSobelH(img) : NonConvSobelV(img);
     return res;
 }
 
-bool BordersDetector::Sobel(const Image& srcImg, Image& dstImg, BordersDetector::SobelTypes type)
+bool BordersDetector::NonConvSobel(const Image& srcImg, Image& dstImg, BordersDetector::OperatorTypes type)
 {
-    bool res = (type == SobelTypes::HORIZONTAL) ? NonConvSobelH(srcImg, dstImg) : NonConvSobelV(srcImg, dstImg);
+    bool res = (type == OperatorTypes::HORIZONTAL) ? NonConvSobelH(srcImg, dstImg) : NonConvSobelV(srcImg, dstImg);
     return res;
 }
 
@@ -520,17 +580,17 @@ bool BordersDetector::NonConvSobelV(const Image& srcImg, Image& dstImg)
     return true;
 }
 
-bool BordersDetector::Scharr(Image& img, SobelTypes type)
+bool BordersDetector::ConvScharr(Image& img, OperatorTypes type)
 {
     MatrixFilter<int> filter(3, 1);
 
-    if (type == SobelTypes::HORIZONTAL)
+    if (type == OperatorTypes::HORIZONTAL)
     {
         filter[0][0] =  3;  filter[0][1] =  10;  filter[0][2] =  3;
         filter[1][0] =  0;  filter[1][1] =   0;  filter[1][2] =  0;
         filter[2][0] = -3;  filter[2][1] = -10;  filter[2][2] = -3;
     }
-    else if (type == SobelTypes::VERTICAL)
+    else if (type == OperatorTypes::VERTICAL)
     {
         filter[0][0] =  3;  filter[0][1] =  0;  filter[0][2] =  -3;
         filter[1][0] = 10;  filter[1][1] =  0;  filter[1][2] = -10;
@@ -542,10 +602,10 @@ bool BordersDetector::Scharr(Image& img, SobelTypes type)
     return MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
 }
 
-bool BordersDetector::Scharr(const Image& srcImg, Image& dstImg, BordersDetector::SobelTypes type)
+bool BordersDetector::ConvScharr(const Image& srcImg, Image& dstImg, BordersDetector::OperatorTypes type)
 {
     memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
-    bool ret = Scharr(dstImg, type);
+    bool ret = ConvScharr(dstImg, type);
     return ret;
 }
 

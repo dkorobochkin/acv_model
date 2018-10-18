@@ -165,6 +165,10 @@ void MainWindow::CreateBodersDetectorsActions()
     mSobelDetectorAction = new QAction(tr("Sobel algorithm"), this);
     mSobelDetectorAction->setStatusTip(tr("Detect the borders by using Sobel algorithm"));
     connect(mSobelDetectorAction, SIGNAL(triggered()), this, SLOT(SobelDetector()));
+
+    mScharrDetectorAction = new QAction(tr("Scharr algorithm"), this);
+    mScharrDetectorAction->setStatusTip(tr("Detect the borders by using Scharr algorithm"));
+    connect(mScharrDetectorAction, SIGNAL(triggered()), this, SLOT(ScharrDetector()));
 }
 
 void MainWindow::CreateParamsActions()
@@ -272,6 +276,7 @@ void MainWindow::CreateBordersDetectorsMenu()
 
     mBordersDetectorsMenu->addAction(mCannyAction);
     mBordersDetectorsMenu->addAction(mSobelDetectorAction);
+    mBordersDetectorsMenu->addAction(mScharrDetectorAction);
 }
 
 void MainWindow::CreateParamsMenu()
@@ -471,15 +476,15 @@ void MainWindow::Gamma()
     Correct(acv::ImageCorrector::CorrectorType::GAMMA);
 }
 
-void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
+void MainWindow::Operator(acv::BordersDetector::DetectorType operatorType)
 {
     if (ImgWasSelected())
     {
-        acv::BordersDetector::SobelTypes type;
+        acv::BordersDetector::OperatorTypes type;
         if (QMessageBox::question(this, tr("Operator"), "Need the horizontal operator? Else will be vertical.") == QMessageBox::Yes)
-            type = acv::BordersDetector::SobelTypes::HORIZONTAL;
+            type = acv::BordersDetector::OperatorTypes::HORIZONTAL;
         else
-            type = acv::BordersDetector::SobelTypes::VERTICAL;
+            type = acv::BordersDetector::OperatorTypes::VERTICAL;
 
         const acv::Image& curImg = GetCurImg();
         acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
@@ -509,12 +514,12 @@ void MainWindow::Operator(acv::BordersDetector::OperatorType operatorType)
 
 void MainWindow::Sobel()
 {
-    Operator(acv::BordersDetector::OperatorType::SOBEL);
+    Operator(acv::BordersDetector::DetectorType::SOBEL);
 }
 
 void MainWindow::Scharr()
 {
-    Operator(acv::BordersDetector::OperatorType::SCHARR);
+    Operator(acv::BordersDetector::DetectorType::SCHARR);
 }
 
 void MainWindow::AddProcessedImg(const acv::Image& processedImg, const QString& actionName)
@@ -598,37 +603,20 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* /*event*/)
 
 void MainWindow::Canny()
 {
-    if (ImgWasSelected())
-    {
-        const int CANNY_THRESHOLD_1 = 20, CANNY_THRESHOLD_2 = 90;
-
-        const acv::Image& curImg = GetCurImg();
-        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
-
-        QElapsedTimer timer;
-        timer.start();
-
-        bool detected = acv::BordersDetector::Canny(curImg, processedImg, CANNY_THRESHOLD_1, CANNY_THRESHOLD_2);
-
-        qint64 filterTime = timer.elapsed();
-
-        if (detected)
-        {
-            QString actionName = FormCannyActionName();
-            AddProcessedImg(processedImg, actionName);
-
-            QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
-        }
-        else
-            QMessageBox::warning(this, tr("Detecting of the borders"), tr("Could not detect the borders"), QMessageBox::Ok);
-    }
-    else
-    {
-        QMessageBox::warning(this, tr("Detecting of the borders"), tr("Image was not selected"), QMessageBox::Ok);
-    }
+    DetectBorders(acv::BordersDetector::DetectorType::CANNY);
 }
 
 void MainWindow::SobelDetector()
+{
+    DetectBorders(acv::BordersDetector::DetectorType::SOBEL);
+}
+
+void MainWindow::ScharrDetector()
+{
+    DetectBorders(acv::BordersDetector::DetectorType::SCHARR);
+}
+
+void MainWindow::DetectBorders(acv::BordersDetector::DetectorType detectorType)
 {
     if (ImgWasSelected())
     {
@@ -638,13 +626,13 @@ void MainWindow::SobelDetector()
         QElapsedTimer timer;
         timer.start();
 
-        bool detected = acv::BordersDetector::Sobel(curImg, processedImg);
+        bool detected = acv::BordersDetector::DetectBorders(curImg, processedImg, detectorType);
 
         qint64 filterTime = timer.elapsed();
 
         if (detected)
         {
-            QString actionName = FormSobelDetectorActionName();
+            QString actionName = FormBordersDetectorActionName(detectorType);
             AddProcessedImg(processedImg, actionName);
 
             QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
@@ -1069,18 +1057,18 @@ QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType c
     return ret;
 }
 
-QString MainWindow::FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type)
+QString MainWindow::FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorTypes type)
 {
     QString ret;
 
-    QString dirStr = (type == acv::BordersDetector::SobelTypes::VERTICAL) ? tr("V") : tr("H");
+    QString dirStr = (type == acv::BordersDetector::OperatorTypes::VERTICAL) ? tr("V") : tr("H");
 
     switch (operatorType)
     {
-    case acv::BordersDetector::OperatorType::SOBEL:
+    case acv::BordersDetector::DetectorType::SOBEL:
         ret = tr("O_SOB_%1: ").arg(dirStr);
         break;
-    case acv::BordersDetector::OperatorType::SCHARR:
+    case acv::BordersDetector::DetectorType::SCHARR:
         ret = tr("O_SCH_%1: ").arg(dirStr);
         break;
     default:
@@ -1091,16 +1079,25 @@ QString MainWindow::FormOperatorActionName(acv::BordersDetector::OperatorType op
     return ret;
 }
 
-QString MainWindow::FormCannyActionName()
+QString MainWindow::FormBordersDetectorActionName(acv::BordersDetector::DetectorType detectorType)
 {
-    QString ret = tr("BD_C: ");
-    ret = FormProcessedImgActionName(ret);
-    return ret;
-}
+    QString ret;
 
-QString MainWindow::FormSobelDetectorActionName()
-{
-    QString ret = tr("BD_S: ");
+    switch (detectorType)
+    {
+    case acv::BordersDetector::DetectorType::SOBEL:
+        ret = tr("BD_SOB: ");
+        break;
+    case acv::BordersDetector::DetectorType::SCHARR:
+        ret = tr("BD_SCH: ");
+        break;
+    case acv::BordersDetector::DetectorType::CANNY:
+        ret = tr("BD_C: ");
+        break;
+    default:
+        return QString();
+    }
+
     ret = FormProcessedImgActionName(ret);
     return ret;
 }

@@ -133,6 +133,9 @@ private slots: // Private slots
     // Slot to detect the borders by using Sobel algorithm
     void SobelDetector();
 
+    // Slot to detect the borders by using Scharr algorithm
+    void ScharrDetector();
+
     // Slot to combine the images by method of priority of the most informative image
     void InformPriorityCombining();
 
@@ -259,13 +262,10 @@ private: // Private methods
     QString FormCorrectorActionName(acv::ImageCorrector::CorrectorType corType);
 
     // Forming the name for action of image that get in result of convolution with operator
-    QString FormOperatorActionName(acv::BordersDetector::OperatorType operatorType, acv::BordersDetector::SobelTypes type);
+    QString FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorTypes type);
 
-    // Forming the name for action of detected borders by Canny algorithm
-    QString FormCannyActionName();
-
-    // Forming the name for action of detected borders by Sobel algorithm
-    QString FormSobelDetectorActionName();
+    // Forming the name for action of detected borders
+    QString FormBordersDetectorActionName(acv::BordersDetector::DetectorType detectorType);
 
     // Adding the action for processed image
     void AddProcessedImgAction(const QString& actionName);
@@ -285,6 +285,9 @@ private: // Private methods
     // Correction with the specified type
     void Correct(acv::ImageCorrector::CorrectorType corType);
 
+    // Detect the borders of image
+    void DetectBorders(acv::BordersDetector::DetectorType detectorType);
+
     // Forming the text about result of filtration
     QString FormFiltrationResultStr(acv::FiltrationResult filtRes);
 
@@ -298,7 +301,7 @@ private: // Private methods
     void SetMouseMode(MouseMode mouseMode);
 
     // Convolution the image with the operator of specified type
-    void Operator(acv::BordersDetector::OperatorType operatorType);
+    void Operator(acv::BordersDetector::DetectorType operatorType);
 
     // Get the number of selected action from actions vector (if was not selected then will be return -1)
     int GetNumOfActionInVec(const QAction* action, const std::vector<QAction*>& actionsVec);
@@ -361,6 +364,7 @@ private: // Private members
     QAction* mScharrAction;
     QAction* mCannyAction;
     QAction* mSobelDetectorAction;
+    QAction* mScharrDetectorAction;
     QAction* mInfPriorCombAction;
     QAction* mMorphCombAction;
     QAction* mLocEntrCombAction;
