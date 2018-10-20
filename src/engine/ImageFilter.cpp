@@ -69,6 +69,49 @@ FiltrationResult ImageFilter::Filter(const Image& srcImg, Image& dstImg, ImageFi
     }
 }
 
+bool ImageFilter::AdaptiveThreshold(Image& img, const int filterSize, const int threshold, ImageFilter::ThresholdType thresholdType)
+{
+    Image tmpImg = Image(img.GetHeight(), img.GetWidth());
+    bool ret = AdaptiveThreshold(img, tmpImg, filterSize, threshold, thresholdType);
+    if (ret)
+        img = std::move(tmpImg);
+    return ret;
+}
+
+bool ImageFilter::AdaptiveThreshold(const Image& srcImg, Image& dstImg, const int filterSize, const int threshold, ThresholdType thresholdType)
+{
+    FiltrationResult filterRes;
+    if (filterSize >= 6)
+        filterRes = GaussianIIR(srcImg, dstImg, static_cast<float>(filterSize / 6.0));
+    else
+        filterRes = SeparateGaussian(srcImg, dstImg, filterSize);
+
+    if (filterRes != FiltrationResult::SUCCESS)
+        return false;
+
+    Image::Byte moreTh, lessTh;
+    if (thresholdType == ThresholdType::MAX_MORE_THRESHOLD)
+    {
+        moreTh = Image::MAX_PIXEL_VALUE;
+        lessTh = Image::MIN_PIXEL_VALUE;
+    }
+    else
+    {
+        moreTh = Image::MIN_PIXEL_VALUE;
+        lessTh = Image::MAX_PIXEL_VALUE;
+    }
+
+
+    Image::Matrix::iterator itDst = dstImg.GetData().begin();
+    for (auto it = srcImg.GetData().begin(); it != srcImg.GetData().end(); ++it)
+    {
+        int p = *itDst - threshold;
+        *itDst++ = (*it > p) ? moreTh : lessTh;
+    }
+
+    return true;
+}
+
 FiltrationResult ImageFilter::Median(Image& img, const int filterSize)
 {
     if (filterSize % 2 != 0) // The filter size should be odd

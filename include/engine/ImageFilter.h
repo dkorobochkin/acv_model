@@ -58,6 +58,13 @@ public: // Public auxiliary types
         SHARPEN // Increase the sharpness of the image
     };
 
+    // Used types of threshold
+    enum class ThresholdType
+    {
+        MAX_MORE_THRESHOLD, // All pixels more than threshold will be Image::MAX_VALUE
+        MIN_MORE_THRESHOLD  // All pixels more than threshold will be Image::MIN_VALUE
+    };
+
     template <typename T>
     class IIRfilter{
         public:
@@ -77,6 +84,10 @@ public: // Public methods
 
     // Run a filtration by the specified method
     static FiltrationResult Filter(const Image& srcImg, Image& dstImg, FilterType type, const int filterSize = -1);
+
+    // Run an adaptive threshold processing
+    static bool AdaptiveThreshold(Image& img, const int filterSize, const int threshold, ThresholdType thresholdType);
+    static bool AdaptiveThreshold(const Image& srcImg, Image& dstImg, const int filterSize, const int threshold, ThresholdType thresholdType);
 
 private: // Private methods
 

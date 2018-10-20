@@ -124,6 +124,10 @@ void MainWindow::CreateFilteringActions()
     mSharpenAction = new QAction(tr("Sharpen filter"), this);
     mSharpenAction->setStatusTip(tr("Increase the sharpness of the image"));
     connect(mSharpenAction, SIGNAL(triggered()), this, SLOT(Sharpen()));
+
+    mAdaptiveThresholdAction = new QAction(tr("Adaptive threshold"), this);
+    mAdaptiveThresholdAction->setStatusTip(tr("Select the pixels by threshold"));
+    connect(mAdaptiveThresholdAction, SIGNAL(triggered()), this, SLOT(AdaptiveThreshold()));
 }
 
 void MainWindow::CreateCorrectorActions()
@@ -250,6 +254,7 @@ void MainWindow::CreateFilteringMenu()
     mFilterMenu->addAction(mSepGaussianBlurAction);
     mFilterMenu->addAction(mIIRGaussianBlurAction);
     mFilterMenu->addAction(mSharpenAction);
+    mFilterMenu->addAction(mAdaptiveThresholdAction);
 }
 
 void MainWindow::CreateCorrectorMenu()
@@ -766,6 +771,49 @@ void MainWindow::CalcEntropy()
     }
 }
 
+void MainWindow::AdaptiveThreshold()
+{
+    if (ImgWasSelected())
+    {
+        const int DEFAULT_THRESHOLD = 7, MIN_THRESHOLD = 1, MAX_THRESHOLD  = 255, THRESHOLD_STEP = 1;
+        const int DEFAULT_FILTER_SIZE = 3;
+
+        int threshold = QInputDialog::getInt(this, tr("Enter the size if threshold"), tr("Filter size"),
+                                             DEFAULT_THRESHOLD, MIN_THRESHOLD, MAX_THRESHOLD, THRESHOLD_STEP);
+
+        acv::ImageFilter::ThresholdType type;
+        if (QMessageBox::question(this, tr("Adaptive threshold"),
+                                  "If yes then selected pixels will be equal to MAX value. To MIN value in other case") == QMessageBox::Yes)
+            type = acv::ImageFilter::ThresholdType::MAX_MORE_THRESHOLD;
+        else
+            type = acv::ImageFilter::ThresholdType::MIN_MORE_THRESHOLD;
+
+        const acv::Image& curImg = GetCurImg();
+        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+
+        QElapsedTimer timer;
+        timer.start();
+
+        bool res = acv::ImageFilter::AdaptiveThreshold(curImg, processedImg, DEFAULT_FILTER_SIZE, threshold, type);
+
+        qint64 time = timer.elapsed();
+
+        if (res)
+        {
+            QString actionName = FormAdaptiveThresholdActionName(type, threshold);
+            AddProcessedImg(processedImg, actionName);
+
+            QMessageBox::information(this, tr("Adaptive threshold"), tr("Time of calculation: %1 msec").arg(time), QMessageBox::Ok);
+        }
+        else
+            QMessageBox::warning(this, tr("Adaptive threshold"), tr("Could not calculate an adaptive threshold"), QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Adaptive threshold"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
 void MainWindow::CalcAverageBrightness()
 {
     if (ImgWasSelected())
@@ -1022,6 +1070,26 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
         break;
     case acv::ImageFilter::FilterType::SHARPEN:
         ret = tr("F_SHARP: ");
+        break;
+    default:
+        return QString();
+    }
+
+    ret = FormProcessedImgActionName(ret);
+    return ret;
+}
+
+QString MainWindow::FormAdaptiveThresholdActionName(acv::ImageFilter::ThresholdType thresholdType, const int threshold)
+{
+    QString ret;
+
+    switch (thresholdType)
+    {
+    case acv::ImageFilter::ThresholdType::MAX_MORE_THRESHOLD:
+        ret = tr("AT_MAX_%1: ").arg(threshold);
+        break;
+    case acv::ImageFilter::ThresholdType::MIN_MORE_THRESHOLD:
+        ret = tr("AT_MIN_%1: ").arg(threshold);
         break;
     default:
         return QString();

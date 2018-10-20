@@ -151,6 +151,9 @@ private slots: // Private slots
     // Slot to calculation of image entropy
     void CalcEntropy();
 
+    // Slot to run an adaptive threshold
+    void AdaptiveThreshold();
+
     // Slot to calculation of image average brightness
     void CalcAverageBrightness();
 
@@ -257,6 +260,9 @@ private: // Private methods
 
     // Forming the name for action of filtered image
     QString FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize);
+
+    // Forming the name for action of adaptive threshold
+    QString FormAdaptiveThresholdActionName(acv::ImageFilter::ThresholdType thresholdType, const int threshold);
 
     // Forming the name for action of corrected image
     QString FormCorrectorActionName(acv::ImageCorrector::CorrectorType corType);
@@ -374,6 +380,7 @@ private: // Private members
     QAction* mImgStdDeviationAction;
     QAction* mImgMinMaxBrightnessAction;
     QAction* mHuMomentsAction;
+    QAction* mAdaptiveThresholdAction;
 
     // Main menu
     QMenu* mFileMenu;
