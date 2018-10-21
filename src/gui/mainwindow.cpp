@@ -530,6 +530,7 @@ void MainWindow::Scharr()
 void MainWindow::AddProcessedImg(const acv::Image& processedImg, const QString& actionName)
 {
     mProcessedImgs.push_back(processedImg);
+    mProcImgsSavingFlags.push_back(false);
 
     mCurOpenedImg = -1;
     mCurProcessedImg = mProcessedImgs.size() - 1;
@@ -1254,6 +1255,7 @@ void MainWindow::CloseImgFile()
        }
        else if (mCurProcessedImg != -1)
        {
+           mProcImgsSavingFlags.erase(mProcImgsSavingFlags.begin() + mCurProcessedImg);
            DeleteImg(mCurProcessedImg, mProcessedImgs, mProcessedImgsActions);
 
            // In case of deleting all processed images the first opened image will be current
@@ -1286,12 +1288,25 @@ void MainWindow::SaveImgFile()
         QImage img = ImageTransormer::AImage2QImage(GetCurImg());
         if (!img.save(fileName))
             QMessageBox::warning(this, tr("Save image"), tr("Could not save image"), QMessageBox::Ok);
+        else
+        {
+            if (mCurProcessedImg != -1)
+                mProcImgsSavingFlags[mCurProcessedImg] = true;
+        }
     }
+}
+
+bool MainWindow::HaveNotSavedImages() const
+{
+    for (auto flag : mProcImgsSavingFlags)
+        if (flag == false)
+            return true;
+    return false;
 }
 
 void MainWindow::Exit()
 {
-    if (!mProcessedImgs.empty())
+    if (HaveNotSavedImages())
         if(QMessageBox::question(this, tr("Exit from application"), "Not saved data will be lose. Are you sure?") == QMessageBox::No)
             return;
     close();

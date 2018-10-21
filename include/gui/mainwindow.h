@@ -331,6 +331,9 @@ private: // Private methods
     // Recalculation from coordinates of main window to coordinates of central widget
     void RecalcToCentralWidgetCoordinates(QPoint& pnt);
 
+    // Check if saved processed images
+    bool HaveNotSavedImages() const;
+
 protected: // Protected methods
 
     // Processing of the mouse events
@@ -405,6 +408,9 @@ private: // Private members
 
     // All processed images
     std::vector<acv::Image> mProcessedImgs;
+
+    // Flags of saving for processed images
+    std::vector<bool> mProcImgsSavingFlags;
 
     // Current selected opened image (-1 in case of not select)
     int mCurOpenedImg;
