@@ -59,6 +59,14 @@ public: // Public methods
     // Calculate the standard deviation of image brightness
     static double CalcStandardDeviation(const Image& img, const double aver);
 
+    // Calculate the integral quality indicator of image
+    static double CalcIntegralQualityIndicator(const Image& img);
+
+private:
+
+    // Calculate the numer of information levels of image
+    static size_t CalcNumberInformationLevels(const Image& img);
+
 };
 
 }

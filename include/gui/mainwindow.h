@@ -160,6 +160,9 @@ private slots: // Private slots
     // Slot to calculation of image standard deviation
     void CalcStandardDeviation();
 
+    // Slot to calculate the integral quality indicator of image
+    void CalcIntegralQualityIndicator();
+
     // Slot to calculation of image minimum and maximum brightness
     void CalcMinMaxBrightness();
 
@@ -384,6 +387,7 @@ private: // Private members
     QAction* mImgMinMaxBrightnessAction;
     QAction* mHuMomentsAction;
     QAction* mAdaptiveThresholdAction;
+    QAction* mIntlQualIndAction;
 
     // Main menu
     QMenu* mFileMenu;

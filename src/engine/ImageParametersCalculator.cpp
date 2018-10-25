@@ -27,6 +27,7 @@
 #include <cmath>
 #include <vector>
 #include <map>
+#include <set>
 
 #include "ImageParametersCalculator.h"
 
@@ -182,6 +183,51 @@ double ImageParametersCalculator::CalcStandardDeviation(const Image& img, const 
     sd /= img.GetHeight() * img.GetWidth() - 1;
 
     return sqrt(sd);
+}
+
+size_t ImageParametersCalculator::CalcNumberInformationLevels(const Image& img)
+{
+    std::set<Image::Byte> levels;
+
+    for (auto imgPix : img.GetData())
+        levels.insert(imgPix);
+
+    return levels.size();
+}
+
+double ImageParametersCalculator::CalcIntegralQualityIndicator(const Image& img)
+{
+    double iqi = 0.0;
+
+    if (!img.IsInitialized())
+        return iqi;
+
+    Image::Byte minBrig = Image::MAX_PIXEL_VALUE;
+    Image::Byte maxBrig = Image::MIN_PIXEL_VALUE;
+    CalcMinMaxBrightness(img, minBrig, maxBrig);
+    double averBrig = CalcAverageBrightness(img);
+    double stdDev = CalcStandardDeviation(img, averBrig);
+    double entr = CalcEntropy(img);
+    size_t numLevels = CalcNumberInformationLevels(img);
+
+    double Ln;
+    if (averBrig <= 107)
+        Ln = averBrig / 128;
+    else if (averBrig > 147)
+        Ln = (255 - averBrig) / 128;
+    else
+        Ln = 1.0;
+    double Sn;
+    if (stdDev <= 50)
+        Sn = stdDev / 50;
+    else
+        Sn = (100 - stdDev) / 50;
+    double Kn = (maxBrig - minBrig) / 255;
+    double Nn = numLevels / 256;
+    double En = entr / 8;
+
+    iqi = 0.33 * Ln + 0.27 * Sn + 0.20 * Kn + 0.13 * Nn + 0.07 * En;
+    return iqi;
 }
 
 }

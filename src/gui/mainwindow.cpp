@@ -198,6 +198,10 @@ void MainWindow::CreateParamsActions()
     mHuMomentsAction->setShortcut(tr("Ctrl+H"));
     mHuMomentsAction->setStatusTip(tr("Calculate the Hu's moments"));
     connect(mHuMomentsAction, SIGNAL(triggered()), this, SLOT(CalcHuMomentsStart()));
+
+    mIntlQualIndAction = new QAction(tr("Integral quality indicator"), this);
+    mIntlQualIndAction->setStatusTip(tr("Calculate the integral quality indicator of image"));
+    connect(mIntlQualIndAction, SIGNAL(triggered()), this, SLOT(CalcIntegralQualityIndicator()));
 }
 
 void MainWindow::CreateCombiningActions()
@@ -293,6 +297,7 @@ void MainWindow::CreateParamsMenu()
     mImgParams->addAction(mImgStdDeviationAction);
     mImgParams->addAction(mImgMinMaxBrightnessAction);
     mImgParams->addAction(mHuMomentsAction);
+    mImgParams->addAction(mIntlQualIndAction);
 }
 
 void MainWindow::CreateCombiningMenu()
@@ -840,6 +845,19 @@ void MainWindow::CalcStandardDeviation()
     else
     {
         QMessageBox::warning(this, tr("Standard deviation"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
+void MainWindow::CalcIntegralQualityIndicator()
+{
+    if (ImgWasSelected())
+    {
+        double iqi = acv::ImageParametersCalculator::CalcIntegralQualityIndicator(GetCurImg());
+        QMessageBox::information(this, tr("Integral quality indicator"), tr("Standard deviation = %1").arg(iqi), QMessageBox::Ok);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Integral quality indicator"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
