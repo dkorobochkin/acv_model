@@ -30,7 +30,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = acv_model
 TEMPLATE = app
@@ -63,7 +63,8 @@ SOURCES += \
         src/engine/BordersDetector.cpp \
         src/engine/Point.cpp \
         src/engine/ImageCorrector.cpp \
-        src/engine/HuMomentsCalculator.cpp
+        src/engine/HuMomentsCalculator.cpp \
+    src/engine/qcustomplot.cpp
 
 HEADERS += \
         include/gui/mainwindow.h \
@@ -77,7 +78,8 @@ HEADERS += \
         include/engine/BordersDetector.h \
         include/engine/Point.h \
         include/engine/ImageCorrector.h \
-        include/engine/HuMomentsCalculator.h
+        include/engine/HuMomentsCalculator.h \
+    include/engine/qcustomplot.h
 
 FORMS += \
         ui/mainwindow.ui

@@ -148,6 +148,9 @@ private slots: // Private slots
     // Slot to combine the images by the differences adding algorithm
     void DifferencesAddingCombining();
 
+    //Slot to calculate the difference of two open images
+    void CalcDiff();
+
     // Slot to calculation of image entropy
     void CalcEntropy();
 
@@ -165,6 +168,9 @@ private slots: // Private slots
 
     // Slot to calculation of image minimum and maximum brightness
     void CalcMinMaxBrightness();
+
+    //Slot to creating massive of brightness histogram
+    void CreateBrightnessHistogram();
 
     // Slots to calculation the Hu's moments
     void CalcHuMomentsStart();
@@ -381,10 +387,12 @@ private: // Private members
     QAction* mMorphCombAction;
     QAction* mLocEntrCombAction;
     QAction* mDifAddCombAction;
+    QAction* mCalcDiffAction;
     QAction* mImgEntropyAction;
     QAction* mImgAverBrightnessAction;
     QAction* mImgStdDeviationAction;
     QAction* mImgMinMaxBrightnessAction;
+    QAction* mImgCreateBrightnessHistogramAction;
     QAction* mHuMomentsAction;
     QAction* mAdaptiveThresholdAction;
     QAction* mIntlQualIndAction;

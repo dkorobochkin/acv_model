@@ -56,7 +56,8 @@ public: // Public auxiliary types
         INFORM_PRIORITY, // Combining with priority of image with the biggest entropy
         MORPHOLOGICAL, // Morphological combining
         LOCAL_ENTROPY, // Local-entropy combining
-        DIFFERENCES_ADDING // Adding the differences
+        DIFFERENCES_ADDING, // Adding the differences
+        CALC_DIFF //Calculation the difference of two open images
     };
 
 public: // Public mathods
@@ -92,6 +93,11 @@ private: // Private methods
     // Adding the differences
     Image DifferencesAdding(CombinationResult& combRes, const bool needSort = true);
     CombinationResult DifferencesAdding(Image& combImg, const bool needSort = true);
+
+    // Calculating the difference of two open images
+    Image CalcDiff(CombinationResult& combRes, const bool needSort = true);
+    CombinationResult CalcDiff(Image& combImg, const bool needSort = true);
+
 
     // Check the possibility of combining images in container
     // All images should have same dimensions

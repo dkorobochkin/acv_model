@@ -91,6 +91,8 @@ Image ImageCombiner::Combine(CombineType combineType, CombinationResult& combRes
         return LocalEntropy(combRes);
     case ImageCombiner::CombineType::DIFFERENCES_ADDING:
         return DifferencesAdding(combRes, needSort);
+    case ImageCombiner::CombineType::CALC_DIFF:
+        return CalcDiff(combRes, needSort);
     default:
         return Image();
     }
@@ -110,6 +112,9 @@ CombinationResult ImageCombiner::Combine(CombineType combineType, Image& combImg
         return LocalEntropy(combImg);
     case ImageCombiner::CombineType::DIFFERENCES_ADDING:
         return DifferencesAdding(combImg, needSort);
+    case ImageCombiner::CombineType::CALC_DIFF:
+        return CalcDiff(combImg, needSort);
+
     }
 
     return combRes;
@@ -317,6 +322,43 @@ CombinationResult ImageCombiner::DifferencesAdding(Image& combImg, const bool ne
                 *itDst = *it1 + (b1 - *itDst) * (*it1 - *it2) / db;
         }
 
+        combRes = CombinationResult::SUCCESS;
+    }
+
+    return combRes;
+}
+
+Image ImageCombiner::CalcDiff(CombinationResult &combRes, const bool needSort)
+{
+    Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
+    combRes = CalcDiff(combImg, needSort);
+
+    return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
+}
+
+CombinationResult ImageCombiner::CalcDiff(Image& combImg, const bool needSort/* = true*/)
+{
+    CombinationResult combRes;
+
+    if (mCombinedImages.size() != 2)
+      return CombinationResult::MANY_IMAGES;
+
+    if (CanCombine(combRes))
+    {
+        std::vector<const Image*> sortedImages;
+        if (needSort)
+            FormSortedImagesArray(sortedImages);
+        else
+            sortedImages = mCombinedImages;
+        Image::Matrix::const_iterator it1, it2;
+        Image::Matrix::iterator itDst;
+        for (it1 = sortedImages[0]->GetData().cbegin(), it2 = sortedImages[1]->GetData().cbegin(), itDst = combImg.GetData().begin();
+             it1 != sortedImages[0]->GetData().cend();
+             ++it1, ++it2, ++itDst)
+        {
+            Image::Byte D = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
+            *itDst = D;
+        }
         combRes = CombinationResult::SUCCESS;
     }
 

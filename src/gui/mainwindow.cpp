@@ -194,6 +194,10 @@ void MainWindow::CreateParamsActions()
     mImgMinMaxBrightnessAction->setStatusTip(tr("Calculate minimum and maximum of brightness"));
     connect(mImgMinMaxBrightnessAction, SIGNAL(triggered()), this, SLOT(CalcMinMaxBrightness()));
 
+    mImgCreateBrightnessHistogramAction = new QAction(tr("Histogram of brightness"), this);
+    mImgCreateBrightnessHistogramAction->setStatusTip(tr("Creating histogram of brightness"));
+    connect(mImgCreateBrightnessHistogramAction, SIGNAL(triggered()), this, SLOT(CreateBrightnessHistogram()));
+
     mHuMomentsAction = new QAction(tr("Hu's moments"), this);
     mHuMomentsAction->setShortcut(tr("Ctrl+H"));
     mHuMomentsAction->setStatusTip(tr("Calculate the Hu's moments"));
@@ -225,6 +229,10 @@ void MainWindow::CreateCombiningActions()
     mDifAddCombAction->setShortcut(tr("Ctrl+A"));
     mDifAddCombAction->setStatusTip(tr("Combine the all opened images by the differences adding algorithm"));
     connect(mDifAddCombAction, SIGNAL(triggered()), this, SLOT(DifferencesAddingCombining()));
+
+    mCalcDiffAction = new QAction(tr("Calculate the difference"), this);
+    mCalcDiffAction->setStatusTip(tr("Calculation the difference of two open images"));
+    connect(mCalcDiffAction, SIGNAL(triggered()), this, SLOT(CalcDiff()));
 }
 
 void MainWindow::CreateActions()
@@ -296,6 +304,7 @@ void MainWindow::CreateParamsMenu()
     mImgParams->addAction(mImgAverBrightnessAction);
     mImgParams->addAction(mImgStdDeviationAction);
     mImgParams->addAction(mImgMinMaxBrightnessAction);
+    mImgParams->addAction(mImgCreateBrightnessHistogramAction);
     mImgParams->addAction(mHuMomentsAction);
     mImgParams->addAction(mIntlQualIndAction);
 }
@@ -308,6 +317,7 @@ void MainWindow::CreateCombiningMenu()
     mCombineMenu->addAction(mMorphCombAction);
     mCombineMenu->addAction(mLocEntrCombAction);
     mCombineMenu->addAction(mDifAddCombAction);
+    mCombineMenu->addAction(mCalcDiffAction);
 }
 
 void MainWindow::CreateMainMenus()
@@ -764,6 +774,11 @@ void MainWindow::DifferencesAddingCombining()
     Combining(acv::ImageCombiner::CombineType::DIFFERENCES_ADDING);
 }
 
+void MainWindow::CalcDiff()
+{
+    Combining(acv::ImageCombiner::CombineType::CALC_DIFF);
+}
+
 void MainWindow::CalcEntropy()
 {
     if (ImgWasSelected())
@@ -872,6 +887,19 @@ void MainWindow::CalcMinMaxBrightness()
     else
     {
         QMessageBox::warning(this, tr("Minimum and maximum brightness calculation"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
+void MainWindow::CreateBrightnessHistogram()
+{
+    if (ImgWasSelected())
+    {
+       acv::ImageParametersCalculator::CreateBrightnessHistogram(GetCurImg());
+
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Creating brightness histogram"), tr("No image selected"), QMessageBox::Ok);
     }
 }
 
@@ -1056,6 +1084,9 @@ QString MainWindow::FormCombineActionName(acv::ImageCombiner::CombineType combTy
         break;
     case acv::ImageCombiner::CombineType::DIFFERENCES_ADDING:
         ret = tr("C_DA: ");
+        break;
+    case acv::ImageCombiner::CombineType::CALC_DIFF:
+        ret = tr("C_CD: ");
         break;
     }
 

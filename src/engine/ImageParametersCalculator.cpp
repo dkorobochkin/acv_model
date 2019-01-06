@@ -166,6 +166,35 @@ void ImageParametersCalculator::CalcMinMaxBrightness(const Image& img, Image::By
     }
 }
 
+void ImageParametersCalculator::CreateBrightnessHistogram(const Image &img)
+{
+    int mas[255],mas2[255];//y and x
+    for (int i=0;i<256;i++)
+        mas2[i]=i; //filling x
+     for (auto imgPix : img.GetData()) //filling y
+     {
+         for (int i=0;i<256;i++)
+             if (imgPix==i)
+             {
+                 mas[i]++;
+                 break;
+             }
+     }
+     /*widget->clearGraphs(); //clearing all graphics
+     widget->addGraph();
+     widget->graph(0)->setData(mas2,mas);
+     widget->xAxis->setLabel("Brightness");
+     widget->yAxis->setLabel("Number of Pixels");
+     widget->xAxis->setRange(0,255); //set range for x
+     int max=mas[0],min=mas[0];
+     for (int i=1;i<256;i++)
+         if (mas[i]>max)
+             max=mas[i];
+        else if (mas[i]<min)
+             min=mas[i];
+     widget->yAxis->setRange(min,max); //set range for y
+     widget->replot();*/
+}
 double ImageParametersCalculator::CalcStandardDeviation(const Image& img, const double aver)
 {
     double sd = 0.0;
