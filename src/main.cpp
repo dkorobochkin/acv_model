@@ -24,13 +24,13 @@
 
 #include "mainwindow.h"
 #include <QApplication>
+#include "qcustomplot.h"
 
 const QString CURRENT_VERSION = QObject::tr("1.0");
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
     MainWindow mainWin;
     mainWin.setWindowTitle(QObject::tr("Model of processing and combining of images (ver. %1)").arg(CURRENT_VERSION));
     mainWin.show();

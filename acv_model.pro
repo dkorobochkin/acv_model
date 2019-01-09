@@ -64,7 +64,8 @@ SOURCES += \
         src/engine/Point.cpp \
         src/engine/ImageCorrector.cpp \
         src/engine/HuMomentsCalculator.cpp \
-    src/engine/qcustomplot.cpp
+    src/engine/qcustomplot.cpp \
+    src/gui/hist.cpp
 
 HEADERS += \
         include/gui/mainwindow.h \
@@ -79,7 +80,8 @@ HEADERS += \
         include/engine/Point.h \
         include/engine/ImageCorrector.h \
         include/engine/HuMomentsCalculator.h \
-    include/engine/qcustomplot.h
+    include/engine/qcustomplot.h \
+    include/gui/hist.h
 
 FORMS += \
         ui/mainwindow.ui

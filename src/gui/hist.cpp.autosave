@@ -1,0 +1,27 @@
+#include "hist.h"
+#include "qcustomplot.h"
+
+Hist::Hist(QWidget *parent) :
+    QWidget(parent)
+{
+    resize(500,400);
+    setWindowTitle("Histogram");
+    customPlot = new QCustomPlot(this);
+    vbox = new QVBoxLayout(this);
+    
+    vbox->addWidget(customPlot);
+    setLayout(vbox);
+}
+
+void Hist::DrawHist(QVector<double>& mas)
+{
+    mUi->widget->addGraph();
+    mUi->widget->graph(0)->setData(x, y);
+    // задаем имена осей координат
+    ui->widget->xAxis->setLabel("x");
+    ui->widget->yAxis->setLabel("y");
+    // задаем размеры осей
+    ui->widget->xAxis->setRange(0, 360);
+    ui->widget->yAxis->setRange(-10, 10);
+    ui->widget->replot();
+};

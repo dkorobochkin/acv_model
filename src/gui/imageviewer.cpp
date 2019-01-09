@@ -24,6 +24,7 @@
 
 #include "imageviewer.h"
 #include "imagetransformer.h"
+#include "qcustomplot.h"
 
 #include <QImage>
 #include <QPainter>
@@ -45,6 +46,7 @@ void ImageViewer::DrawImage(const acv::Image& img)
     QImage qImg = ImageTransormer::AImage2QImage(img);
     DrawImage(qImg);
 }
+
 
 void ImageViewer::Clear()
 {

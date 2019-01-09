@@ -28,6 +28,7 @@
 #define IMAGE_PARAMETERS_CALCULATOR_H
 
 #include "Image.h"
+#include <QVector>
 
 namespace acv {
 
@@ -63,7 +64,7 @@ public: // Public methods
     static double CalcIntegralQualityIndicator(const Image& img);
 
     //Create massive for brightness histogram of an open image
-    static void CreateBrightnessHistogram(const Image& img);
+    static void CreateBrightnessHistogram(const Image& img, QVector<double>& mas);
 
 private:
 
