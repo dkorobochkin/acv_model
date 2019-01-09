@@ -65,7 +65,7 @@ SOURCES += \
         src/engine/ImageCorrector.cpp \
         src/engine/HuMomentsCalculator.cpp \
     src/engine/qcustomplot.cpp \
-    src/gui/hist.cpp
+    include/gui/hist1.cpp
 
 HEADERS += \
         include/gui/mainwindow.h \
@@ -81,7 +81,7 @@ HEADERS += \
         include/engine/ImageCorrector.h \
         include/engine/HuMomentsCalculator.h \
     include/engine/qcustomplot.h \
-    include/gui/hist.h
+    include/gui/hist1.h
 
 FORMS += \
         ui/mainwindow.ui

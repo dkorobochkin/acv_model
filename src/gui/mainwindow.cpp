@@ -25,6 +25,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "imageviewer.h"
+#include "hist1.h"
 #include "imagetransformer.h"
 #include "qcustomplot.h"
 
@@ -47,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mUi(new Ui::MainWindow),
     mRubberBand(nullptr),
     mViewer(new ImageViewer),
+    mHist(new Hist),
     mCurOpenedImg(-1),
     mCurProcessedImg(-1),
     mMouseMode(MouseMode::SELECT_PIXEL)
@@ -77,6 +79,7 @@ MainWindow::~MainWindow()
 {
     delete mUi;
     delete mViewer;
+    delete mHist;
 }
 
 void MainWindow::CreateFileActions()
@@ -897,15 +900,10 @@ void MainWindow::CreateBrightnessHistogram()
     {
         QVector<double> mas(255),mas2(255);
         for(int i=0;i++;i<255)
-            mas2[i]=0;
-        acv::ImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(),mas);
-        int max=mas[0],min=mas[0];
-            for (int i=1;i<255;i++)
-                if (mas[i]>max)
-                    max=mas[i];
-               else if (mas[i]<min)
-                    min=mas[i];
-       QMessageBox::information(this,tr("maximum"), tr("maximum %1").arg(max), QMessageBox::Ok);
+            mas2[i]=i; //filling x
+        acv::ImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(),&mas);
+        setCentralWidget(mHist);
+        mHist->DrawHist(&mas,&mas2);
     }
     else
     {

@@ -23,7 +23,7 @@
 //
 
 // File is used to implementation of methods of class to calculate parameters of image
-
+#include <iostream>
 #include <cmath>
 #include <vector>
 #include <map>
@@ -167,17 +167,19 @@ void ImageParametersCalculator::CalcMinMaxBrightness(const Image& img, Image::By
     }
 }
 
-void ImageParametersCalculator::CreateBrightnessHistogram(const Image &img, QVector<double>& mas)
+void ImageParametersCalculator::CreateBrightnessHistogram(const Image &img, QVector<double>* mas)
 {
      for (auto imgPix : img.GetData()) //filling y
      {
          for (int i=0;i<255;i++)
              if (imgPix==i)
              {
-                 mas[i]++;
-                 break;
+                 (*mas)[i]++;
+                 //break;
              }
      }
+     /*for (int i=0;i<255;i++)
+        std::cout<<"mas["<<i<<"] = "<<(*mas)[i]<<"\n";*/
 }
 double ImageParametersCalculator::CalcStandardDeviation(const Image& img, const double aver)
 {

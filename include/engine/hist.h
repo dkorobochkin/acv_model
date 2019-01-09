@@ -11,8 +11,10 @@ public:
 
 private:
         QCustomPlot *customPlot;
-private slots:
+        QVBoxLayout *vbox;
 
+private slots:
+         void printhist();
 };
 
 #endif // HIST_H

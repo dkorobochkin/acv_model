@@ -24,7 +24,6 @@
 
 #include "imageviewer.h"
 #include "imagetransformer.h"
-#include "qcustomplot.h"
 
 #include <QImage>
 #include <QPainter>
