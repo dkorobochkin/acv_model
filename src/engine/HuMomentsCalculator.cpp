@@ -131,16 +131,27 @@ void HuMomentsCalculator::CalcNormCentralMoments()
 
 void HuMomentsCalculator::CalcHuMoment()
 {
+    double nu30MinusNu12_3 = mNu30 - 3 * mNu12;
+    double nu21_3 = 3 * mNu21;
+    double nu21PlusNu03 = mNu21 + mNu03;
+    double nu30PlusNu12 = mNu30 + mNu12;
+    double sqrNu30PlusNu12 = pow(nu30PlusNu12, 2);
+    double sqrNu30PlusNu12_3 = 3 * sqrNu30PlusNu12;
+    double sqrNu21PlusNu03 = pow(nu21PlusNu03, 2);
+    double sqrNu21PlusNu03_3 = 3 * sqrNu21PlusNu03;
+    double op1 = nu21PlusNu03 * (sqrNu30PlusNu12_3 - sqrNu21PlusNu03);
+    double op2 = nu30PlusNu12 * (sqrNu30PlusNu12 - sqrNu21PlusNu03_3);
+    double nu20MinusNu02 = mNu20 - mNu02;
+    double nu21_3MinusNu03 = nu21_3 - mNu03;
+
     mMoments[0] = 0;
     mMoments[1] = mNu20 + mNu02;
-    mMoments[2] = pow(mNu20 - mNu02, 2) + 4 * pow(mNu11, 2);
-    mMoments[3] = pow(mNu30 - 3 * mNu12, 2) + pow(3 * mNu21 - mNu03, 2);
-    mMoments[4] = pow(mNu30 + mNu12, 2) + pow(mNu21 + mNu03, 2);
-    mMoments[5] = (mNu30 - 3 * mNu12) * (mNu30 + mNu12) * (pow(mNu30 + mNu12, 2) - 3 * pow(mNu21 + mNu03, 2)) +
-                  (3 * mNu21 - mNu03) * (mNu21 + mNu03) * (3 * pow(mNu30 + mNu12, 2) - pow(mNu21 + mNu03, 2));
-    mMoments[6] = (mNu20 - mNu02) * (pow(mNu30 + mNu12, 2) - pow(mNu21 + mNu03, 2)) + 4 * mNu11 * (mNu30 + mNu12) * (mNu21 + mNu03);
-    mMoments[7] = (3 * mNu21 - mNu03) * (mNu30 + mNu12) * (pow(mNu30 + mNu12, 2) - 3 * pow(mNu21 + mNu03, 2)) +
-                  (3 * mNu21 - mNu30) * (mNu21 + mNu03) * (3 * pow(mNu30 + mNu12, 2) - pow(mNu21 + mNu03, 2));
+    mMoments[2] = pow(nu20MinusNu02, 2) + 4 * pow(mNu11, 2);
+    mMoments[3] = pow(nu30MinusNu12_3, 2) + pow(nu21_3MinusNu03, 2);
+    mMoments[4] = sqrNu30PlusNu12 + sqrNu21PlusNu03;
+    mMoments[5] = nu30MinusNu12_3 * op2 + nu21_3MinusNu03 * op1;
+    mMoments[6] = nu20MinusNu02 * (sqrNu30PlusNu12 - sqrNu21PlusNu03) + 4 * mNu11 * nu30PlusNu12 * nu21PlusNu03;
+    mMoments[7] = nu21_3MinusNu03 * op2 + (nu21_3 - mNu30) * op1;
 }
 
 }
