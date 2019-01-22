@@ -13,6 +13,8 @@ public:
 private Q_SLOTS:
     void DefaultConstructor();
     void ConstructorWithDimensions();
+    void GetDimensions();
+    void SetGetPixel();
 };
 
 ImageTests::ImageTests()
@@ -43,6 +45,29 @@ void ImageTests::ConstructorWithDimensions()
 
     for (acv::Image::Byte pixel : img.GetData())
         QCOMPARE(pixel, acv::Image::MIN_PIXEL_VALUE);
+}
+
+void ImageTests::GetDimensions()
+{
+    acv::Image img(480, 640);
+
+    QCOMPARE(img.GetHeight(), 480);
+    QCOMPARE(img.GetWidth(), 640);
+}
+
+void ImageTests::SetGetPixel()
+{
+    acv::Image img(10, 20);
+
+    acv::Image::Byte pixel = 0;
+    for (int i = 0; i < 10; ++i)
+        for (int j = 0; j < 20; ++j)
+            img.SetPixel(i, j, pixel++);
+
+    pixel = 0;
+    for (int i = 0; i < 10; ++i)
+        for (int j = 0; j < 20; ++j)
+            QCOMPARE(img.GetPixel(i, j), pixel++);
 }
 
 QTEST_APPLESS_MAIN(ImageTests)
