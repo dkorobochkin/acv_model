@@ -15,6 +15,7 @@ private Q_SLOTS:
     void ConstructorWithDimensions();
     void GetDimensions();
     void SetGetPixel();
+    void IsInvalidCoordinates();
 };
 
 ImageTests::ImageTests()
@@ -68,6 +69,26 @@ void ImageTests::SetGetPixel()
     for (int i = 0; i < 10; ++i)
         for (int j = 0; j < 20; ++j)
             QCOMPARE(img.GetPixel(i, j), pixel++);
+}
+
+void ImageTests::IsInvalidCoordinates()
+{
+    const int NUM_ROWS = 10, NUM_COLS = 20;
+
+    acv::Image img(NUM_ROWS, NUM_COLS);
+
+    QCOMPARE(img.IsInvalidCoordinates(0, 0), false);
+    QCOMPARE(img.IsInvalidCoordinates(NUM_ROWS - 1, 0), false);
+    QCOMPARE(img.IsInvalidCoordinates(0, NUM_COLS - 1), false);
+    QCOMPARE(img.IsInvalidCoordinates(NUM_ROWS - 1, NUM_COLS - 1), false);
+    QCOMPARE(img.IsInvalidCoordinates(NUM_ROWS / 2, NUM_COLS / 2), false);
+
+    QCOMPARE(img.IsInvalidCoordinates(-1, -1), true);
+    QCOMPARE(img.IsInvalidCoordinates(NUM_ROWS, NUM_COLS), true);
+    QCOMPARE(img.IsInvalidCoordinates(-1, 0), true);
+    QCOMPARE(img.IsInvalidCoordinates(0, -1), true);
+    QCOMPARE(img.IsInvalidCoordinates(0, NUM_COLS), true);
+    QCOMPARE(img.IsInvalidCoordinates(NUM_ROWS, 0), true);
 }
 
 QTEST_APPLESS_MAIN(ImageTests)
