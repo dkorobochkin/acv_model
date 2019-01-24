@@ -16,6 +16,7 @@ private Q_SLOTS:
     void GetDimensions();
     void SetGetPixel();
     void IsInvalidCoordinates();
+    void CorrectCoordinates();
 };
 
 ImageTests::ImageTests()
@@ -89,6 +90,48 @@ void ImageTests::IsInvalidCoordinates()
     QCOMPARE(img.IsInvalidCoordinates(0, -1), true);
     QCOMPARE(img.IsInvalidCoordinates(0, NUM_COLS), true);
     QCOMPARE(img.IsInvalidCoordinates(NUM_ROWS, 0), true);
+}
+
+void ImageTests::CorrectCoordinates()
+{
+    const int NUM_ROWS = 10, NUM_COLS = 20;
+
+    acv::Image img(NUM_ROWS, NUM_COLS);
+
+    int row = 5, col = 5;
+    img.CorrectCoordinates(row, col);
+    QCOMPARE(row, 5);
+    QCOMPARE(col, 5);
+
+    row = 0;
+    col = 0;
+    img.CorrectCoordinates(row, col);
+    QCOMPARE(row, 0);
+    QCOMPARE(col, 0);
+
+    row = -1;
+    col = -5;
+    img.CorrectCoordinates(row, col);
+    QCOMPARE(row, 1);
+    QCOMPARE(col, 5);
+
+    row = NUM_ROWS;
+    col = NUM_COLS;
+    img.CorrectCoordinates(row, col);
+    QCOMPARE(row, NUM_ROWS - 2);
+    QCOMPARE(col, NUM_COLS - 2);
+
+    row = 5;
+    col = NUM_COLS;
+    img.CorrectCoordinates(row, col);
+    QCOMPARE(row, 5);
+    QCOMPARE(col, NUM_COLS - 2);
+
+    row = NUM_ROWS;
+    col = 5;
+    img.CorrectCoordinates(row, col);
+    QCOMPARE(row, NUM_ROWS - 2);
+    QCOMPARE(col, 5);
 }
 
 QTEST_APPLESS_MAIN(ImageTests)
