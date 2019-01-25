@@ -55,22 +55,26 @@ SOURCES += \
         src/gui/mainwindow.cpp \
         src/gui/imageviewer.cpp \
         src/gui/imagetransformer.cpp \
+        src/gui/hist1.cpp \
+        src/gui/qcustomplot.cpp \
+        src/engine/BordersDetector.cpp \
+        src/engine/HuMomentsCalculator.cpp \
         src/engine/Image.cpp \
-        src/engine/ImageFilter.cpp \
         src/engine/ImageCombiner.cpp \
+        src/engine/ImageCorrector.cpp \
+        src/engine/ImageFilter.cpp \
         src/engine/ImageParametersCalculator.cpp \
         src/engine/MatrixFilter.cpp \
-        src/engine/BordersDetector.cpp \
         src/engine/Point.cpp \
-        src/engine/ImageCorrector.cpp \
-        src/engine/HuMomentsCalculator.cpp \
-    src/engine/qcustomplot.cpp \
-    include/gui/hist1.cpp
+
+
 
 HEADERS += \
         include/gui/mainwindow.h \
         include/gui/imageviewer.h \
         include/gui/imagetransformer.h \
+        include/gui/hist1.h \
+        include/gui/qcustomplot.h \
         include/engine/Image.h \
         include/engine/ImageFilter.h \
         include/engine/ImageCombiner.h \
@@ -80,8 +84,8 @@ HEADERS += \
         include/engine/Point.h \
         include/engine/ImageCorrector.h \
         include/engine/HuMomentsCalculator.h \
-    include/engine/qcustomplot.h \
-    include/gui/hist1.h
+
+
 
 FORMS += \
         ui/mainwindow.ui
