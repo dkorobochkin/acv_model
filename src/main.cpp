@@ -24,7 +24,7 @@
 
 #include "mainwindow.h"
 #include <QApplication>
-#include "qcustomplot.h"
+
 
 const QString CURRENT_VERSION = QObject::tr("1.0");
 
