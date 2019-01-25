@@ -356,8 +356,8 @@ CombinationResult ImageCombiner::CalcDiff(Image& combImg, const bool needSort/* 
              it1 != sortedImages[0]->GetData().cend();
              ++it1, ++it2, ++itDst)
         {
-            Image::Byte D = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
-            *itDst = D;
+            Image::Byte brightnessOfPixel = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
+            *itDst = brightnessOfPixel;
         }
         combRes = CombinationResult::SUCCESS;
     }

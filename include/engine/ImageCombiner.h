@@ -60,7 +60,7 @@ public: // Public auxiliary types
         CALC_DIFF //Calculation the difference of two open images
     };
 
-public: // Public mathods
+public: // Public methods
 
     // Add image to combine
     void AddImage(const Image& img);
