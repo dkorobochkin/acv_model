@@ -8,10 +8,18 @@ class Hist : public QWidget
 {
     Q_OBJECT
 
+    public: //constants
+
+    enum
+    {
+        SCALE_X = 500, // Horizontal property of window.
+        SCALE_Y = 400 // Vertical property of window.
+    };
+
     public:
             explicit Hist(QWidget *parent = 0);
     public:
-            void DrawHist(QVector<double>* mas,QVector<double>* mas2);
+            void DrawHist(QVector<double>& brightnessHistogramVector,QVector<double>& valuesOfBrightness);
 
     private:
         QCustomPlot *customPlot;
