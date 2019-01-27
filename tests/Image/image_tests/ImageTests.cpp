@@ -1,8 +1,35 @@
+//
+// MIT License
+//
+// Copyright (c) 2018 Dmitriy Korobochkin, Vitaliy Garmash.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+
+// This file contains definition and implementation of class "ImageTests" and his methods
+
 #include <QString>
 #include <QtTest>
 
 #include "Image.h"
 
+// This class is used for testing of class Image
 class ImageTests : public QObject
 {
     Q_OBJECT
@@ -11,12 +38,28 @@ public:
     ImageTests();
 
 private Q_SLOTS:
+
+    // Test of default constructor
     void DefaultConstructor();
+
+    // Test of constructor with dimensions parameters
     void ConstructorWithDimensions();
+
+    // Test of methods for getting of dimensions
     void GetDimensions();
+
+    // Test of methods for setting and getting of pixels
     void SetGetPixel();
+
+    // Test of methods for checking of invalid coordinates
     void IsInvalidCoordinates();
+
+    // Test of method for correcting of coordinates
     void CorrectCoordinates();
+
+    // Test of static method for checking of pixel value
+    void CheckPixelValue();
+
 };
 
 ImageTests::ImageTests()
@@ -132,6 +175,25 @@ void ImageTests::CorrectCoordinates()
     img.CorrectCoordinates(row, col);
     QCOMPARE(row, NUM_ROWS - 2);
     QCOMPARE(col, 5);
+}
+
+void ImageTests::CheckPixelValue()
+{
+    for (int correctPixVal = acv::Image::MIN_PIXEL_VALUE; correctPixVal <= acv::Image::MAX_PIXEL_VALUE; ++correctPixVal)
+    {
+        int pixVal = correctPixVal;
+        acv::Image::CheckPixelValue(pixVal);
+
+        QCOMPARE(pixVal, correctPixVal);
+    }
+
+    int incorrectPixVal = acv::Image::MIN_PIXEL_VALUE - 1;
+    acv::Image::CheckPixelValue(incorrectPixVal);
+    QCOMPARE(incorrectPixVal, acv::Image::MIN_PIXEL_VALUE);
+
+    incorrectPixVal = acv::Image::MAX_PIXEL_VALUE + 1;
+    acv::Image::CheckPixelValue(incorrectPixVal);
+    QCOMPARE(incorrectPixVal, acv::Image::MAX_PIXEL_VALUE);
 }
 
 QTEST_APPLESS_MAIN(ImageTests)

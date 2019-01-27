@@ -112,7 +112,7 @@ public: // Public methods
     Byte* GetRawPointer(const int elementNum = 0) { return &mPixels[elementNum]; }
     const Byte* GetRawPointer(const int elementNum = 0) const { return &mPixels[elementNum]; }
 
-    // Check the pixel value to out the minimum and maximum values
+    // Check the pixel value to out from minimum and maximum values and correct in case of out the boundaries
     static void CheckPixelValue(int& value)
     {
         if (value < MIN_PIXEL_VALUE)
