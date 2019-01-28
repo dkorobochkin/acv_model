@@ -48,15 +48,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += \
         include/engine \
-        include/gui
+        include/gui \
+        thirdparty/include \
 
 SOURCES += \
         src/main.cpp \
         src/gui/mainwindow.cpp \
         src/gui/imageviewer.cpp \
         src/gui/imagetransformer.cpp \
-        src/gui/hist1.cpp \
-        src/gui/qcustomplot.cpp \
+        src/gui/HistogramWidget.cpp \
         src/engine/BordersDetector.cpp \
         src/engine/HuMomentsCalculator.cpp \
         src/engine/Image.cpp \
@@ -66,15 +66,14 @@ SOURCES += \
         src/engine/ImageParametersCalculator.cpp \
         src/engine/MatrixFilter.cpp \
         src/engine/Point.cpp \
-
+        thirdparty/src/qcustomplot.cpp \
 
 
 HEADERS += \
         include/gui/mainwindow.h \
         include/gui/imageviewer.h \
         include/gui/imagetransformer.h \
-        include/gui/hist1.h \
-        include/gui/qcustomplot.h \
+        include/gui/HistogramWidget.h \
         include/engine/Image.h \
         include/engine/ImageFilter.h \
         include/engine/ImageCombiner.h \
@@ -84,8 +83,17 @@ HEADERS += \
         include/engine/Point.h \
         include/engine/ImageCorrector.h \
         include/engine/HuMomentsCalculator.h \
+        thirdparty/include/qcustomplot.h \
+
+
+
+
+
 
 
 
 FORMS += \
-        ui/mainwindow.ui
+        ui/mainwindow.ui \
+    ui/mainwindow.ui \
+    ui/mainwindow.ui
+
