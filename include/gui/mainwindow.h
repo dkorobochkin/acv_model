@@ -37,7 +37,8 @@
 #include "BordersDetector.h"
 #include "ImageCorrector.h"
 #include "HuMomentsCalculator.h"
-#include "qcustomplot.h"
+
+#include "thirdparty/include/qcustomplot.h"
 
 namespace Ui {
 class MainWindow;
@@ -47,7 +48,7 @@ class QAction;
 class QMenu;
 class QImage;
 class ImageViewer;
-class Hist;
+class HistogramWidget;
 class QCustomPlot;
 
 class MainWindow : public QMainWindow
@@ -418,7 +419,7 @@ private: // Private members
     QLabel* statusBarLabel;
 
     // This member is used to draw the image on the screen
-    Hist* mHist;
+    HistogramWidget* mHist;
 
     // This member is used to draw the image on the screen
     ImageViewer* mViewer;

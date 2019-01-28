@@ -25,8 +25,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "imageviewer.h"
-#include "hist1.h"
+#include "HistogramWidget.h"
 #include "imagetransformer.h"
+
 #include "qcustomplot.h"
 
 #include <QAction>
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mUi(new Ui::MainWindow),
     mRubberBand(nullptr),
     mViewer(new ImageViewer),
-    mHist(new Hist),
+    mHist(new HistogramWidget),
     mCurOpenedImg(-1),
     mCurProcessedImg(-1),
     mMouseMode(MouseMode::SELECT_PIXEL)
@@ -898,12 +899,12 @@ void MainWindow::CreateBrightnessHistogram()
 {
     if (ImgWasSelected())
     {
-        QVector<double> brightnessHistogramVector(255),valuesOfBrightness(255);
+        QVector<double> brightnessHistogram(256),valuesOfBrightness(256);
         for(int i=0;i<255;i++)
             valuesOfBrightness[i]=i;
-        acv::ImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(),brightnessHistogramVector);
+        acv::ImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(),brightnessHistogram);
         setCentralWidget(mHist);
-        mHist->DrawHist(brightnessHistogramVector,valuesOfBrightness);
+        mHist->DrawHist(brightnessHistogram,valuesOfBrightness);
     }
     else
     {
