@@ -60,6 +60,9 @@ private Q_SLOTS:
     // Test of static method for checking of pixel value
     void CheckPixelValue();
 
+    // Test of method for getting the row pointer to the element of pixel vector
+    void GetRawPointer();
+
 };
 
 ImageTests::ImageTests()
@@ -194,6 +197,22 @@ void ImageTests::CheckPixelValue()
     incorrectPixVal = acv::Image::MAX_PIXEL_VALUE + 1;
     acv::Image::CheckPixelValue(incorrectPixVal);
     QCOMPARE(incorrectPixVal, acv::Image::MAX_PIXEL_VALUE);
+}
+
+void ImageTests::GetRawPointer()
+{
+    acv::Image img(10, 20);
+
+    acv::Image::Byte pixelBrig = acv::Image::MIN_PIXEL_VALUE;
+    for (int row = 0; row < 10; ++row)
+        for (int col = 0; col < 20; ++col)
+            img.SetPixel(row, col, pixelBrig++);
+
+    pixelBrig = acv::Image::MIN_PIXEL_VALUE;
+    int elemIdx = 0;
+    for (int row = 0; row < 10; ++row)
+        for (int col = 0; col < 20; ++col)
+            QCOMPARE(*img.GetRawPointer(elemIdx++), pixelBrig++);
 }
 
 QTEST_APPLESS_MAIN(ImageTests)
