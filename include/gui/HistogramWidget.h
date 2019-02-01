@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include "qcustomplot.h"
+#include "Image.h"
 
 class HistogramWidget : public QWidget
 {

@@ -24,14 +24,13 @@ void HistogramWidget::DrawHist(QVector<double>& brightnessHistogram, QVector<dou
     // Setting names of axes.
     customPlot->xAxis->setLabel("Pixel brightness");
     customPlot->yAxis->setLabel("Quantity of pixels");
-
-    int max=(brightnessHistogram)[0];
-        for (int i=1;i<255;i++)
+    int max=(brightnessHistogram)[acv::Image::MIN_PIXEL_VALUE];
+        for (int i=1;i<acv::Image::MAX_PIXEL_VALUE;i++)
             if ((brightnessHistogram)[i]>max)
                 max=(brightnessHistogram)[i];
 
     // Setting axes proportions.
-    customPlot->xAxis->setRange(0, 255);
+    customPlot->xAxis->setRange(acv::Image::MIN_PIXEL_VALUE, acv::Image::MAX_PIXEL_VALUE);
     customPlot->yAxis->setRange(0, max);
     customPlot->replot();
 };
