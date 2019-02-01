@@ -20,7 +20,7 @@ class HistogramWidget : public QWidget
     public:
             explicit HistogramWidget(QWidget *parent = 0);
     public:
-            void DrawHist(QVector<double>& brightnessHistogram,QVector<double>& valuesOfBrightness);
+            void DrawHist(std::vector<double>& brightnessHistogram,std::vector<double>& valuesOfBrightness);
 
     private:
         QCustomPlot *customPlot;

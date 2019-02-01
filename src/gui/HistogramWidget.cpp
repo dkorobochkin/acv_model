@@ -1,6 +1,6 @@
 #include "HistogramWidget.h"
 #include "qcustomplot.h"
-
+#include <QVector>
 
 HistogramWidget::HistogramWidget(QWidget *parent) :
     QWidget(parent)
@@ -15,11 +15,11 @@ HistogramWidget::HistogramWidget(QWidget *parent) :
     setLayout(vbox);
 }
 
-void HistogramWidget::DrawHist(QVector<double>& brightnessHistogram, QVector<double>& valuesOfBrightness)
+void HistogramWidget::DrawHist(std::vector<double>& brightnessHistogram, std::vector<double>& valuesOfBrightness)
 //brightnessHistogram - axis Y; valuesOfBrightness - axis X.
 {
     customPlot->addGraph();
-    customPlot->graph(0)->setData(valuesOfBrightness, brightnessHistogram);
+    customPlot->graph(0)->setData(QVector<double>::fromStdVector(valuesOfBrightness),QVector<double>::fromStdVector(brightnessHistogram));
 
     // Setting names of axes.
     customPlot->xAxis->setLabel("Pixel brightness");
