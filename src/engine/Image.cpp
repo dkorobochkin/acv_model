@@ -151,7 +151,7 @@ Image Image::operator -(const Image &subtrahendImage) const
 {
     Matrix::const_iterator it1, it2;
     Matrix::iterator itDst;
-    Image resImg;
+    Image resImg(subtrahendImage.GetHeight(),subtrahendImage.GetWidth());
     for (it1 = this->GetData().cbegin(), it2 = subtrahendImage.GetData().cbegin(), itDst = resImg.GetData().begin();
          it1 != this->GetData().cend();
          ++it1, ++it2, ++itDst)
@@ -162,7 +162,7 @@ Image Image::operator -(const Image &subtrahendImage) const
     return resImg;
 }
 
-Image& Image::operator=(const Image &assignImage)
+Image Image::operator=(const Image &assignImage)
 {
     mHeight=assignImage.GetHeight();
     mWidth=assignImage.GetHeight();
