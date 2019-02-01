@@ -345,11 +345,12 @@ CombinationResult ImageCombiner::CalcDiff(Image& combImg, const bool needSort/* 
 
     if (CanCombine(combRes))
     {
-        std::vector<const Image*> sortedImages;
+        /*std::vector<const Image*> sortedImages;
         if (needSort)
             FormSortedImagesArray(sortedImages);
         else
             sortedImages = mCombinedImages;
+
         Image::Matrix::const_iterator it1, it2;
         Image::Matrix::iterator itDst;
         for (it1 = sortedImages[0]->GetData().cbegin(), it2 = sortedImages[1]->GetData().cbegin(), itDst = combImg.GetData().begin();
@@ -358,7 +359,8 @@ CombinationResult ImageCombiner::CalcDiff(Image& combImg, const bool needSort/* 
         {
             Image::Byte brightnessOfPixel = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
             *itDst = brightnessOfPixel;
-        }
+        }*/
+        combImg = (*mCombinedImages[0] - *mCombinedImages[1]);
         combRes = CombinationResult::SUCCESS;
     }
 

@@ -147,6 +147,36 @@ Image Image::Resize(const int xMin, const int yMin, const int xMax, const int yM
     return newImg;
 }
 
+Image Image::operator -(const Image &subtrahendImage) const
+{
+    Matrix::const_iterator it1, it2;
+    Matrix::iterator itDst;
+    Image resImg;
+    for (it1 = this->GetData().cbegin(), it2 = subtrahendImage.GetData().cbegin(), itDst = resImg.GetData().begin();
+         it1 != this->GetData().cend();
+         ++it1, ++it2, ++itDst)
+    {
+        Byte brightnessOfPixel = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
+        *itDst = brightnessOfPixel;
+    }
+    return resImg;
+}
+
+Image& Image::operator=(const Image &assignImage)
+{
+    mHeight=assignImage.GetHeight();
+    mWidth=assignImage.GetHeight();
+    Matrix::const_iterator it1;
+    Matrix::iterator itDst;
+    for (it1 = assignImage.GetData().cbegin(),itDst = this->GetData().begin();
+         it1 != assignImage.GetData().cend();
+         ++it1, ++itDst)
+    {
+        *itDst = *it1;
+    }
+    return *this;
+}
+
 void Image::CalcAuxParameters()
 {
     mAuxHeight = 2 * mHeight - 2;

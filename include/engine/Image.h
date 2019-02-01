@@ -121,6 +121,12 @@ public: // Public methods
             value = MAX_PIXEL_VALUE;
     }
 
+    // Overloading subtraction operator
+    Image operator -(const Image& subtrahendImage) const;
+
+    //Overloading assignment operator
+    Image& operator = (const Image& assignImage);
+
 private: // Private methods
 
     // Calculation of auxiliary parameters that are used to adjust pixels coordinates
