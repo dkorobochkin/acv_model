@@ -174,9 +174,9 @@ void Image::FillPixelFromRGB(Byte* buf)
         for (int col = 0; col < mWidth; ++col)
         {
             Byte r, g, b;
-            r = (*buf)++;
-            g = (*buf)++;
-            b = (*buf)++;
+            r = *buf++;
+            g = *buf++;
+            b = *buf++;
 
             mPixels[mWidth * row + col] = (r + g + b) / 3;
         }
