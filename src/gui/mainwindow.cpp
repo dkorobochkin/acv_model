@@ -900,11 +900,12 @@ void MainWindow::CreateBrightnessHistogram()
     if (ImgWasSelected())
     {
         std::vector<double> brightnessHistogram(acv::Image::MAX_PIXEL_VALUE + 1), valuesOfBrightness(acv::Image::MAX_PIXEL_VALUE + 1);
-        for(int i = acv::Image::MIN_PIXEL_VALUE; i < acv::Image::MAX_PIXEL_VALUE+1; i++)
+        for(int i = acv::Image::MIN_PIXEL_VALUE; i < acv::Image::MAX_PIXEL_VALUE + 1; i++)
             valuesOfBrightness[i] = i;
         acv::ImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(), brightnessHistogram);
-        setCentralWidget(mHist);
+        mHist = new HistogramWidget();
         mHist->DrawHist(brightnessHistogram,valuesOfBrightness);
+        mHist->show();
     }
     else
     {
