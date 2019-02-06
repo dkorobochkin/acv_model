@@ -147,12 +147,12 @@ Image Image::Resize(const int xMin, const int yMin, const int xMax, const int yM
     return newImg;
 }
 
-Image Image::operator -(const Image &subtrahendImage) const
+Image Image::operator - (const Image &rhs) const
 {
     Matrix::const_iterator it1, it2;
     Matrix::iterator itDst;
-    Image resImg(subtrahendImage.GetHeight(),subtrahendImage.GetWidth());
-    for (it1 = this->GetData().cbegin(), it2 = subtrahendImage.GetData().cbegin(), itDst = resImg.GetData().begin();
+    Image resImg(rhs.GetHeight(), rhs.GetWidth());
+    for (it1 = this->GetData().cbegin(), it2 = rhs.GetData().cbegin(), itDst = resImg.GetData().begin();
          it1 != this->GetData().cend();
          ++it1, ++it2, ++itDst)
     {
@@ -162,14 +162,14 @@ Image Image::operator -(const Image &subtrahendImage) const
     return resImg;
 }
 
-Image Image::operator=(const Image &assignImage)
+Image Image::operator = (const Image &rhs)
 {
-    mHeight=assignImage.GetHeight();
-    mWidth=assignImage.GetHeight();
+    mHeight = rhs.GetHeight();
+    mWidth = rhs.GetWidth();
     Matrix::const_iterator it1;
     Matrix::iterator itDst;
-    for (it1 = assignImage.GetData().cbegin(),itDst = this->GetData().begin();
-         it1 != assignImage.GetData().cend();
+    for (it1 = rhs.GetData().cbegin(), itDst = this->GetData().begin();
+         it1 != rhs.GetData().cend();
          ++it1, ++itDst)
     {
         *itDst = *it1;

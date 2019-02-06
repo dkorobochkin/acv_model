@@ -122,10 +122,10 @@ public: // Public methods
     }
 
     // Overloading subtraction operator
-    Image operator -(const Image& subtrahendImage) const;
+    Image operator - (const Image& rhs) const;
 
     //Overloading assignment operator
-    Image operator = (const Image& assignImage);
+    Image operator = (const Image& rhs);
 
 private: // Private methods
 
