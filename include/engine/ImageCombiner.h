@@ -95,8 +95,8 @@ private: // Private methods
     CombinationResult DifferencesAdding(Image& combImg, const bool needSort = true);
 
     // Calculating the difference of two open images
-    Image CalcDiff(CombinationResult& combRes, const bool needSort = true);
-    CombinationResult CalcDiff(Image& combImg, const bool needSort = true);
+    Image CalcDiff(CombinationResult& combRes);
+    CombinationResult CalcDiff(Image& combImg);
 
 
     // Check the possibility of combining images in container
