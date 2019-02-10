@@ -1,7 +1,7 @@
 ﻿//
 // MIT License
 //
-// Copyright (c) 2018 Dmitriy Korobochkin, Vitaliy Garmash.
+// Copyright (c) 2018-2019 Dmitriy Korobochkin, Vitaliy Garmash.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
