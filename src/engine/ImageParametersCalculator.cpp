@@ -167,7 +167,7 @@ void ImageParametersCalculator::CalcMinMaxBrightness(const Image& img, Image::By
     }
 }
 
-void ImageParametersCalculator::CreateBrightnessHistogram(const Image &img, QVector<double>& brightnessHistogram)
+void ImageParametersCalculator::CreateBrightnessHistogram(const Image &img, std::vector<double>& brightnessHistogram)
 {
      for (auto imgPix : img.GetData()) //filling vector of brightness histogram
      {

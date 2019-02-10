@@ -92,7 +92,7 @@ Image ImageCombiner::Combine(CombineType combineType, CombinationResult& combRes
     case ImageCombiner::CombineType::DIFFERENCES_ADDING:
         return DifferencesAdding(combRes, needSort);
     case ImageCombiner::CombineType::CALC_DIFF:
-        return CalcDiff(combRes, needSort);
+        return CalcDiff(combRes);
     default:
         return Image();
     }
@@ -113,7 +113,7 @@ CombinationResult ImageCombiner::Combine(CombineType combineType, Image& combImg
     case ImageCombiner::CombineType::DIFFERENCES_ADDING:
         return DifferencesAdding(combImg, needSort);
     case ImageCombiner::CombineType::CALC_DIFF:
-        return CalcDiff(combImg, needSort);
+        return CalcDiff(combImg);
 
     }
 
@@ -328,15 +328,15 @@ CombinationResult ImageCombiner::DifferencesAdding(Image& combImg, const bool ne
     return combRes;
 }
 
-Image ImageCombiner::CalcDiff(CombinationResult &combRes, const bool needSort)
+Image ImageCombiner::CalcDiff(CombinationResult &combRes)
 {
     Image combImg(mCombinedImages[0]->GetHeight(), mCombinedImages[0]->GetWidth());
-    combRes = CalcDiff(combImg, needSort);
+    combRes = CalcDiff(combImg);
 
     return (combRes == CombinationResult::SUCCESS) ? combImg : Image();
 }
 
-CombinationResult ImageCombiner::CalcDiff(Image& combImg, const bool needSort/* = true*/)
+CombinationResult ImageCombiner::CalcDiff(Image& combImg)
 {
     CombinationResult combRes;
 
@@ -345,20 +345,7 @@ CombinationResult ImageCombiner::CalcDiff(Image& combImg, const bool needSort/* 
 
     if (CanCombine(combRes))
     {
-        std::vector<const Image*> sortedImages;
-        if (needSort)
-            FormSortedImagesArray(sortedImages);
-        else
-            sortedImages = mCombinedImages;
-        Image::Matrix::const_iterator it1, it2;
-        Image::Matrix::iterator itDst;
-        for (it1 = sortedImages[0]->GetData().cbegin(), it2 = sortedImages[1]->GetData().cbegin(), itDst = combImg.GetData().begin();
-             it1 != sortedImages[0]->GetData().cend();
-             ++it1, ++it2, ++itDst)
-        {
-            Image::Byte brightnessOfPixel = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
-            *itDst = brightnessOfPixel;
-        }
+        combImg = (*mCombinedImages[0] - *mCombinedImages[1]);
         combRes = CombinationResult::SUCCESS;
     }
 

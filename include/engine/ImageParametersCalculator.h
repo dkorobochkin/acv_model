@@ -64,7 +64,7 @@ public: // Public methods
     static double CalcIntegralQualityIndicator(const Image& img);
 
     //Create massive for brightness histogram of an open image
-    static void CreateBrightnessHistogram(const Image& img, QVector<double>& brightnessHistogram);
+    static void CreateBrightnessHistogram(const Image& img, std::vector<double>& brightnessHistogram);
 
 private:
 
