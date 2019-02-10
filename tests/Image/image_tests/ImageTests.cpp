@@ -27,6 +27,8 @@
 #include <QString>
 #include <QtTest>
 
+#include <vector>
+
 #include "Image.h"
 
 // This class is used for testing of class Image
@@ -45,6 +47,9 @@ private Q_SLOTS:
     // Test of constructor with dimensions parameters
     void ConstructorWithDimensions();
 
+    // Test of constructor from buffer
+    void ConstructorFromBuffer();
+
     // Test of methods for getting of dimensions
     void GetDimensions();
 
@@ -62,6 +67,9 @@ private Q_SLOTS:
 
     // Test of method for getting the row pointer to the element of pixel vector
     void GetRawPointer();
+
+    // Test of method for resizing of image
+    void Resize();
 
 };
 
@@ -93,6 +101,35 @@ void ImageTests::ConstructorWithDimensions()
 
     for (acv::Image::Byte pixel : img.GetData())
         QCOMPARE(pixel, acv::Image::MIN_PIXEL_VALUE);
+}
+
+void ImageTests::ConstructorFromBuffer()
+{
+    const int NUM_ROWS = 4, NUM_COLS = 3;
+
+    acv::Image::Byte val = 128;
+    std::vector<acv::Image::Byte> buffer(NUM_ROWS * NUM_COLS, val);
+
+    acv::Image img1(NUM_ROWS, NUM_COLS, &buffer[0], acv::Image::BufferType::DIRECT_SHOW);
+    for (int row = 0; row < NUM_ROWS; ++row)
+        for (int col = 0; col < NUM_COLS; ++col)
+            QCOMPARE(img1.GetPixel(row, col), val);
+
+    buffer.clear();
+    val = 0;
+    for (int row = 0; row < NUM_ROWS; ++row)
+        for (int col = 0; col < NUM_COLS; ++col)
+        {
+            for (acv::Image::Byte i = 0; i < 3; ++i)
+                buffer.push_back(val + i);
+            ++val;
+        }
+
+    acv::Image img2(NUM_ROWS, NUM_COLS, &buffer[0], acv::Image::BufferType::RGB);
+    val = 1;
+    for (int row = 0; row < NUM_ROWS; ++row)
+        for (int col = 0; col < NUM_COLS; ++col)
+            QCOMPARE(img2.GetPixel(row, col), val++);
 }
 
 void ImageTests::GetDimensions()
@@ -213,6 +250,38 @@ void ImageTests::GetRawPointer()
     for (int row = 0; row < 10; ++row)
         for (int col = 0; col < 20; ++col)
             QCOMPARE(*img.GetRawPointer(elemIdx++), pixelBrig++);
+}
+
+void ImageTests::Resize()
+{
+    const int NUM_ROWS = 6, NUM_COLS = 7;
+    const int ROW_IDX_FROM = 2, ROW_IDX_TO = 3;
+    const int COL_IDX_FROM = 2, COL_IDX_TO = 4;
+
+    acv::Image imgSrc(NUM_ROWS, NUM_COLS);
+    for (int row = 0; row < NUM_ROWS; ++row)
+        for (int col = 0; col < NUM_COLS; ++col)
+            if (row < ROW_IDX_FROM || row > ROW_IDX_TO || col < COL_IDX_FROM || col > COL_IDX_TO)
+                imgSrc.SetPixel(row, col, acv::Image::MIN_PIXEL_VALUE);
+            else
+                imgSrc.SetPixel(row, col, acv::Image::MAX_PIXEL_VALUE);
+
+    acv::Image resizeImg1 = imgSrc.Resize(COL_IDX_FROM, ROW_IDX_FROM, COL_IDX_TO, ROW_IDX_TO);
+    for (int row = 0; row < resizeImg1.GetHeight(); ++row)
+        for (int col = 0; col < resizeImg1.GetWidth(); ++col)
+            QCOMPARE(resizeImg1.GetPixel(row, col), acv::Image::MAX_PIXEL_VALUE);
+
+    acv::Image resizeImg2 = imgSrc.Resize(-1, -1, NUM_COLS, NUM_ROWS);
+    const int ROW_IDX_FROM_2 = ROW_IDX_FROM + 1, ROW_IDX_TO_2 = ROW_IDX_TO + 1;
+    const int COL_IDX_FROM_2 = COL_IDX_FROM + 1, COL_IDX_TO_2 = COL_IDX_TO + 1;
+    for (int row = 0; row < resizeImg2.GetHeight(); ++row)
+        for (int col = 0; col < resizeImg2.GetWidth(); ++col)
+        {
+            if (row < ROW_IDX_FROM_2 || row > ROW_IDX_TO_2 || col < COL_IDX_FROM_2 || col > COL_IDX_TO_2)
+                QCOMPARE(resizeImg2.GetPixel(row, col), acv::Image::MIN_PIXEL_VALUE);
+            else
+                QCOMPARE(resizeImg2.GetPixel(row, col), acv::Image::MAX_PIXEL_VALUE);
+        }
 }
 
 QTEST_APPLESS_MAIN(ImageTests)
