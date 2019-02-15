@@ -124,9 +124,6 @@ public: // Public methods
     // Overloading subtraction operator
     Image operator - (const Image& rhs) const;
 
-    //Overloading assignment operator
-    Image operator = (const Image& rhs);
-
 private: // Private methods
 
     // Calculation of auxiliary parameters that are used to adjust pixels coordinates

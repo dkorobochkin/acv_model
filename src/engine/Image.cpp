@@ -162,21 +162,6 @@ Image Image::operator - (const Image &rhs) const
     return resImg;
 }
 
-Image Image::operator = (const Image &rhs)
-{
-    mHeight = rhs.GetHeight();
-    mWidth = rhs.GetWidth();
-    Matrix::const_iterator it1;
-    Matrix::iterator itDst;
-    for (it1 = rhs.GetData().cbegin(), itDst = this->GetData().begin();
-         it1 != rhs.GetData().cend();
-         ++it1, ++itDst)
-    {
-        *itDst = *it1;
-    }
-    return *this;
-}
-
 void Image::CalcAuxParameters()
 {
     mAuxHeight = 2 * mHeight - 2;
