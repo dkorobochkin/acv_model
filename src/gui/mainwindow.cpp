@@ -1266,7 +1266,7 @@ bool MainWindow::ImgsWereOpened() const
 void MainWindow::OpenImgFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open image"), ".",
-                                                    tr("Image files (*.bmp)"));
+                                                    tr("Image files (*.bmp *.jpg)"));
     if (!fileName.isEmpty())
     {
         if (LoadImgFromFile(fileName))
