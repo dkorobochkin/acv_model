@@ -186,6 +186,10 @@ private slots: // Private slots
     // Slot to display the coordinates and brightness of selected pixel in status bar
     void DisplayCoordsAndBrigInStatusBar(int x, int y);
 
+    // Slots to upscale and downscale of image
+    void Upscale();
+    void Downscale();
+
 signals: // Signals
 
     // Signal about select the other image
@@ -229,6 +233,9 @@ private: // Private methods
     // Creation the actions for section "Combining"
     void CreateCombiningActions();
 
+    // Creation the actions for section "Scale"
+    void CreateScaleActions();
+
     // Creation all actions
     void CreateActions();
 
@@ -241,17 +248,20 @@ private: // Private methods
     // Creation menu for section "Correction"
     void CreateCorrectorMenu();
 
-    // Creation menu for section "Operators
+    // Creation menu for section "Operators"
     void CreateOperatorsMenu();
 
     // Creation menu for section "Detectors of borders"
     void CreateBordersDetectorsMenu();
 
-    // Creation menu for section "Parameters
+    // Creation menu for section "Parameters"
     void CreateParamsMenu();
 
-    // Creation menu for section "Combining
+    // Creation menu for section "Combining"
     void CreateCombiningMenu();
+
+    // Creation menu for section "Scale"
+    void CreateScaleMenu();
 
     // Creation main menu
     void CreateMainMenus();
@@ -283,6 +293,9 @@ private: // Private methods
     // Forming the name for action of image that get in result of convolution with operator
     QString FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorTypes type);
 
+     // Forming the name for action of image that get in result of scale
+    QString FormScaleImgActionName(acv::Image::ScaleType scaleType, const short kX, const short kY);
+
     // Forming the name for action of detected borders
     QString FormBordersDetectorActionName(acv::BordersDetector::DetectorType detectorType);
 
@@ -297,6 +310,9 @@ private: // Private methods
 
     // Combining with the specified type
     void Combining(acv::ImageCombiner::CombineType combType);
+
+    // Scaling with the specified type
+    void Scale(acv::Image::ScaleType scaleType);
 
     // Filtering with the specified type
     void Filtering(acv::ImageFilter::FilterType filterType);
@@ -402,6 +418,8 @@ private: // Private members
     QAction* mHuMomentsAction;
     QAction* mAdaptiveThresholdAction;
     QAction* mIntlQualIndAction;
+    QAction* mUpscaleAction;
+    QAction* mDownscaleAction;
 
     // Main menu
     QMenu* mFileMenu;
@@ -414,6 +432,7 @@ private: // Private members
     QMenu* mImgParams;
     QMenu* mCombineMenu;
     QMenu* mCombineTestMenu;
+    QMenu* mScaleMenu;
 
     // Label in status bar
     QLabel* statusBarLabel;

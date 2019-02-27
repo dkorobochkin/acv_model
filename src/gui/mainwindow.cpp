@@ -48,8 +48,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     mUi(new Ui::MainWindow),
     mRubberBand(nullptr),
-    mViewer(new ImageViewer),
     mHist(new HistogramWidget),
+    mViewer(new ImageViewer),    
     mCurOpenedImg(-1),
     mCurProcessedImg(-1),
     mMouseMode(MouseMode::SELECT_PIXEL)
@@ -240,6 +240,17 @@ void MainWindow::CreateCombiningActions()
     connect(mCalcDiffAction, SIGNAL(triggered()), this, SLOT(CalcDiff()));
 }
 
+void MainWindow::CreateScaleActions()
+{
+    mUpscaleAction = new QAction(tr("Upscale of image"));
+    mUpscaleAction->setStatusTip(tr("Upscale of current image using input coefficients"));
+    connect(mUpscaleAction, SIGNAL(triggered()), this, SLOT(Upscale()));
+
+    mDownscaleAction = new QAction(tr("Downscale of image"));
+    mDownscaleAction->setStatusTip(tr("Downscale of current image using input coefficients"));
+    connect(mDownscaleAction, SIGNAL(triggered()), this, SLOT(Downscale()));
+}
+
 void MainWindow::CreateActions()
 {
     CreateFileActions();
@@ -249,6 +260,7 @@ void MainWindow::CreateActions()
     CreateOperatorActions();
     CreateBodersDetectorsActions();
     CreateCombiningActions();
+    CreateScaleActions();
 }
 
 void MainWindow::CreateFileMenu()
@@ -325,6 +337,14 @@ void MainWindow::CreateCombiningMenu()
     mCombineMenu->addAction(mCalcDiffAction);
 }
 
+void MainWindow::CreateScaleMenu()
+{
+    mScaleMenu = mProcessingMenu->addMenu(tr("Scale"));
+
+    mScaleMenu->addAction(mUpscaleAction);
+    mScaleMenu->addAction(mDownscaleAction);
+}
+
 void MainWindow::CreateMainMenus()
 {
     CreateFileMenu();
@@ -336,6 +356,7 @@ void MainWindow::CreateMainMenus()
     CreateOperatorsMenu();
     CreateBordersDetectorsMenu();
     CreateCombiningMenu();
+    CreateScaleMenu();
 }
 
 void MainWindow::CreateStatusBar()
@@ -661,7 +682,7 @@ void MainWindow::DetectBorders(acv::BordersDetector::DetectorType detectorType)
             QString actionName = FormBordersDetectorActionName(detectorType);
             AddProcessedImg(processedImg, actionName);
 
-            QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 мсек").arg(filterTime), QMessageBox::Ok);
+            QMessageBox::information(this, tr("Detecting of the borders"), tr("Time of detecting: %1 msec").arg(filterTime), QMessageBox::Ok);
         }
         else
             QMessageBox::warning(this, tr("Detecting of the borders"), tr("Could not detect the borders"), QMessageBox::Ok);
@@ -999,6 +1020,62 @@ void MainWindow::DisplayCoordsAndBrigInStatusBar(int x, int y)
     }
 
     statusBarLabel->setText(statusBarStr);
+}
+
+QString MainWindow::FormScaleImgActionName(acv::Image::ScaleType scaleType, const short kX, const short kY)
+{
+    QString ret;
+
+    switch (scaleType)
+    {
+    case acv::Image::ScaleType::UPSCALE:
+        ret = tr("UPSCALE: ");
+        break;
+    case acv::Image::ScaleType::DOWNSCALE:
+        ret = tr("DOWNSCALE: ");
+        break;
+    default:
+        return QString();
+    }
+
+    ret += tr("kX=%1 kY=%2: ").arg(kX).arg(kY);
+
+    ret = FormProcessedImgActionName(ret);
+    return ret;
+}
+
+void MainWindow::Scale(acv::Image::ScaleType scaleType)
+{
+    if (ImgWasSelected())
+    {
+        const int DEFAULT_SCALE_SIZE = 2, MIN_SCALE_SIZE = 2, MAX_SCALE_SIZE = 16, SCALE_SIZE_STEP = 2;
+
+        short scaleX, scaleY;
+        scaleX = QInputDialog::getInt(this, tr("Enter the scale by X"), tr("Scale X:"),
+                                      DEFAULT_SCALE_SIZE, MIN_SCALE_SIZE, MAX_SCALE_SIZE, SCALE_SIZE_STEP);
+        scaleY = QInputDialog::getInt(this, tr("Enter the scale by Y"), tr("Scale Y:"),
+                                      DEFAULT_SCALE_SIZE, MIN_SCALE_SIZE, MAX_SCALE_SIZE, SCALE_SIZE_STEP);
+
+        const auto& curImg = GetCurImg();
+        acv::Image scaleImg = curImg.Scale(scaleX, scaleY, scaleType);
+
+        QString actionName = FormScaleImgActionName(scaleType, scaleX, scaleY);
+        AddProcessedImg(scaleImg, actionName);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Scale of image"), tr("No image selected"), QMessageBox::Ok);
+    }
+}
+
+void MainWindow::Upscale()
+{
+    Scale(acv::Image::ScaleType::UPSCALE);
+}
+
+void MainWindow::Downscale()
+{
+    Scale(acv::Image::ScaleType::DOWNSCALE);
 }
 
 QString MainWindow::FormCombinationResultStr(acv::CombinationResult combRes)
