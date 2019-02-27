@@ -162,6 +162,19 @@ Image Image::operator - (const Image &rhs) const
     return resImg;
 }
 
+Image Image::Scale(const short kScaleX, const short kScaleY, ScaleType scaleType) const
+{
+    switch (scaleType)
+    {
+    case ScaleType::DOWNSCALE:
+        return AverageDownscale(kScaleX, kScaleY);
+    case ScaleType::UPSCALE:
+        return BilinearUpscale(kScaleX, kScaleY);
+    default:
+        return Image();
+    }
+}
+
 void Image::CalcAuxParameters()
 {
     mAuxHeight = 2 * mHeight - 2;
@@ -200,6 +213,62 @@ void Image::FillPixelFromRGB(Byte* buf)
 void Image::FillPixelFromDirectShow(Byte* buf)
 {
     memcpy(&mPixels[0], buf, mWidth * mHeight * sizeof(Byte));
+}
+
+Image Image::BilinearUpscale(const short kScaleX, const short kScaleY) const
+{
+    Image img(GetHeight() * kScaleY, GetWidth() * kScaleX);
+
+    double dx = 1.0 / kScaleX;
+    double dy = 1.0 / kScaleY;
+
+    for (int row = 0, newRow = 0; row < GetHeight(); ++row, newRow += kScaleY)
+        for (int col = 0, newCol = 0; col < GetWidth(); ++col, newCol += kScaleX)
+        {
+            Byte I[4] = { GetPixel(row, col),           // I(r,c)
+                          GetPixel(row + 1, col),       // I(r+1,c)
+                          GetPixel(row, col + 1),       // I(r,c+1)
+                          GetPixel(row + 1, col + 1) }; // I(r+1,c+1)
+
+           for (int shiftRow = 0; shiftRow < kScaleY; ++shiftRow)
+                for (int shiftCol = 0; shiftCol < kScaleX; ++shiftCol)
+                {
+                    double curDx = shiftCol * dx;
+                    double curDx2 = 1.0 - curDx;
+                    double curDy = shiftRow * dy;
+                    double curDy2 = 1.0 - curDy;
+
+                    Byte newVal = I[0] * curDy2 * curDx2 +
+                                  I[1] * curDy * curDx2 +
+                                  I[2] * curDy2 * curDx  +
+                                  I[3] * curDy * curDx;
+
+                    img.SetPixel(newRow + shiftRow, newCol + shiftCol, newVal);
+                }
+        }
+
+    return img;
+}
+
+Image Image::AverageDownscale(const short kScaleX, const short kScaleY) const
+{
+    Image img(GetHeight() / kScaleY, GetWidth() / kScaleX);
+
+    int kXY = kScaleX * kScaleY;
+
+    for (int newRow = 0; newRow < img.GetHeight(); ++newRow)
+        for (int newCol = 0; newCol < img.GetWidth(); ++newCol)
+        {
+            int newVal = 0;
+
+            for (int shiftRow = 0, row = newRow * kScaleY; shiftRow < kScaleY; ++shiftRow, ++row)
+                 for (int shiftCol = 0, col = newCol * kScaleX; shiftCol < kScaleX; ++shiftCol, ++col)
+                     newVal += GetPixel(row, col);
+
+            img.SetPixel(newRow, newCol, static_cast<Byte>(newVal / kXY));
+        }
+
+    return img;
 }
 
 }

@@ -52,6 +52,12 @@ public: // Auxiliary enums
         DIRECT_SHOW // DirectShow representation
     };
 
+    enum class ScaleType
+    {
+        UPSCALE, // Upscaling
+        DOWNSCALE // downscaling
+    };
+
 public: // Auxiliary types
 
     typedef unsigned char Byte; // This type is used to representation of pixel brightness
@@ -124,6 +130,9 @@ public: // Public methods
     // Overloading subtraction operator
     Image operator - (const Image& rhs) const;
 
+    // Image scaling (upscaling and downscaling)
+    Image Scale(const short kScaleX, const short kScaleY, ScaleType scaleType) const;
+
 private: // Private methods
 
     // Calculation of auxiliary parameters that are used to adjust pixels coordinates
@@ -137,6 +146,12 @@ private: // Private methods
 
     // Fill the pixels from buffer of DirectShow type
     void FillPixelFromDirectShow(Byte* buf);
+
+    // Upscaling of image using bilinear interpolation
+    Image BilinearUpscale(const short kScaleX, const short kScaleY) const;
+
+    // Downscaling of image using pixels averaging
+    Image AverageDownscale(const short kScaleX, const short kScaleY) const;
 
 private: // Private members (representation of image)
 
