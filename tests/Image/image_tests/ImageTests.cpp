@@ -71,6 +71,9 @@ private Q_SLOTS:
     // Test of method for resizing of image
     void Resize();
 
+    // Test of method for upscaling of image
+    void Upscale();
+
 };
 
 ImageTests::ImageTests()
@@ -281,6 +284,32 @@ void ImageTests::Resize()
                 QCOMPARE(resizeImg2.GetPixel(row, col), acv::Image::MIN_PIXEL_VALUE);
             else
                 QCOMPARE(resizeImg2.GetPixel(row, col), acv::Image::MAX_PIXEL_VALUE);
+        }
+}
+
+void ImageTests::Upscale()
+{
+    const int NUM_ROWS = 8, NUM_COLS = 9;
+
+    for (int kScaleX = 2; kScaleX <= 4; kScaleX += 2)
+        for (int kScaleY = 2; kScaleY <= 4; kScaleY += 2)
+        {
+            acv::Image imgSrc(NUM_ROWS, NUM_COLS);
+            for (int row = 0; row < imgSrc.GetHeight(); ++row)
+                for (int col = 0; col < imgSrc.GetWidth(); ++col)
+                {
+                    acv::Image::Byte brig = row * kScaleY + col * kScaleX;
+                    imgSrc.SetPixel(row, col, brig);
+                }
+
+            acv::Image imgDst1 = imgSrc.Scale(kScaleX, kScaleY, acv::Image::ScaleType::UPSCALE);
+
+            for (int row = 0; row < imgDst1.GetHeight(); ++row)
+                for (int col = 0; col < imgDst1.GetWidth(); ++col)
+                {
+                    acv::Image::Byte brig = row + col;
+                    QCOMPARE(imgDst1.GetPixel(row, col), brig);
+                }
         }
 }
 
