@@ -217,12 +217,15 @@ void Image::FillPixelFromDirectShow(Byte* buf)
 
 Image Image::BilinearUpscale(const short kScaleX, const short kScaleY) const
 {
-    Image img(GetHeight() * kScaleY, GetWidth() * kScaleX);
+    int newHeight = (GetHeight() - 1) * kScaleY + 1;
+    int newWidth = (GetWidth() - 1) * kScaleX + 1;
+    Image img(newHeight, newWidth);
 
     double dx = 1.0 / kScaleX;
     double dy = 1.0 / kScaleY;
 
     for (int row = 0, newRow = 0; row < GetHeight(); ++row, newRow += kScaleY)
+    {
         for (int col = 0, newCol = 0; col < GetWidth(); ++col, newCol += kScaleX)
         {
             Byte I[4] = { GetPixel(row, col),           // I(r,c)
@@ -230,22 +233,29 @@ Image Image::BilinearUpscale(const short kScaleX, const short kScaleY) const
                           GetPixel(row, col + 1),       // I(r,c+1)
                           GetPixel(row + 1, col + 1) }; // I(r+1,c+1)
 
-           for (int shiftRow = 0; shiftRow < kScaleY; ++shiftRow)
-                for (int shiftCol = 0; shiftCol < kScaleX; ++shiftCol)
-                {
-                    double curDx = shiftCol * dx;
-                    double curDx2 = 1.0 - curDx;
-                    double curDy = shiftRow * dy;
-                    double curDy2 = 1.0 - curDy;
+            for (int shiftRow = 0; shiftRow < kScaleY; ++shiftRow)
+                 for (int shiftCol = 0; shiftCol < kScaleX; ++shiftCol)
+                 {
+                     int newShiftRow = newRow + shiftRow;
+                     int newShiftCol = newCol + shiftCol;
 
-                    Byte newVal = I[0] * curDy2 * curDx2 +
-                                  I[1] * curDy * curDx2 +
-                                  I[2] * curDy2 * curDx  +
-                                  I[3] * curDy * curDx;
+                     if (img.IsInvalidCoordinates(newShiftRow, newShiftCol))
+                         continue;
 
-                    img.SetPixel(newRow + shiftRow, newCol + shiftCol, newVal);
-                }
+                     double curDx = shiftCol * dx;
+                     double curDx2 = 1.0 - curDx;
+                     double curDy = shiftRow * dy;
+                     double curDy2 = 1.0 - curDy;
+
+                     Byte newVal = I[0] * curDy2 * curDx2 +
+                                   I[1] * curDy * curDx2 +
+                                   I[2] * curDy2 * curDx  +
+                                   I[3] * curDy * curDx;
+
+                     img.SetPixel(newShiftRow, newShiftCol, newVal);
+                 }
         }
+    }
 
     return img;
 }
