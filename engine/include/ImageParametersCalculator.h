@@ -28,7 +28,6 @@
 #define IMAGE_PARAMETERS_CALCULATOR_H
 
 #include "Image.h"
-#include <QVector>
 
 namespace acv {
 

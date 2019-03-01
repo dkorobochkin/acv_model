@@ -24,10 +24,5 @@
 
 TEMPLATE = subdirs
 
-CONFIG += ordered
-
 SUBDIRS += \
-        engine \
-        thirdparty \
-        tests \
-        gui
+        image_tests

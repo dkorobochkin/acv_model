@@ -22,12 +22,5 @@
 # SOFTWARE.
 #
 
-TEMPLATE = subdirs
-
-CONFIG += ordered
-
-SUBDIRS += \
-        engine \
-        thirdparty \
-        tests \
-        gui
+DESTDIR = $${LIBS_PATH}/
+win32: DLLDESTDIR = $${BIN_PATH}/

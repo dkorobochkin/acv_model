@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// Copyright (c) 2018 Dmitriy Korobochkin, Vitaliy Garmash.
+// Copyright (c) 2018-2019 Dmitriy Korobochkin, Vitaliy Garmash.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 #include <QApplication>
 
 
-const QString CURRENT_VERSION = QObject::tr("1.0");
+const QString CURRENT_VERSION = QObject::tr("1.1");
 
 int main(int argc, char *argv[])
 {

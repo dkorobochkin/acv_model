@@ -38,7 +38,7 @@
 #include "ImageCorrector.h"
 #include "HuMomentsCalculator.h"
 
-#include "thirdparty/include/qcustomplot.h"
+#include "qcustomplot.h"
 
 namespace Ui {
 class MainWindow;
