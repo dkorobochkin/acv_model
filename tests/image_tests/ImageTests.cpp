@@ -28,6 +28,7 @@
 #include <QtTest>
 
 #include <vector>
+#include <random>
 
 #include "Image.h"
 
@@ -73,6 +74,12 @@ private Q_SLOTS:
 
     // Test of method for upscaling of image
     void Upscale();
+
+    // Test of equality operator
+    void Equality();
+
+    // Test of inequality operator
+    void Inequlity();
 
 };
 
@@ -311,6 +318,70 @@ void ImageTests::Upscale()
                     QCOMPARE(imgDst1.GetPixel(row, col), brig);
                 }
         }
+}
+
+void ImageTests::Equality()
+{
+    const int NUM_ROWS = 768, NUM_COLS = 1024;
+
+    std::default_random_engine dfe;
+    std::uniform_int_distribution<int> di(acv::Image::MIN_PIXEL_VALUE, acv::Image::MAX_PIXEL_VALUE);
+
+    acv::Image img1(NUM_ROWS, NUM_COLS);
+    for (int row = 0; row < img1.GetHeight(); ++row)
+        for (int col = 0; col < img1.GetWidth(); ++col)
+            img1.SetPixel(row, col, static_cast<acv::Image::Byte>(di(dfe)));
+
+    acv::Image img2(img1);
+
+    QCOMPARE(img1 == img2, true);
+
+    acv::Image img3(NUM_ROWS, NUM_COLS);
+    for (int row = 0; row < img3.GetHeight(); ++row)
+        for (int col = 0; col < img3.GetWidth(); ++col)
+            img3.SetPixel(row, col, img1.GetPixel(row, col) + 1);
+
+    QCOMPARE(img1 == img3, false);
+
+    acv::Image img4(NUM_ROWS + 10, NUM_COLS);
+    acv::Image img5(NUM_ROWS, NUM_COLS - 10);
+    acv::Image img6(NUM_ROWS + 20, NUM_COLS - 40);
+
+    QCOMPARE(img1 == img4, false);
+    QCOMPARE(img1 == img5, false);
+    QCOMPARE(img1 == img6, false);
+}
+
+void ImageTests::Inequlity()
+{
+    const int NUM_ROWS = 768, NUM_COLS = 1024;
+
+    std::default_random_engine dfe;
+    std::uniform_int_distribution<int> di(acv::Image::MIN_PIXEL_VALUE, acv::Image::MAX_PIXEL_VALUE);
+
+    acv::Image img1(NUM_ROWS, NUM_COLS);
+    for (int row = 0; row < img1.GetHeight(); ++row)
+        for (int col = 0; col < img1.GetWidth(); ++col)
+            img1.SetPixel(row, col, static_cast<acv::Image::Byte>(di(dfe)));
+
+    acv::Image img2(img1);
+
+    QCOMPARE(img1 != img2, false);
+
+    acv::Image img3(NUM_ROWS, NUM_COLS);
+    for (int row = 0; row < img3.GetHeight(); ++row)
+        for (int col = 0; col < img3.GetWidth(); ++col)
+            img3.SetPixel(row, col, img1.GetPixel(row, col) + 1);
+
+    QCOMPARE(img1 != img3, true);
+
+    acv::Image img4(NUM_ROWS + 10, NUM_COLS);
+    acv::Image img5(NUM_ROWS, NUM_COLS - 10);
+    acv::Image img6(NUM_ROWS + 20, NUM_COLS - 40);
+
+    QCOMPARE(img1 != img4, true);
+    QCOMPARE(img1 != img5, true);
+    QCOMPARE(img1 != img6, true);
 }
 
 QTEST_APPLESS_MAIN(ImageTests)
