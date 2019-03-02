@@ -31,32 +31,6 @@ INCLUDEPATH += \
 SOURCES += \
         ImageTests.cpp
 
-debug {
-SOURCES += \
-        ../../engine/src/BordersDetector.cpp \
-        ../../engine/src/HuMomentsCalculator.cpp \
-        ../../engine/src/Image.cpp \
-        ../../engine/src/ImageCombiner.cpp \
-        ../../engine/src/ImageCorrector.cpp \
-        ../../engine/src/ImageFilter.cpp \
-        ../../engine/src/ImageParametersCalculator.cpp \
-        ../../engine/src/MatrixFilter.cpp \
-        ../../engine/src/Point.cpp
-}
-
-debug {
-HEADERS += \
-        ../../engine/include/BordersDetector.h \
-        ../../engine/include/HuMomentsCalculator.h \
-        ../../engine/include/Image.h \
-        ../../engine/include/ImageCombiner.h \
-        ../../engine/include/ImageCorrector.h \
-        ../../engine/include/ImageFilter.h \
-        ../../engine/include/ImageParametersCalculator.h \
-        ../../engine/include/MatrixFilter.h \
-        ../../engine/include/Point.h
-}
-
 include( ../../common.pri )
 
 LIBS += -lengine$${LIB_SUFFIX}

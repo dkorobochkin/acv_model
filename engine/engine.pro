@@ -29,6 +29,7 @@ TARGET = engine$${LIB_SUFFIX}
 TEMPLATE = lib
 
 CONFIG += c++11
+CONFIG += staticlib
 CONFIG -= app_bundle
 CONFIG -= qt
 

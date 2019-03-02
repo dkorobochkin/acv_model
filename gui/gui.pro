@@ -48,8 +48,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += \
         include \
-        ../engine/include \
-        ../thirdparty/qcustomplot/include
+        ../engine/include
 
 SOURCES += \
         main.cpp \
@@ -58,37 +57,11 @@ SOURCES += \
         src/ImageTransformer.cpp \
         src/HistogramWidget.cpp
 
-debug {
-SOURCES += \
-        ../engine/src/BordersDetector.cpp \
-        ../engine/src/HuMomentsCalculator.cpp \
-        ../engine/src/Image.cpp \
-        ../engine/src/ImageCombiner.cpp \
-        ../engine/src/ImageCorrector.cpp \
-        ../engine/src/ImageFilter.cpp \
-        ../engine/src/ImageParametersCalculator.cpp \
-        ../engine/src/MatrixFilter.cpp \
-        ../engine/src/Point.cpp
-}
-
 HEADERS += \
         include/MainWindow.h \
         include/ImageViewer.h \
         include/ImageTransformer.h \
         include/HistogramWidget.h
-
-debug {
-HEADERS += \
-        ../engine/include/BordersDetector.h \
-        ../engine/include/HuMomentsCalculator.h \
-        ../engine/include/Image.h \
-        ../engine/include/ImageCombiner.h \
-        ../engine/include/ImageCorrector.h \
-        ../engine/include/ImageFilter.h \
-        ../engine/include/ImageParametersCalculator.h \
-        ../engine/include/MatrixFilter.h \
-        ../engine/include/Point.h
-}
 
 FORMS += \
         ui/MainWindow.ui
