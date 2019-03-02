@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include <QApplication>
 
 
@@ -31,6 +31,7 @@ const QString CURRENT_VERSION = QObject::tr("1.1");
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
     MainWindow mainWin;
     mainWin.setWindowTitle(QObject::tr("Model of processing and combining of images (ver. %1)").arg(CURRENT_VERSION));
     mainWin.show();

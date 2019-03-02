@@ -22,11 +22,11 @@
 // SOFTWARE.
 //
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "imageviewer.h"
+#include "ImageViewer.h"
 #include "HistogramWidget.h"
-#include "imagetransformer.h"
+#include "ImageTransformer.h"
 
 #include "qcustomplot.h"
 

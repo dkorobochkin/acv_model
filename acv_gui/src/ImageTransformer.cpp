@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-#include "imagetransformer.h"
+#include "ImageTransformer.h"
 #include "Image.h"
 
 #include <QImage>

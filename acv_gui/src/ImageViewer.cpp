@@ -22,8 +22,8 @@
 // SOFTWARE.
 //
 
-#include "imageviewer.h"
-#include "imagetransformer.h"
+#include "ImageViewer.h"
+#include "ImageTransformer.h"
 
 #include <QImage>
 #include <QPainter>
