@@ -25,7 +25,8 @@
 include( ../common.pri )
 include( ../lib.pri )
 
-TARGET = engine$${LIB_SUFFIX}
+TARGET = acv_engine$${LIB_SUFFIX}
+
 TEMPLATE = lib
 
 CONFIG += c++11
@@ -33,7 +34,7 @@ CONFIG += staticlib
 CONFIG -= app_bundle
 CONFIG -= qt
 
-DEFINES += ENGINE_LIBRARY
+DEFINES += ACV_ENGINE_LIBRARY
 
 INCLUDEPATH += \
         include

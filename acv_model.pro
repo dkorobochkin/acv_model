@@ -27,7 +27,7 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
-        engine \
+        acv_engine \
         thirdparty \
         tests \
-        gui
+        acv_gui

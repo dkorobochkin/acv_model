@@ -28,11 +28,13 @@
 #
 #-------------------------------------------------
 
-QT       += testlib
+include( ../../common.pri )
 
-QT       -= gui
+QT += testlib
+QT -= gui
 
 TARGET = ImageTests
+
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -50,11 +52,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 INCLUDEPATH += \
-        ..\..\engine\include
+        ../../acv_engine/include
 
 SOURCES += \
         ImageTests.cpp
 
-include( ../../common.pri )
-
-LIBS += -lengine$${LIB_SUFFIX}
+LIBS += -lacv_engine$${LIB_SUFFIX}

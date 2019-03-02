@@ -28,11 +28,15 @@
 #
 #-------------------------------------------------
 
+include( ../common.pri )
+include( ../app.pri )
+
 QT += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-TARGET = gui
+TARGET = acv_gui
+
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -48,7 +52,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += \
         include \
-        ../engine/include
+        ../acv_engine/include
 
 SOURCES += \
         main.cpp \
@@ -66,8 +70,5 @@ HEADERS += \
 FORMS += \
         ui/MainWindow.ui
 
-include( ../common.pri )
-include( ../app.pri )
-
-LIBS += -lengine$${LIB_SUFFIX}
+LIBS += -lacv_engine$${LIB_SUFFIX}
 LIBS += -lqcustomplot$${LIB_SUFFIX}
