@@ -162,6 +162,26 @@ Image Image::operator - (const Image &rhs) const
     return resImg;
 }
 
+bool Image::operator == (const Image& rhs) const
+{
+    bool equal = IsInitialized() && rhs.IsInitialized();
+
+    equal = equal &&
+            mWidth == rhs.mWidth &&
+            mHeight == rhs.mHeight &&
+            mAuxWidth == rhs.mAuxWidth &&
+            mAuxHeight == rhs.mAuxHeight;
+
+    equal = equal && mPixels == rhs.mPixels;
+
+    return equal;
+}
+
+bool Image::operator !=(const Image& rhs) const
+{
+    return !(*this == rhs);
+}
+
 Image Image::Scale(const short kScaleX, const short kScaleY, ScaleType scaleType) const
 {
     switch (scaleType)

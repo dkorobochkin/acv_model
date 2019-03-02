@@ -130,6 +130,12 @@ public: // Public methods
     // Overloading subtraction operator
     Image operator - (const Image& rhs) const;
 
+    // Equality operator
+    bool operator == (const Image& rhs) const;
+
+    // Inequality operator
+    bool operator != (const Image& rhs) const;
+
     // Image scaling (upscaling and downscaling)
     Image Scale(const short kScaleX, const short kScaleY, ScaleType scaleType) const;
 
