@@ -85,9 +85,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::CreateFileActions()
 {
-    mOpenAction = new QAction(tr("Open image"), this);
+    mOpenAction = new QAction(tr("Open image(-s)"), this);
     mOpenAction->setShortcut(QKeySequence::New);
-    mOpenAction->setStatusTip(tr("Open image to processing"));
+    mOpenAction->setStatusTip(tr("Open image(-s) to processing"));
     connect(mOpenAction, SIGNAL(triggered()), this, SLOT(OpenImgFile()));
 
     mCloseAction = new QAction(tr("Close image"), this);
@@ -1342,19 +1342,25 @@ bool MainWindow::ImgsWereOpened() const
 
 void MainWindow::OpenImgFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open image"), ".",
-                                                    tr("Image files (*.bmp *.jpg)"));
-    if (!fileName.isEmpty())
-    {
-        if (LoadImgFromFile(fileName))
-        {
-            mCurOpenedImg = mOpenedImgs.size() - 1;
-            mCurProcessedImg = -1;
-            emit CurImgWasUpdated();
+    QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open image(-s)"), ".",
+                                                          tr("Image files (*.bmp *.jpg)"));
 
+    // Loading image files and creating actions for them
+    bool loaded = false;
+    for (const auto& fileName : fileNames)
+        if (!fileName.isEmpty() && LoadImgFromFile(fileName))
+        {
             AddOpenedImgAction(fileName);
-            emit OpenedImgsChanged();
+            loaded = true;
         }
+
+    // Update menu for added images
+    if (loaded)
+    {
+        mCurOpenedImg = mOpenedImgs.size() - 1;
+        mCurProcessedImg = -1;
+
+        emit CurImgWasUpdated();
     }
 }
 
