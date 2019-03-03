@@ -1132,7 +1132,7 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
             QString actionName = FormCombineActionName(combType);
             AddProcessedImg(combImg, actionName);
 
-            QMessageBox::information(this, tr("Images combining"), tr("Time of combining: %1 мсек").arg(combTime), QMessageBox::Ok);
+            QMessageBox::information(this, tr("Images combining"), tr("Time of combining: %1 msec").arg(combTime), QMessageBox::Ok);
         }
         else
             QMessageBox::warning(this, tr("Images combining"), FormCombinationResultStr(combRes), QMessageBox::Ok);
