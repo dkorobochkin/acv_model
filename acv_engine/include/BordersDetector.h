@@ -29,6 +29,7 @@
 
 #include "Image.h"
 #include "Point.h"
+#include <list>
 
 namespace acv {
 

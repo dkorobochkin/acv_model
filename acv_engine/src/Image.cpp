@@ -177,7 +177,7 @@ bool Image::operator == (const Image& rhs) const
     return equal;
 }
 
-bool Image::operator !=(const Image& rhs) const
+bool Image::operator != (const Image& rhs) const
 {
     return !(*this == rhs);
 }

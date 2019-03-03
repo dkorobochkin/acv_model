@@ -112,19 +112,16 @@ double ImageParametersCalculator::CalcLocalEntropy(const Image& img, const int r
 
 double ImageParametersCalculator::CalcAverageBrightness(const Image& img)
 {
-    int aver = 0.0;
+    long sum = 0;
 
     if (!img.IsInitialized())
-        return aver;
+        return static_cast<double>(sum);
 
      for (auto imgPix : img.GetData())
-     {
-         aver += imgPix;
-     }
+         sum += imgPix;
 
-    aver /= img.GetHeight() * img.GetWidth();
-
-    return aver;
+     double ret = static_cast<double>(sum) / (img.GetHeight() * img.GetWidth());
+     return ret;
 }
 
 Image::Byte ImageParametersCalculator::CalcMinBrightness(const Image& img)
