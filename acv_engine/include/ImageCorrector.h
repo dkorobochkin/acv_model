@@ -51,7 +51,7 @@ public: // Public methods
 
     static bool Correct(const Image& srcImg, Image& dstImg, CorrectorType corType);
 
-public: // Public methods
+private: // Private methods
 
     // SSR algorith
     static bool SingleScaleRetinex(const Image& srcImg, Image& dstImg);
