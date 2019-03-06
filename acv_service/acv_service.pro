@@ -22,13 +22,41 @@
 # SOFTWARE.
 #
 
-TEMPLATE = subdirs
+include( ../common.pri )
+include( ../lib.pri )
 
-CONFIG += ordered
+TARGET = acv_service$${LIB_SUFFIX}
 
-SUBDIRS += \
-        acv_engine \
-        acv_service \
-        thirdparty \
-        tests \
-        acv_gui
+TEMPLATE = lib
+
+CONFIG += c++11
+CONFIG += staticlib
+CONFIG -= app_bundle
+CONFIG -= qt
+
+DEFINES += ACV_SERVICE_LIBRARY
+
+INCLUDEPATH += \
+        include \
+        src/include \
+        ../acv_engine/include
+
+SOURCES += \
+        src/AImage.cpp \
+        src/AImageManager.cpp \
+        src/AImageParametersCalculator.cpp \
+        src/AImageCorrector.cpp \
+        src/AHuMomentsCalculator.cpp \
+        src/AImageCombiner.cpp \
+        src/ABordersDetector.cpp \
+        src/AImageFilter.cpp
+
+HEADERS += \
+        src/include/AImageManager.h \
+        include/AImage.h \
+        include/AImageParametersCalculator.h \
+        include/AImageCorrector.h \        
+        include/AHuMomentsCalculator.h \
+        include/AImageCombiner.h \
+        include/ABordersDetector.h \
+        include/AImageFilter.h
