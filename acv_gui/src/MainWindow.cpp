@@ -526,11 +526,11 @@ void MainWindow::Operator(acv::BordersDetector::DetectorType operatorType)
 {
     if (ImgWasSelected())
     {
-        acv::BordersDetector::OperatorTypes type;
+        acv::BordersDetector::OperatorType type;
         if (QMessageBox::question(this, tr("Operator"), "Need the horizontal operator? Else will be vertical.") == QMessageBox::Yes)
-            type = acv::BordersDetector::OperatorTypes::HORIZONTAL;
+            type = acv::BordersDetector::OperatorType::HORIZONTAL;
         else
-            type = acv::BordersDetector::OperatorTypes::VERTICAL;
+            type = acv::BordersDetector::OperatorType::VERTICAL;
 
         const acv::Image& curImg = GetCurImg();
         acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
@@ -1262,11 +1262,11 @@ QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType c
     return ret;
 }
 
-QString MainWindow::FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorTypes type)
+QString MainWindow::FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorType type)
 {
     QString ret;
 
-    QString dirStr = (type == acv::BordersDetector::OperatorTypes::VERTICAL) ? tr("V") : tr("H");
+    QString dirStr = (type == acv::BordersDetector::OperatorType::VERTICAL) ? tr("V") : tr("H");
 
     switch (operatorType)
     {

@@ -291,7 +291,7 @@ private: // Private methods
     QString FormCorrectorActionName(acv::ImageCorrector::CorrectorType corType);
 
     // Forming the name for action of image that get in result of convolution with operator
-    QString FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorTypes type);
+    QString FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorType type);
 
      // Forming the name for action of image that get in result of scale
     QString FormScaleImgActionName(acv::Image::ScaleType scaleType, const short kX, const short kY);

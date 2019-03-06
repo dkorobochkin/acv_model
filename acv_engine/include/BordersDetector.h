@@ -51,7 +51,7 @@ public: // Public auxiliary types
     };
 
     // Types of border detection operators
-    enum class OperatorTypes
+    enum class OperatorType
     {
         VERTICAL, // Vertical operator
         HORIZONTAL // Horizontal operator
@@ -74,8 +74,8 @@ public: // Public methods
                               const Image::Byte thresholdMin = DEFAULT_MIN_THRESHOLD, const Image::Byte thresholdMax = DEFAULT_MAX_THRESHOLD);
 
     // Convolution of image with specified operator
-    static bool OperatorConvolution(Image& img, DetectorType operatorType, OperatorTypes type);
-    static bool OperatorConvolution(const Image& srcImg, Image& dstImg, DetectorType operatorType, OperatorTypes type);
+    static bool OperatorConvolution(Image& img, DetectorType detectorType, OperatorType operatorType);
+    static bool OperatorConvolution(const Image& srcImg, Image& dstImg, DetectorType detectorType, OperatorType operatorType);
 
 private: // Private methods
 
@@ -92,8 +92,8 @@ private: // Private methods
     static bool Scharr(const Image& srcImg, Image& dstImg);
 
     // Non-convolutional of image with Sobel operator
-    static bool NonConvSobel(Image& img, OperatorTypes type);
-    static bool NonConvSobel(const Image& srcImg, Image& dstImg, OperatorTypes type);
+    static bool NonConvSobel(Image& img, OperatorType type);
+    static bool NonConvSobel(const Image& srcImg, Image& dstImg, OperatorType type);
 
     // Non-convolutional horizontal Sobel operator
     static bool NonConvSobelH(Image& img);
@@ -104,8 +104,8 @@ private: // Private methods
     static bool NonConvSobelV(const Image& srcImg, Image& dstImg);
 
     // Convolution of image with Scharr operator
-    static bool ConvScharr(Image& img, OperatorTypes type);
-    static bool ConvScharr(const Image& srcImg, Image& dstImg, OperatorTypes type);
+    static bool ConvScharr(Image& img, OperatorType type);
+    static bool ConvScharr(const Image& srcImg, Image& dstImg, OperatorType type);
 
     // Calculate the modules of two image to third image
     static void FormGradientModules(const Image& horizImg, const Image& vertImg, Image& modImg);

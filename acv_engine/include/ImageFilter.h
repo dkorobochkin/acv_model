@@ -38,7 +38,7 @@ enum class FiltrationResult
     INTERNAL_ERROR, // Error during filtration
     INCORRECT_FILTER_TYPE, // Incorrect type of filter
     INCORRECT_FILTER_SIZE, // Incorrect filter size (he should be odd)
-    SMALL_FILTER_SIZE, // Filter size is small (this code is used for IIR Gaussian filtration)
+    SMALL_FILTER_SIZE // Filter size is small (this code is used for IIR Gaussian filtration)
 };
 
 // Class is used to filter images by several methods

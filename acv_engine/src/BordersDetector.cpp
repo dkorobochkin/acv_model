@@ -190,8 +190,8 @@ bool BordersDetector::Scharr(const Image& srcImg, Image& dstImg)
     Image tmpImg1(srcImg.GetHeight(), srcImg.GetWidth());
     Image tmpImg2(srcImg.GetHeight(), srcImg.GetWidth());
 
-    bool ret = ConvScharr(srcImg, tmpImg1, OperatorTypes::HORIZONTAL);
-    ret = ret && ConvScharr(srcImg, tmpImg2, OperatorTypes::VERTICAL);
+    bool ret = ConvScharr(srcImg, tmpImg1, OperatorType::HORIZONTAL);
+    ret = ret && ConvScharr(srcImg, tmpImg2, OperatorType::VERTICAL);
 
     if (ret)
         BordersDetector::FormGradientModules(tmpImg1, tmpImg2, dstImg);
@@ -410,41 +410,41 @@ bool BordersDetector::DetectBorders(const Image& srcImg, Image& dstImg, Detector
     }
 }
 
-bool BordersDetector::OperatorConvolution(Image& img, DetectorType operatorType, OperatorTypes type)
+bool BordersDetector::OperatorConvolution(Image& img, DetectorType detectorType, OperatorType operatorType)
 {
-    switch (operatorType)
+    switch (detectorType)
     {
     case DetectorType::SOBEL:
-        return NonConvSobel(img, type);
+        return NonConvSobel(img, operatorType);
     case DetectorType::SCHARR:
-        return ConvScharr(img, type);
+        return ConvScharr(img, operatorType);
     default:
         return false;
     }
 }
 
-bool BordersDetector::OperatorConvolution(const Image& srcImg, Image& dstImg, BordersDetector::DetectorType operatorType, BordersDetector::OperatorTypes type)
+bool BordersDetector::OperatorConvolution(const Image& srcImg, Image& dstImg, DetectorType detectorType, OperatorType operatorType)
 {
-    switch (operatorType)
+    switch (detectorType)
     {
     case DetectorType::SOBEL:
-        return NonConvSobel(srcImg, dstImg, type);
+        return NonConvSobel(srcImg, dstImg, operatorType);
     case DetectorType::SCHARR:
-        return ConvScharr(srcImg, dstImg, type);
+        return ConvScharr(srcImg, dstImg, operatorType);
     default:
         return false;
     }
 }
 
-bool BordersDetector::NonConvSobel(Image& img, OperatorTypes type)
+bool BordersDetector::NonConvSobel(Image& img, OperatorType type)
 {
-    bool res = (type == OperatorTypes::HORIZONTAL) ? NonConvSobelH(img) : NonConvSobelV(img);
+    bool res = (type == OperatorType::HORIZONTAL) ? NonConvSobelH(img) : NonConvSobelV(img);
     return res;
 }
 
-bool BordersDetector::NonConvSobel(const Image& srcImg, Image& dstImg, BordersDetector::OperatorTypes type)
+bool BordersDetector::NonConvSobel(const Image& srcImg, Image& dstImg, BordersDetector::OperatorType type)
 {
-    bool res = (type == OperatorTypes::HORIZONTAL) ? NonConvSobelH(srcImg, dstImg) : NonConvSobelV(srcImg, dstImg);
+    bool res = (type == OperatorType::HORIZONTAL) ? NonConvSobelH(srcImg, dstImg) : NonConvSobelV(srcImg, dstImg);
     return res;
 }
 
@@ -581,17 +581,17 @@ bool BordersDetector::NonConvSobelV(const Image& srcImg, Image& dstImg)
     return true;
 }
 
-bool BordersDetector::ConvScharr(Image& img, OperatorTypes type)
+bool BordersDetector::ConvScharr(Image& img, OperatorType type)
 {
     MatrixFilter<int> filter(3, 1);
 
-    if (type == OperatorTypes::HORIZONTAL)
+    if (type == OperatorType::HORIZONTAL)
     {
         filter[0][0] =  3;  filter[0][1] =  10;  filter[0][2] =  3;
         filter[1][0] =  0;  filter[1][1] =   0;  filter[1][2] =  0;
         filter[2][0] = -3;  filter[2][1] = -10;  filter[2][2] = -3;
     }
-    else if (type == OperatorTypes::VERTICAL)
+    else if (type == OperatorType::VERTICAL)
     {
         filter[0][0] =  3;  filter[0][1] =  0;  filter[0][2] =  -3;
         filter[1][0] = 10;  filter[1][1] =  0;  filter[1][2] = -10;
@@ -603,7 +603,7 @@ bool BordersDetector::ConvScharr(Image& img, OperatorTypes type)
     return MatrixFilterOperations::FastConvolutionImage<int>(img, filter);
 }
 
-bool BordersDetector::ConvScharr(const Image& srcImg, Image& dstImg, BordersDetector::OperatorTypes type)
+bool BordersDetector::ConvScharr(const Image& srcImg, Image& dstImg, BordersDetector::OperatorType type)
 {
     memcpy(dstImg.GetRawPointer(), srcImg.GetRawPointer(), srcImg.GetHeight() * srcImg.GetWidth());
     bool ret = ConvScharr(dstImg, type);
