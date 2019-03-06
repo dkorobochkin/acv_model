@@ -52,7 +52,7 @@ QImage ImageTransormer::AImage2QImage(const acv::Image& from)
         {
             int brig = static_cast<int>(from(y, x));
             QRgb pix = qRgb(brig, brig, brig);
-            to.setPixelColor(x, y, pix);
+            to.setPixel(x, y, pix);
         }
 
     return to;

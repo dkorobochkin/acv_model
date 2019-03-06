@@ -25,6 +25,7 @@
 // The file contains implementation the methods of filter class
 
 #include <vector>
+#include <cstring>
 #include <algorithm>
 
 #include "MatrixFilter.h"

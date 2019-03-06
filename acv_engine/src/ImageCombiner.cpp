@@ -25,6 +25,7 @@
 // This file contains implementations of class to combine of images
 
 #include <vector>
+#include <cstring>
 #include <algorithm>
 
 #include "ImageParametersCalculator.h"

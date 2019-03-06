@@ -25,6 +25,7 @@
 // This file contains implementations of methods of class to detect the borders of image
 
 #include <algorithm>
+#include <cstring>
 #include <vector>
 #include <cmath>
 #include <list>

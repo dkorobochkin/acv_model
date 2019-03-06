@@ -23,7 +23,7 @@
 //
 
 #include "MainWindow.h"
-#include "ui_mainwindow.h"
+#include "ui_MainWindow.h"
 #include "ImageViewer.h"
 #include "HistogramWidget.h"
 #include "ImageTransformer.h"
@@ -242,11 +242,11 @@ void MainWindow::CreateCombiningActions()
 
 void MainWindow::CreateScaleActions()
 {
-    mUpscaleAction = new QAction(tr("Upscale of image"));
+    mUpscaleAction = new QAction(tr("Upscale of image"), this);
     mUpscaleAction->setStatusTip(tr("Upscale of current image using input coefficients"));
     connect(mUpscaleAction, SIGNAL(triggered()), this, SLOT(Upscale()));
 
-    mDownscaleAction = new QAction(tr("Downscale of image"));
+    mDownscaleAction = new QAction(tr("Downscale of image"), this);
     mDownscaleAction->setStatusTip(tr("Downscale of current image using input coefficients"));
     connect(mDownscaleAction, SIGNAL(triggered()), this, SLOT(Downscale()));
 }
