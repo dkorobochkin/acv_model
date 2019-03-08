@@ -28,6 +28,8 @@
 #include "HistogramWidget.h"
 #include "ImageTransformer.h"
 
+#include "AImageParametersCalculator.h"
+
 #include "qcustomplot.h"
 
 #include <QAction>
@@ -41,8 +43,6 @@
 #include <QMouseEvent>
 
 #include <exception>
-
-#include "ImageParametersCalculator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -380,7 +380,7 @@ bool MainWindow::LoadImgFromFile(const QString& fileName)
     return ret;
 }
 
-acv::Image& MainWindow::GetCurImg()
+AImage& MainWindow::GetCurImg()
 {
     if (mCurOpenedImg != -1)
         return mOpenedImgs[mCurOpenedImg];
@@ -391,7 +391,7 @@ acv::Image& MainWindow::GetCurImg()
         throw std::out_of_range("No images selected");
 }
 
-const acv::Image& MainWindow::GetCurImg() const
+const AImage& MainWindow::GetCurImg() const
 {
     if (mCurOpenedImg != -1)
         return mOpenedImgs[mCurOpenedImg];
@@ -410,7 +410,7 @@ void MainWindow::DrawCurImg()
 void MainWindow::MoveToCenterOfDisplay()
 {
     const int MENU_BAR_HEIGHT = statusBar()->height() + menuBar()->height();
-    const acv::Image& curImg = GetCurImg();
+    const AImage& curImg = GetCurImg();
 
     setGeometry(0, 0, curImg.GetWidth(), curImg.GetHeight() + MENU_BAR_HEIGHT);
     move((qApp->desktop()->width() - width()) / 2, (qApp->desktop()->height() - height()) / 2);
@@ -479,66 +479,67 @@ void MainWindow::SetCurImage()
 
 void MainWindow::MedianBlur()
 {
-    Filtering(acv::ImageFilter::FilterType::MEDIAN);
+    Filtering(AFilterType::MEDIAN);
 }
 
 void MainWindow::GaussianBlur()
 {
-    Filtering(acv::ImageFilter::FilterType::GAUSSIAN);
+    Filtering(AFilterType::GAUSSIAN);
 }
 
 void MainWindow::Sharpen()
 {
-    Filtering(acv::ImageFilter::FilterType::SHARPEN);
+    Filtering(AFilterType::SHARPEN);
 }
 
 void MainWindow::SeparateGaussianBlur()
 {
-    Filtering(acv::ImageFilter::FilterType::SEP_GAUSSIAN);
+    Filtering(AFilterType::SEP_GAUSSIAN);
 }
 
 void MainWindow::IIRGaussianBlur()
 {
-    Filtering(acv::ImageFilter::FilterType::IIR_GAUSSIAN);
+    Filtering(AFilterType::IIR_GAUSSIAN);
 }
 
 void MainWindow::SingleScaleRetinex()
 {
-    Correct(acv::ImageCorrector::CorrectorType::SSRETINEX);
+    Correct(ACorrectorType::SSRETINEX);
 }
 
 void MainWindow::AutoLevels()
 {
-    Correct(acv::ImageCorrector::CorrectorType::AUTO_LEVELS);
+    Correct(ACorrectorType::AUTO_LEVELS);
 }
 
 void MainWindow::NormAutoLevels()
 {
-    Correct(acv::ImageCorrector::CorrectorType::NORM_AUTO_LEVELS);
+    Correct(ACorrectorType::NORM_AUTO_LEVELS);
 }
 
 void MainWindow::Gamma()
 {
-    Correct(acv::ImageCorrector::CorrectorType::GAMMA);
+    Correct(ACorrectorType::GAMMA);
 }
 
-void MainWindow::Operator(acv::BordersDetector::DetectorType operatorType)
+void MainWindow::Operator(ADetectorType operatorType)
 {
     if (ImgWasSelected())
     {
-        acv::BordersDetector::OperatorType type;
-        if (QMessageBox::question(this, tr("Operator"), "Need the horizontal operator? Else will be vertical.") == QMessageBox::Yes)
-            type = acv::BordersDetector::OperatorType::HORIZONTAL;
+        AOperatorType type;
+        if (QMessageBox::question(this, tr("Operator"),
+                                  "Need the horizontal operator? Else will be vertical.") == QMessageBox::Yes)
+            type = AOperatorType::HORIZONTAL;
         else
-            type = acv::BordersDetector::OperatorType::VERTICAL;
+            type = AOperatorType::VERTICAL;
 
-        const acv::Image& curImg = GetCurImg();
-        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+        const AImage& curImg = GetCurImg();
+        AImage processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        bool filtred = acv::BordersDetector::OperatorConvolution(curImg, processedImg, operatorType, type);
+        bool filtred = ABordersDetector::OperatorConvolution(curImg, processedImg, operatorType, type);
 
         qint64 filterTime = timer.elapsed();
 
@@ -560,15 +561,15 @@ void MainWindow::Operator(acv::BordersDetector::DetectorType operatorType)
 
 void MainWindow::Sobel()
 {
-    Operator(acv::BordersDetector::DetectorType::SOBEL);
+    Operator(ADetectorType::SOBEL);
 }
 
 void MainWindow::Scharr()
 {
-    Operator(acv::BordersDetector::DetectorType::SCHARR);
+    Operator(ADetectorType::SCHARR);
 }
 
-void MainWindow::AddProcessedImg(const acv::Image& processedImg, const QString& actionName)
+void MainWindow::AddProcessedImg(const AImage& processedImg, const QString& actionName)
 {
     mProcessedImgs.push_back(processedImg);
     mProcImgsSavingFlags.push_back(false);
@@ -650,30 +651,30 @@ void MainWindow::mouseReleaseEvent(QMouseEvent* /*event*/)
 
 void MainWindow::Canny()
 {
-    DetectBorders(acv::BordersDetector::DetectorType::CANNY);
+    DetectBorders(ADetectorType::CANNY);
 }
 
 void MainWindow::SobelDetector()
 {
-    DetectBorders(acv::BordersDetector::DetectorType::SOBEL);
+    DetectBorders(ADetectorType::SOBEL);
 }
 
 void MainWindow::ScharrDetector()
 {
-    DetectBorders(acv::BordersDetector::DetectorType::SCHARR);
+    DetectBorders(ADetectorType::SCHARR);
 }
 
-void MainWindow::DetectBorders(acv::BordersDetector::DetectorType detectorType)
+void MainWindow::DetectBorders(ADetectorType detectorType)
 {
     if (ImgWasSelected())
     {
-        const acv::Image& curImg = GetCurImg();
-        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+        const AImage& curImg = GetCurImg();
+        AImage processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        bool detected = acv::BordersDetector::DetectBorders(curImg, processedImg, detectorType);
+        bool detected = ABordersDetector::DetectBorders(curImg, processedImg, detectorType);
 
         qint64 filterTime = timer.elapsed();
 
@@ -693,48 +694,48 @@ void MainWindow::DetectBorders(acv::BordersDetector::DetectorType detectorType)
     }
 }
 
-QString MainWindow::FormFiltrationResultStr(acv::FiltrationResult filtRes)
+QString MainWindow::FormFiltrationResultStr(AFiltrationResult filtRes)
 {
     switch (filtRes)
     {
-    case acv::FiltrationResult::INCORRECT_FILTER_SIZE:
+    case AFiltrationResult::INCORRECT_FILTER_SIZE:
         return tr("Incorrect filter size. Filter size should be odd.");
-    case acv::FiltrationResult::INCORRECT_FILTER_TYPE:
+    case AFiltrationResult::INCORRECT_FILTER_TYPE:
         return tr("Unknown filter type");
-    case acv::FiltrationResult::INTERNAL_ERROR:
+    case AFiltrationResult::INTERNAL_ERROR:
         return tr("Error during filtration");
-    case acv::FiltrationResult::SMALL_FILTER_SIZE:
+    case AFiltrationResult::SMALL_FILTER_SIZE:
         return tr("Filter size should be >= 6");
-    case acv::FiltrationResult::SUCCESS:
+    case AFiltrationResult::SUCCESS:
         return tr("Success of filtration");
     default:
         return tr("Unknown error");
     }
 }
 
-void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
+void MainWindow::Filtering(AFilterType filterType)
 {
     if (ImgWasSelected())
     {
         const int DEFAULT_FILTER_SIZE = 3, MIN_FILTER_SIZE = 1, MAX_FILTER_SIZE = 15, FILTER_SIZE_STEP = 2;
         int filterSize = -1;
-        if (filterType != acv::ImageFilter::FilterType::SHARPEN)
+        if (filterType != AFilterType::SHARPEN)
         {
             filterSize = QInputDialog::getInt(this, tr("Enter the filter size (odd positive number)"), tr("Filter size"),
                                               DEFAULT_FILTER_SIZE, MIN_FILTER_SIZE, MAX_FILTER_SIZE, FILTER_SIZE_STEP);
         }
 
-        const acv::Image& curImg = GetCurImg();
-        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+        const AImage& curImg = GetCurImg();
+        AImage processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        acv::FiltrationResult filtRes = acv::ImageFilter::Filter(curImg, processedImg, filterType, filterSize);
+        AFiltrationResult filtRes = AImageFilter::Filter(curImg, processedImg, filterType, filterSize);
 
         qint64 filterTime = timer.elapsed();
 
-        if (filtRes == acv::FiltrationResult::SUCCESS)
+        if (filtRes == AFiltrationResult::SUCCESS)
         {
             QString actionName = FormFilterActionName(filterType, filterSize);
             AddProcessedImg(processedImg, actionName);
@@ -750,17 +751,17 @@ void MainWindow::Filtering(acv::ImageFilter::FilterType filterType)
     }
 }
 
-void MainWindow::Correct(acv::ImageCorrector::CorrectorType corType)
+void MainWindow::Correct(ACorrectorType corType)
 {
     if (ImgWasSelected())
     {
-        const acv::Image& curImg = GetCurImg();
-        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+        const AImage& curImg = GetCurImg();
+        AImage processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        bool corrected = acv::ImageCorrector::Correct(curImg, processedImg, corType);
+        bool corrected = AImageCorrector::Correct(curImg, processedImg, corType);
 
         qint64 correctionTime = timer.elapsed();
 
@@ -782,34 +783,34 @@ void MainWindow::Correct(acv::ImageCorrector::CorrectorType corType)
 
 void MainWindow::InformPriorityCombining()
 {
-    Combining(acv::ImageCombiner::CombineType::INFORM_PRIORITY);
+    Combining(ACombineType::INFORM_PRIORITY);
 }
 
 void MainWindow::MorphologicalCombining()
 {
-    Combining(acv::ImageCombiner::CombineType::MORPHOLOGICAL);
+    Combining(ACombineType::MORPHOLOGICAL);
 }
 
 void MainWindow::LocalEntropyCombining()
 {
-    Combining(acv::ImageCombiner::CombineType::LOCAL_ENTROPY);
+    Combining(ACombineType::LOCAL_ENTROPY);
 }
 
 void MainWindow::DifferencesAddingCombining()
 {
-    Combining(acv::ImageCombiner::CombineType::DIFFERENCES_ADDING);
+    Combining(ACombineType::DIFFERENCES_ADDING);
 }
 
 void MainWindow::CalcDiff()
 {
-    Combining(acv::ImageCombiner::CombineType::CALC_DIFF);
+    Combining(ACombineType::CALC_DIFF);
 }
 
 void MainWindow::CalcEntropy()
 {
     if (ImgWasSelected())
     {
-       double entropy = acv::ImageParametersCalculator::CalcEntropy(GetCurImg());
+       double entropy = AImageParametersCalculator::CalcEntropy(GetCurImg());
        QMessageBox::information(this, tr("Entropy calculation"), tr("Entropy = %1").arg(entropy), QMessageBox::Ok);
     }
     else
@@ -828,20 +829,20 @@ void MainWindow::AdaptiveThreshold()
         int threshold = QInputDialog::getInt(this, tr("Enter the size if threshold"), tr("Filter size"),
                                              DEFAULT_THRESHOLD, MIN_THRESHOLD, MAX_THRESHOLD, THRESHOLD_STEP);
 
-        acv::ImageFilter::ThresholdType type;
+        AThresholdType type;
         if (QMessageBox::question(this, tr("Adaptive threshold"),
                                   "If yes then selected pixels will be equal to MAX value. To MIN value in other case") == QMessageBox::Yes)
-            type = acv::ImageFilter::ThresholdType::MAX_MORE_THRESHOLD;
+            type = AThresholdType::MAX_MORE_THRESHOLD;
         else
-            type = acv::ImageFilter::ThresholdType::MIN_MORE_THRESHOLD;
+            type = AThresholdType::MIN_MORE_THRESHOLD;
 
-        const acv::Image& curImg = GetCurImg();
-        acv::Image processedImg(curImg.GetHeight(), curImg.GetWidth());
+        const AImage& curImg = GetCurImg();
+        AImage processedImg(curImg.GetHeight(), curImg.GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        bool res = acv::ImageFilter::AdaptiveThreshold(curImg, processedImg, DEFAULT_FILTER_SIZE, threshold, type);
+        bool res = AImageFilter::AdaptiveThreshold(curImg, processedImg, DEFAULT_FILTER_SIZE, threshold, type);
 
         qint64 time = timer.elapsed();
 
@@ -865,7 +866,7 @@ void MainWindow::CalcAverageBrightness()
 {
     if (ImgWasSelected())
     {
-        double averBrig = acv::ImageParametersCalculator::CalcAverageBrightness(GetCurImg());
+        double averBrig = AImageParametersCalculator::CalcAverageBrightness(GetCurImg());
         QMessageBox::information(this, tr("Average brightness calculation"), tr("Average brightness = %1").arg(averBrig), QMessageBox::Ok);
     }
     else
@@ -878,8 +879,8 @@ void MainWindow::CalcStandardDeviation()
 {
     if (ImgWasSelected())
     {
-        double averBrig = acv::ImageParametersCalculator::CalcAverageBrightness(GetCurImg());
-        double sd = acv::ImageParametersCalculator::CalcStandardDeviation(GetCurImg(), averBrig);
+        double averBrig = AImageParametersCalculator::CalcAverageBrightness(GetCurImg());
+        double sd = AImageParametersCalculator::CalcStandardDeviation(GetCurImg(), averBrig);
 
         QMessageBox::information(this, tr("Standard deviation"), tr("Standard deviation = %1").arg(sd), QMessageBox::Ok);
     }
@@ -893,8 +894,8 @@ void MainWindow::CalcIntegralQualityIndicator()
 {
     if (ImgWasSelected())
     {
-        double iqi = acv::ImageParametersCalculator::CalcIntegralQualityIndicator(GetCurImg());
-        QMessageBox::information(this, tr("Integral quality indicator"), tr("Standard deviation = %1").arg(iqi), QMessageBox::Ok);
+        double iqi = AImageParametersCalculator::CalcIntegralQualityIndicator(GetCurImg());
+        QMessageBox::information(this, tr("Integral quality indicator"), tr("Integral quality indicator = %1").arg(iqi), QMessageBox::Ok);
     }
     else
     {
@@ -906,8 +907,8 @@ void MainWindow::CalcMinMaxBrightness()
 {
     if (ImgWasSelected())
     {
-        acv::Image::Byte minBr, maxBr;
-        acv::ImageParametersCalculator::CalcMinMaxBrightness(GetCurImg(), minBr, maxBr);
+        AByte minBr, maxBr;
+        AImageParametersCalculator::CalcMinMaxBrightness(GetCurImg(), minBr, maxBr);
         QMessageBox::information(this, tr("Minimum and maximum brightness calculation"), tr("Minimum = %1, maximum = %2").arg(minBr).arg(maxBr), QMessageBox::Ok);
     }
     else
@@ -920,13 +921,17 @@ void MainWindow::CreateBrightnessHistogram()
 {
     if (ImgWasSelected())
     {
-        std::vector<double> brightnessHistogram(acv::Image::MAX_PIXEL_VALUE + 1), valuesOfBrightness(acv::Image::MAX_PIXEL_VALUE + 1);
-        for(int i = acv::Image::MIN_PIXEL_VALUE; i < acv::Image::MAX_PIXEL_VALUE + 1; i++)
+        std::vector<double> brightnessHistogram(AImage::MAX_PIXEL_VALUE + 1), valuesOfBrightness(AImage::MAX_PIXEL_VALUE + 1);
+        for(int i = AImage::MIN_PIXEL_VALUE; i < AImage::MAX_PIXEL_VALUE + 1; i++)
             valuesOfBrightness[i] = i;
-        acv::ImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(), brightnessHistogram);
-        mHist = new HistogramWidget();
-        mHist->DrawHist(brightnessHistogram,valuesOfBrightness);
-        mHist->show();
+
+        bool res = AImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(), brightnessHistogram);
+        if (res)
+        {
+            mHist = new HistogramWidget();
+            mHist->DrawHist(brightnessHistogram, valuesOfBrightness);
+            mHist->show();
+        }
     }
     else
     {
@@ -934,7 +939,7 @@ void MainWindow::CreateBrightnessHistogram()
     }
 }
 
-QString MainWindow::FormHuMomentsStr(const acv::HuMoments& moments, int xMin, int xMax, int yMin, int yMax)
+QString MainWindow::FormHuMomentsStr(const AHuMoments& moments, int xMin, int xMax, int yMin, int yMax)
 {
     QString resStr = tr("X: %1..%2 Y: %3..%4").arg(xMin).arg(xMax).arg(yMin).arg(yMax);
 
@@ -987,13 +992,16 @@ void MainWindow::CalcHuMomentsExecute(int xMin, int xMax, int yMin, int yMax)
 {
     if (ImgWasSelected())
     {
-        const acv::Image& curImg = GetCurImg();
-        acv::HuMomentsCalculator calculator(curImg, xMin, yMin, xMax, yMax);
-        const acv::HuMoments& moments = calculator.GetHuMoments();
+        const AImage& curImg = GetCurImg();
+        AHuMomentsCalculator calculator(curImg, xMin, yMin, xMax, yMax);
 
-        QMessageBox::information(this, tr("Hu's moments"),
-                                 FormHuMomentsStr(moments, xMin, xMax, yMin, yMax),
-                                 QMessageBox::Ok);
+        AHuMoments moments;
+        bool ret = calculator.GetHuMoments(moments);
+
+        if (ret)
+            QMessageBox::information(this, tr("Hu's moments"),
+                                    FormHuMomentsStr(moments, xMin, xMax, yMin, yMax),
+                                    QMessageBox::Ok);
     }
     else
     {
@@ -1014,24 +1022,24 @@ void MainWindow::DisplayCoordsAndBrigInStatusBar(int x, int y)
 
     if (ImgWasSelected())
     {
-        const acv::Image& curImg = GetCurImg();
-        if (!curImg.IsInvalidCoordinates(y, x))
+        const AImage& curImg = GetCurImg();
+        if (curImg.IsValidCoordinates(y, x))
             statusBarStr = tr("X=%1 Y=%2 B=%3").arg(x).arg(y).arg(curImg.GetPixel(y, x));
     }
 
     statusBarLabel->setText(statusBarStr);
 }
 
-QString MainWindow::FormScaleImgActionName(acv::Image::ScaleType scaleType, const short kX, const short kY)
+QString MainWindow::FormScaleImgActionName(AScaleType scaleType, const short kX, const short kY)
 {
     QString ret;
 
     switch (scaleType)
     {
-    case acv::Image::ScaleType::UPSCALE:
+    case AScaleType::UPSCALE:
         ret = tr("UPSCALE: ");
         break;
-    case acv::Image::ScaleType::DOWNSCALE:
+    case AScaleType::DOWNSCALE:
         ret = tr("DOWNSCALE: ");
         break;
     default:
@@ -1044,7 +1052,7 @@ QString MainWindow::FormScaleImgActionName(acv::Image::ScaleType scaleType, cons
     return ret;
 }
 
-void MainWindow::Scale(acv::Image::ScaleType scaleType)
+void MainWindow::Scale(AScaleType scaleType)
 {
     if (ImgWasSelected())
     {
@@ -1057,7 +1065,7 @@ void MainWindow::Scale(acv::Image::ScaleType scaleType)
                                       DEFAULT_SCALE_SIZE, MIN_SCALE_SIZE, MAX_SCALE_SIZE, SCALE_SIZE_STEP);
 
         const auto& curImg = GetCurImg();
-        acv::Image scaleImg = curImg.Scale(scaleX, scaleY, scaleType);
+        AImage scaleImg = curImg.Scale(scaleX, scaleY, scaleType);
 
         QString actionName = FormScaleImgActionName(scaleType, scaleX, scaleY);
         AddProcessedImg(scaleImg, actionName);
@@ -1070,40 +1078,40 @@ void MainWindow::Scale(acv::Image::ScaleType scaleType)
 
 void MainWindow::Upscale()
 {
-    Scale(acv::Image::ScaleType::UPSCALE);
+    Scale(AScaleType::UPSCALE);
 }
 
 void MainWindow::Downscale()
 {
-    Scale(acv::Image::ScaleType::DOWNSCALE);
+    Scale(AScaleType::DOWNSCALE);
 }
 
-QString MainWindow::FormCombinationResultStr(acv::CombinationResult combRes)
+QString MainWindow::FormCombinationResultStr(ACombinationResult combRes)
 {
     switch (combRes)
     {
-    case acv::CombinationResult::INCORRECT_COMBINER_TYPE:
+    case ACombinationResult::INCORRECT_COMBINER_TYPE:
         return tr("Unknown combiner type");
-    case acv::CombinationResult::FEW_IMAGES:
+    case ACombinationResult::FEW_IMAGES:
         return tr("The number of images should be >= 2");
-    case acv::CombinationResult::NOT_SAME_IMAGES:
+    case ACombinationResult::NOT_SAME_IMAGES:
         return tr("The combined images are not the same");
-    case acv::CombinationResult::MANY_IMAGES:
+    case ACombinationResult::MANY_IMAGES:
         return tr("The number of images should be 2");
-    case acv::CombinationResult::SUCCESS:
+    case ACombinationResult::SUCCESS:
         return tr("Success of combining");
     default:
         return tr("Unknown error");
     }
 }
 
-void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
+void MainWindow::Combining(ACombineType combType)
 {
     if (ImgsWereOpened())
     {
         int answer = QMessageBox::No;
         // There is not difference which image is base in case of local-entropy combining
-        if (combType != acv::ImageCombiner::CombineType::LOCAL_ENTROPY)
+        if (combType != ACombineType::LOCAL_ENTROPY)
         {
             answer = QMessageBox::question(this, "Images combining",
                                            "Do you want select the base image (with maximum of entropy)? "
@@ -1114,20 +1122,20 @@ void MainWindow::Combining(acv::ImageCombiner::CombineType combType)
                 return;
         }
 
-        acv::ImageCombiner combiner;
+        AImageCombiner combiner;
         for (const auto& img : mOpenedImgs)
             combiner.AddImage(img);
 
-        acv::Image combImg(mOpenedImgs[0].GetHeight(), mOpenedImgs[0].GetWidth());
+        AImage combImg(mOpenedImgs[0].GetHeight(), mOpenedImgs[0].GetWidth());
 
         QElapsedTimer timer;
         timer.start();
 
-        acv::CombinationResult combRes = combiner.Combine(combType, combImg, answer == QMessageBox::Yes);
+        ACombinationResult combRes = combiner.Combine(combType, combImg, answer == QMessageBox::Yes);
 
         qint64 combTime = timer.elapsed();
 
-        if (combRes == acv::CombinationResult::SUCCESS && combImg.IsInitialized())
+        if (combRes == ACombinationResult::SUCCESS && combImg.IsInitialized())
         {
             QString actionName = FormCombineActionName(combType);
             AddProcessedImg(combImg, actionName);
@@ -1154,25 +1162,25 @@ void MainWindow::AddOpenedImgAction(const QString& fileName)
     mOpenedImgsActions.push_back(act);
 }
 
-QString MainWindow::FormCombineActionName(acv::ImageCombiner::CombineType combType)
+QString MainWindow::FormCombineActionName(ACombineType combType)
 {
     QString ret;
 
     switch (combType)
     {
-    case acv::ImageCombiner::CombineType::INFORM_PRIORITY:
+    case ACombineType::INFORM_PRIORITY:
         ret = tr("C_IP: ");
         break;
-    case acv::ImageCombiner::CombineType::MORPHOLOGICAL:
+    case ACombineType::MORPHOLOGICAL:
         ret = tr("C_M: ");
         break;
-    case acv::ImageCombiner::CombineType::LOCAL_ENTROPY:
+    case ACombineType::LOCAL_ENTROPY:
         ret = tr("C_LE: ");
         break;
-    case acv::ImageCombiner::CombineType::DIFFERENCES_ADDING:
+    case ACombineType::DIFFERENCES_ADDING:
         ret = tr("C_DA: ");
         break;
-    case acv::ImageCombiner::CombineType::CALC_DIFF:
+    case ACombineType::CALC_DIFF:
         ret = tr("C_CD: ");
         break;
     }
@@ -1187,25 +1195,25 @@ QString MainWindow::FormCombineActionName(acv::ImageCombiner::CombineType combTy
     return ret;
 }
 
-QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize)
+QString MainWindow::FormFilterActionName(AFilterType filterType, const int filterSize)
 {
     QString ret;
 
     switch (filterType)
     {
-    case acv::ImageFilter::FilterType::MEDIAN:
+    case AFilterType::MEDIAN:
         ret = tr("F_M_%1: ").arg(filterSize);
         break;
-    case acv::ImageFilter::FilterType::GAUSSIAN:
+    case AFilterType::GAUSSIAN:
         ret = tr("F_G_%1: ").arg(filterSize);
         break;
-    case acv::ImageFilter::FilterType::SEP_GAUSSIAN:
+    case AFilterType::SEP_GAUSSIAN:
         ret = tr("F_G_SEP_%1: ").arg(filterSize);
         break;
-    case acv::ImageFilter::FilterType::IIR_GAUSSIAN:
+    case AFilterType::IIR_GAUSSIAN:
         ret = tr("F_G_IIR_%1: ").arg(filterSize);
         break;
-    case acv::ImageFilter::FilterType::SHARPEN:
+    case AFilterType::SHARPEN:
         ret = tr("F_SHARP: ");
         break;
     default:
@@ -1216,16 +1224,16 @@ QString MainWindow::FormFilterActionName(acv::ImageFilter::FilterType filterType
     return ret;
 }
 
-QString MainWindow::FormAdaptiveThresholdActionName(acv::ImageFilter::ThresholdType thresholdType, const int threshold)
+QString MainWindow::FormAdaptiveThresholdActionName(AThresholdType thresholdType, const int threshold)
 {
     QString ret;
 
     switch (thresholdType)
     {
-    case acv::ImageFilter::ThresholdType::MAX_MORE_THRESHOLD:
+    case AThresholdType::MAX_MORE_THRESHOLD:
         ret = tr("AT_MAX_%1: ").arg(threshold);
         break;
-    case acv::ImageFilter::ThresholdType::MIN_MORE_THRESHOLD:
+    case AThresholdType::MIN_MORE_THRESHOLD:
         ret = tr("AT_MIN_%1: ").arg(threshold);
         break;
     default:
@@ -1236,22 +1244,22 @@ QString MainWindow::FormAdaptiveThresholdActionName(acv::ImageFilter::ThresholdT
     return ret;
 }
 
-QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType corType)
+QString MainWindow::FormCorrectorActionName(ACorrectorType corType)
 {
     QString ret;
 
     switch (corType)
     {
-    case acv::ImageCorrector::CorrectorType::SSRETINEX:
+    case ACorrectorType::SSRETINEX:
         ret = tr("CORR_SSR: ");
         break;
-    case acv::ImageCorrector::CorrectorType::AUTO_LEVELS:
+    case ACorrectorType::AUTO_LEVELS:
         ret = tr("CORR_AL: ");
         break;
-    case acv::ImageCorrector::CorrectorType::NORM_AUTO_LEVELS:
+    case ACorrectorType::NORM_AUTO_LEVELS:
         ret = tr("CORR_NAL: ");
         break;
-    case acv::ImageCorrector::CorrectorType::GAMMA:
+    case ACorrectorType::GAMMA:
         ret = tr("CORR_GAM: ");
         break;
     default:
@@ -1262,18 +1270,18 @@ QString MainWindow::FormCorrectorActionName(acv::ImageCorrector::CorrectorType c
     return ret;
 }
 
-QString MainWindow::FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorType type)
+QString MainWindow::FormOperatorActionName(ADetectorType detectorType, AOperatorType operatorType)
 {
     QString ret;
 
-    QString dirStr = (type == acv::BordersDetector::OperatorType::VERTICAL) ? tr("V") : tr("H");
+    QString dirStr = (operatorType == AOperatorType::VERTICAL) ? tr("V") : tr("H");
 
-    switch (operatorType)
+    switch (detectorType)
     {
-    case acv::BordersDetector::DetectorType::SOBEL:
+    case ADetectorType::SOBEL:
         ret = tr("O_SOB_%1: ").arg(dirStr);
         break;
-    case acv::BordersDetector::DetectorType::SCHARR:
+    case ADetectorType::SCHARR:
         ret = tr("O_SCH_%1: ").arg(dirStr);
         break;
     default:
@@ -1284,19 +1292,19 @@ QString MainWindow::FormOperatorActionName(acv::BordersDetector::DetectorType op
     return ret;
 }
 
-QString MainWindow::FormBordersDetectorActionName(acv::BordersDetector::DetectorType detectorType)
+QString MainWindow::FormBordersDetectorActionName(ADetectorType detectorType)
 {
     QString ret;
 
     switch (detectorType)
     {
-    case acv::BordersDetector::DetectorType::SOBEL:
+    case ADetectorType::SOBEL:
         ret = tr("BD_SOB: ");
         break;
-    case acv::BordersDetector::DetectorType::SCHARR:
+    case ADetectorType::SCHARR:
         ret = tr("BD_SCH: ");
         break;
-    case acv::BordersDetector::DetectorType::CANNY:
+    case ADetectorType::CANNY:
         ret = tr("BD_C: ");
         break;
     default:
@@ -1364,7 +1372,7 @@ void MainWindow::OpenImgFile()
     }
 }
 
-void MainWindow::DeleteImg(int& curImg, std::vector<acv::Image>& imgs, std::vector<QAction*>& actions)
+void MainWindow::DeleteImg(int& curImg, std::vector<AImage>& imgs, std::vector<QAction*>& actions)
 {
     // Delete the current image from vector
     imgs.erase(imgs.begin() + curImg);

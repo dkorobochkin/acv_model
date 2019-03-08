@@ -22,17 +22,30 @@
 // SOFTWARE.
 //
 
-// This file contains implementations of methods for class AImageManager
+// This header file is used to define a class for access of image details for classes from service level
 
-#include "AImageManager.h"
-#include "AImage.h"
+#ifndef AIMAGE_MANAGER_H
+#define AIMAGE_MANAGER_H
 
-const std::shared_ptr<acv::Image>& AImageManager::GetEngineImage(const AImage& image)
-{
-    return image.mImage;
+#include <memory>
+
+class AImage;
+namespace acv {
+    class Image;
 }
 
-AImage AImageManager::MakeServiceImage(const acv::Image& img)
+// Class of manager to access of image details
+class AImageManager
 {
-    return AImage(img);
-}
+
+public:
+
+    // Get inner representation of class AImage
+    static const std::shared_ptr<acv::Image>& GetEngineImage(const AImage& image);
+
+    // Make image of service type from engine image
+    static AImage MakeServiceImage(const acv::Image& img);
+
+};
+
+#endif // AIMAGE_MANAGER_H

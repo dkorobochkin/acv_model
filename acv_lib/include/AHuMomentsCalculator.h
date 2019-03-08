@@ -22,36 +22,41 @@
 // SOFTWARE.
 //
 
-// This file contains implementations of methods for class AImage
+// This header file is used to define a wrapper for class HuMomentsCalculator from engine level
 
-#include "AImage.h"
+#ifndef AHU_MOMENTS_CALCULATOR_H
+#define AHU_MOMENTS_CALCULATOR_H
 
-AImage::AImage(int height, int width)
-    : mImage(std::make_shared<acv::Image>(height, width))
-{
+#include <array>
+#include <memory>
+
+typedef std::array<double, 8> AHuMoments; // Array of Hu's moments values
+
+class AImage;
+namespace acv {
+    class HuMomentsCalculator;
 }
 
-AImage::AImage(const acv::Image& img)
-    : mImage(std::make_shared<acv::Image>(img))
+// Wrapper for class HuMomentsCalculator from engine level
+class AHuMomentsCalculator
 {
-}
 
-int AImage::GetWidth() const
-{
-    return (mImage) ? mImage->GetWidth() : -1;
-}
+public:
 
-int AImage::GetHeight() const
-{
-    return (mImage) ? mImage->GetHeight() : -1;
-}
+    // The constructor to calculate a Hu's moments of image part
+    // The user should provide: xStart < xEnd and yStart < yEnd
+    AHuMomentsCalculator(const AImage& img, int xStart, int yStart, int xEnd, int yEnd);
 
-AByte AImage::GetPixel(int row, int col) const
-{
-    return mImage->GetPixel(row, col);
-}
+public:
 
-void AImage::SetPixel(int row, int col, AByte val)
-{
-    mImage->SetPixel(row, col, val);
-}
+    // Get Hu's moments array
+    bool GetHuMoments(AHuMoments& moments) const;
+
+private:
+
+    // Low level representation of Hu's moments calculator
+    std::shared_ptr<acv::HuMomentsCalculator> mHuMomentsCalculator;
+
+};
+
+#endif // AHU_MOMENTS_CALCULATOR_H

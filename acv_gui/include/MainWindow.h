@@ -31,12 +31,12 @@
 
 #include <vector>
 
-#include "Image.h"
-#include "ImageFilter.h"
-#include "ImageCombiner.h"
-#include "BordersDetector.h"
-#include "ImageCorrector.h"
-#include "HuMomentsCalculator.h"
+#include "AImage.h"
+#include "AImageFilter.h"
+#include "AImageCombiner.h"
+#include "ABordersDetector.h"
+#include "AImageCorrector.h"
+#include "AHuMomentsCalculator.h"
 
 #include "qcustomplot.h"
 
@@ -276,28 +276,28 @@ private: // Private methods
     void AddOpenedImgAction(const QString& fileName);
 
     // Forming the name for action of combined image
-    QString FormCombineActionName(acv::ImageCombiner::CombineType combType);
+    QString FormCombineActionName(ACombineType combType);
 
     // Forming the name for action of processed image
     QString FormProcessedImgActionName(const QString& prefix);
 
     // Forming the name for action of filtered image
-    QString FormFilterActionName(acv::ImageFilter::FilterType filterType, const int filterSize);
+    QString FormFilterActionName(AFilterType filterType, const int filterSize);
 
     // Forming the name for action of adaptive threshold
-    QString FormAdaptiveThresholdActionName(acv::ImageFilter::ThresholdType thresholdType, const int threshold);
+    QString FormAdaptiveThresholdActionName(AThresholdType thresholdType, const int threshold);
 
     // Forming the name for action of corrected image
-    QString FormCorrectorActionName(acv::ImageCorrector::CorrectorType corType);
+    QString FormCorrectorActionName(ACorrectorType corType);
 
     // Forming the name for action of image that get in result of convolution with operator
-    QString FormOperatorActionName(acv::BordersDetector::DetectorType operatorType, acv::BordersDetector::OperatorType type);
+    QString FormOperatorActionName(ADetectorType detectorType, AOperatorType operatorType);
 
      // Forming the name for action of image that get in result of scale
-    QString FormScaleImgActionName(acv::Image::ScaleType scaleType, const short kX, const short kY);
+    QString FormScaleImgActionName(AScaleType scaleType, const short kX, const short kY);
 
     // Forming the name for action of detected borders
-    QString FormBordersDetectorActionName(acv::BordersDetector::DetectorType detectorType);
+    QString FormBordersDetectorActionName(ADetectorType detectorType);
 
     // Adding the action for processed image
     void AddProcessedImgAction(const QString& actionName);
@@ -309,34 +309,34 @@ private: // Private methods
     bool ImgWasSelected() const;
 
     // Combining with the specified type
-    void Combining(acv::ImageCombiner::CombineType combType);
+    void Combining(ACombineType combType);
 
     // Scaling with the specified type
-    void Scale(acv::Image::ScaleType scaleType);
+    void Scale(AScaleType scaleType);
 
     // Filtering with the specified type
-    void Filtering(acv::ImageFilter::FilterType filterType);
+    void Filtering(AFilterType filterType);
 
     // Correction with the specified type
-    void Correct(acv::ImageCorrector::CorrectorType corType);
+    void Correct(ACorrectorType corType);
 
     // Detect the borders of image
-    void DetectBorders(acv::BordersDetector::DetectorType detectorType);
+    void DetectBorders(ADetectorType detectorType);
 
     // Forming the text about result of filtration
-    QString FormFiltrationResultStr(acv::FiltrationResult filtRes);
+    QString FormFiltrationResultStr(AFiltrationResult filtRes);
 
     // Forming the text about result of combination
-    QString FormCombinationResultStr(acv::CombinationResult combRes);
+    QString FormCombinationResultStr(ACombinationResult combRes);
 
     // Forming the text about result of Hu's moments calculation
-    QString FormHuMomentsStr(const acv::HuMoments& moments, int xMin, int xMax, int yMin, int yMax);
+    QString FormHuMomentsStr(const AHuMoments& moments, int xMin, int xMax, int yMin, int yMax);
 
     // Set the mouse mode
     void SetMouseMode(MouseMode mouseMode);
 
     // Convolution the image with the operator of specified type
-    void Operator(acv::BordersDetector::DetectorType operatorType);
+    void Operator(ADetectorType operatorType);
 
     // Get the number of selected action from actions vector (if was not selected then will be return -1)
     int GetNumOfActionInVec(const QAction* action, const std::vector<QAction*>& actionsVec);
@@ -348,14 +348,14 @@ private: // Private methods
     int GetNumOfProcessedImgByAction(const QAction* action);
 
     // Get the reference to the current selected image
-    acv::Image& GetCurImg();
-    const acv::Image& GetCurImg() const;
+    AImage& GetCurImg();
+    const AImage& GetCurImg() const;
 
     // Delete the current image and him action. Will be change the number of current image
-    void DeleteImg(int& curImg, std::vector<acv::Image>& imgs, std::vector<QAction*>& actions);
+    void DeleteImg(int& curImg, std::vector<AImage>& imgs, std::vector<QAction*>& actions);
 
     // Add processed image to menu, add his action. Also this image will be drawn and current image will be him
-    void AddProcessedImg(const acv::Image& processedImg, const QString& actionName);
+    void AddProcessedImg(const AImage& processedImg, const QString& actionName);
 
     // Recalculation from coordinates of main window to coordinates of central widget
     void RecalcToCentralWidgetCoordinates(QPoint& pnt);
@@ -444,10 +444,10 @@ private: // Private members
     ImageViewer* mViewer;
 
     // All opened images
-    std::vector<acv::Image> mOpenedImgs;
+    std::vector<AImage> mOpenedImgs;
 
     // All processed images
-    std::vector<acv::Image> mProcessedImgs;
+    std::vector<AImage> mProcessedImgs;
 
     // Flags of saving for processed images
     std::vector<bool> mProcImgsSavingFlags;

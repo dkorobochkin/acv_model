@@ -95,11 +95,22 @@ double AImageParametersCalculator::CalcStandardDeviation(const AImage& img, doub
 
 double AImageParametersCalculator::CalcIntegralQualityIndicator(const AImage& img)
 {
-    AByte ret = 0;
+    double ret = 0;
 
     const auto& image = AImageManager::GetEngineImage(img);
     if (image)
         ret = acv::ImageParametersCalculator::CalcIntegralQualityIndicator(*image);
+
+    return ret;
+}
+
+bool AImageParametersCalculator::CreateBrightnessHistogram(const AImage& img, std::vector<double>& brightnessHistogram)
+{
+    const auto& image = AImageManager::GetEngineImage(img);
+
+    bool ret = image != nullptr;
+    if (ret)
+        acv::ImageParametersCalculator::CreateBrightnessHistogram(*image, brightnessHistogram);
 
     return ret;
 }

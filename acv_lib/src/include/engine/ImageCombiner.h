@@ -28,6 +28,7 @@
 #define IMAGE_COMBINER_H
 
 #include <vector>
+#include <iostream>
 
 namespace acv {
 

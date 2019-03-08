@@ -54,7 +54,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 INCLUDEPATH += \
         include \
-        ../acv_engine/include
+        ../acv_lib/include
 
 SOURCES += \
         main.cpp \
@@ -72,5 +72,5 @@ HEADERS += \
 FORMS += \
         ui/MainWindow.ui
 
-LIBS += -lacv_engine$${LIB_SUFFIX}
+LIBS += -lacv_lib$${LIB_SUFFIX}
 LIBS += -lqcustomplot$${LIB_SUFFIX}

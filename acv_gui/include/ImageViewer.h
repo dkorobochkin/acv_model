@@ -25,7 +25,7 @@
 #ifndef IMAGEVIEWER_H
 #define IMAGEVIEWER_H
 
-#include "Image.h"
+#include "AImage.h"
 
 #include <QWidget>
 #include <QPixmap>
@@ -47,7 +47,7 @@ public: // Public draw methods
     void DrawImage(const QImage& img);
 
     // Method is used to draw Image class
-    void DrawImage(const acv::Image& img);
+    void DrawImage(const AImage& img);
 
     // Clear the screen
     void Clear();

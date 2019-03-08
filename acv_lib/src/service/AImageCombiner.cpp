@@ -25,6 +25,7 @@
 // This file contains implementations of methods for class AImageCombiner
 
 #include "AImageCombiner.h"
+#include "ImageCombiner.h"
 #include "AImageManager.h"
 #include "AImage.h"
 

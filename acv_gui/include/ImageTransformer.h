@@ -25,9 +25,8 @@
 #ifndef IMAGETRANSFORMER_H
 #define IMAGETRANSFORMER_H
 
-#include "Image.h"
-
 class QImage;
+class AImage;
 
 // Class is used to transform from QImage to AImage and back
 // Contains only static methods
@@ -36,8 +35,8 @@ class ImageTransormer
 
 public: // Public methods
 
-    static acv::Image QImage2AImage(const QImage& from);
-    static QImage AImage2QImage(const acv::Image& from);
+    static AImage QImage2AImage(const QImage& from);
+    static QImage AImage2QImage(const AImage& from);
 
 };
 

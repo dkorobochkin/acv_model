@@ -27,9 +27,11 @@
 #ifndef AIMAGE_COMBINER_H
 #define AIMAGE_COMBINER_H
 
-#include "ImageCombiner.h"
-
 #include <memory>
+
+namespace acv {
+    class ImageCombiner;
+}
 
 // Used types of combining
 enum class ACombineType

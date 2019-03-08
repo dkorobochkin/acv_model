@@ -22,29 +22,27 @@
 // SOFTWARE.
 //
 
-// This header file is used to define a class for access of image details for classes from service level
+// This file contains implementations of methods for class HuMomentsCalculator
 
-#ifndef AIMAGE_MANAGER_H
-#define AIMAGE_MANAGER_H
+#include "AHuMomentsCalculator.h"
+#include "HuMomentsCalculator.h"
+#include "AImageManager.h"
+#include "AImage.h"
 
-#include "Image.h"
-
-#include <memory>
-
-class AImage;
-
-// Class of manager to access of image details
-class AImageManager
+AHuMomentsCalculator::AHuMomentsCalculator(const AImage& img, int xStart, int yStart, int xEnd, int yEnd)
+    : mHuMomentsCalculator(nullptr)
 {
+    const auto& srcImg = AImageManager::GetEngineImage(img);
+    if (srcImg)
+        mHuMomentsCalculator = std::make_shared<acv::HuMomentsCalculator>(*srcImg, xStart, yStart, xEnd, yEnd);
+}
 
-public:
+bool AHuMomentsCalculator::GetHuMoments(AHuMoments& moments) const
+{
+    bool ret = mHuMomentsCalculator != nullptr;
 
-    // Get inner representation of class AImage
-    static const std::shared_ptr<acv::Image>& GetEngineImage(const AImage& image);
+    if (ret)
+        moments = mHuMomentsCalculator->GetHuMoments();
 
-    // Make image of service type from engine image
-    static AImage MakeServiceImage(const acv::Image& img);
-
-};
-
-#endif // AIMAGE_MANAGER_H
+    return ret;
+}

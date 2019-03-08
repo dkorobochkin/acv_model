@@ -23,34 +23,34 @@
 //
 
 #include "ImageTransformer.h"
-#include "Image.h"
+#include "AImage.h"
 
 #include <QImage>
 #include <QRgb>
 
-acv::Image ImageTransormer::QImage2AImage(const QImage& from)
+AImage ImageTransormer::QImage2AImage(const QImage& from)
 {
-    acv::Image to(from.height(), from.width());
+    AImage to(from.height(), from.width());
 
     for (int y = 0; y < from.height(); ++y)
         for (int x = 0; x < from.width(); ++x)
         {
             QRgb pix = from.pixel(x, y);
             int brightness = qGray(pix);
-            to(y, x) = static_cast<acv::Image::Byte>(brightness);
+            to.SetPixel(y, x, static_cast<AByte>(brightness));
         }
 
     return to;
 }
 
-QImage ImageTransormer::AImage2QImage(const acv::Image& from)
+QImage ImageTransormer::AImage2QImage(const AImage& from)
 {
-    QImage to( from.GetWidth(), from.GetHeight(), QImage::Format_ARGB32);
+    QImage to(from.GetWidth(), from.GetHeight(), QImage::Format_ARGB32);
 
     for (int y = 0; y < to.height(); ++y)
         for (int x = 0; x < to.width(); ++x)
         {
-            int brig = static_cast<int>(from(y, x));
+            int brig = static_cast<int>(from.GetPixel(y, x));
             QRgb pix = qRgb(brig, brig, brig);
             to.setPixel(x, y, pix);
         }

@@ -1,7 +1,7 @@
 #include "HistogramWidget.h"
 #include "qcustomplot.h"
 #include <QVector>
-#include "Image.h"
+#include "AImage.h"
 
 HistogramWidget::HistogramWidget(QWidget *parent) :
     QWidget(parent)
@@ -27,7 +27,7 @@ void HistogramWidget::DrawHist(std::vector<double>& brightnessHistogram, std::ve
     customPlot->yAxis->setLabel("Quantity of pixels");
 
     // Setting axes proportions.
-    customPlot->xAxis->setRange(acv::Image::MIN_PIXEL_VALUE, acv::Image::MAX_PIXEL_VALUE);
+    customPlot->xAxis->setRange(AImage::MIN_PIXEL_VALUE, AImage::MAX_PIXEL_VALUE);
     customPlot->yAxis->setRange(0, *std::max_element(brightnessHistogram.begin(), brightnessHistogram.end()));
     customPlot->replot();
 };

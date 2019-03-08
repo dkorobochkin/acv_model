@@ -40,7 +40,7 @@ void ImageViewer::DrawImage(const QImage& img)
     update();
 }
 
-void ImageViewer::DrawImage(const acv::Image& img)
+void ImageViewer::DrawImage(const AImage& img)
 {
     QImage qImg = ImageTransormer::AImage2QImage(img);
     DrawImage(qImg);

@@ -27,15 +27,32 @@
 #ifndef AIMAGE_H
 #define AIMAGE_H
 
-#include "Image.h"
-
 #include <memory>
 
+namespace acv
+{
+    class Image;
+}
+
 typedef unsigned char AByte; // This type is used to representation of pixel brightness
+
+enum class AScaleType
+{
+    UPSCALE, // Upscaling
+    DOWNSCALE // downscaling
+};
 
 // A wrapper of class Image from engine level
 class AImage
 {
+
+public:
+
+    enum
+    {
+        MIN_PIXEL_VALUE = 0, // Minimum value of pixel brightness
+        MAX_PIXEL_VALUE = 255 // Maximum value of pixel brightness
+    };
 
 public:
 
@@ -54,15 +71,30 @@ public:
     // Set the pixel value by coordinates
     void SetPixel(int row, int col, AByte val);
 
+    // Check the initialization of image
+    bool IsInitialized() const;
+
+    // Image scaling (upscaling and downscaling)
+    AImage Scale(short kScaleX, short kScaleY, AScaleType scaleType) const;
+
+    // Check pixel coordinates for image boundaries
+    bool IsValidCoordinates(int row, int col) const;
+
 private:
+
+    // Default constructor
+    AImage();
 
     // Constructor from low level representation of image
     AImage(const acv::Image& img);
 
+    // Constructor with moving from low level representation of image
+    AImage(acv::Image&& img);
+
 private:
 
     // Low level representation of image
-    const std::shared_ptr<acv::Image> mImage;
+    std::shared_ptr<acv::Image> mImage;
 
 public:
 

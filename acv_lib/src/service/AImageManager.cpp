@@ -22,40 +22,18 @@
 // SOFTWARE.
 //
 
-// This header is used to define a wrapper for class ImageParametersCalculator from engine level
+// This file contains implementations of methods for class AImageManager
 
-#ifndef AIMAGE_PARAMETERS_CALCULATOR_H
-#define AIMAGE_PARAMETERS_CALCULATOR_H
-
+#include "AImageManager.h"
+#include "Image.h"
 #include "AImage.h"
 
-// Wrapper for class ImageParametersCalculator from engine level
-class AImageParametersCalculator
+const std::shared_ptr<acv::Image>& AImageManager::GetEngineImage(const AImage& image)
 {
+    return image.mImage;
+}
 
-public:
-
-    // Calculate the entropy of image
-    static double CalcEntropy(const AImage& img);
-
-    // Calculate the average brightness of image
-    static double CalcAverageBrightness(const AImage& img);
-
-    // Calculate the minimum brightness of image
-    static AByte CalcMinBrightness(const AImage& img);
-
-    // Calculate the maximum brightness of image
-    static AByte CalcMaxBrightness(const AImage& img);
-
-    // Calculate the minimum and maximum brightness of image
-    static void CalcMinMaxBrightness(const AImage& img, AByte& minBrig, AByte& maxBrig);
-
-    // Calculate the standard deviation of image brightness
-    static double CalcStandardDeviation(const AImage& img, double aver);
-
-    // Calculate the integral quality indicator of image
-    static double CalcIntegralQualityIndicator(const AImage& img);
-
-};
-
-#endif // AIMAGE_PARAMETERS_CALCULATOR_H
+AImage AImageManager::MakeServiceImage(const acv::Image& img)
+{
+    return AImage(img);
+}
