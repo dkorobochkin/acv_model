@@ -29,8 +29,9 @@
 
 #include <memory>
 
+class AImage;
 namespace acv {
-    class ImageCombiner;
+class ImageCombiner;
 }
 
 // Used types of combining
@@ -53,8 +54,6 @@ enum class ACombinationResult
     MANY_IMAGES, // Combining based on adding the differences use only two images
     OTHER_ERROR // Error during combining
 };
-
-class AImage;
 
 // Wrapper for class ImageCombiner from engine level
 class AImageCombiner

@@ -27,6 +27,7 @@
 #include "AImageCorrector.h"
 #include "ImageCorrector.h"
 #include "AImageManager.h"
+#include "AImageUtils.h"
 #include "Image.h"
 
 #include <memory>
@@ -52,13 +53,16 @@ acv::ImageCorrector::CorrectorType ConvertToEngineCorrectorType(ACorrectorType c
 
 bool AImageCorrector::Correct(const AImage& srcImg, AImage& dstImg, ACorrectorType corType)
 {
-    bool ret = false;
+    bool ret = AImageUtils::ImagesHaveSameSizes(srcImg, dstImg);
 
-    const auto& sourceImage = AImageManager::GetEngineImage(srcImg);
-    auto& destinationImage = AImageManager::GetEngineImage(dstImg);
+    if (ret)
+    {
+        const auto& sourceImage = AImageManager::GetEngineImage(srcImg);
+        auto& destinationImage = AImageManager::GetEngineImage(dstImg);
 
-    if (sourceImage && destinationImage)
-        ret = acv::ImageCorrector::Correct(*sourceImage, *destinationImage, ConvertToEngineCorrectorType(corType));
+        ret = ret && sourceImage != nullptr && destinationImage != nullptr;
+        ret = ret && acv::ImageCorrector::Correct(*sourceImage, *destinationImage, ConvertToEngineCorrectorType(corType));
+    }
 
     return ret;
 }

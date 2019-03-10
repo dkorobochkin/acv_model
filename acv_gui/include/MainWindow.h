@@ -173,7 +173,7 @@ private slots: // Private slots
     // Slot to calculation of image minimum and maximum brightness
     void CalcMinMaxBrightness();
 
-    //Slot to creating massive of brightness histogram
+    // Slot to creating massive of brightness histogram
     void CreateBrightnessHistogram();
 
     // Slots to calculation the Hu's moments

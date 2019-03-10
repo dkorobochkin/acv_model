@@ -29,9 +29,8 @@
 
 #include <memory>
 
-namespace acv
-{
-    class Image;
+namespace acv {
+class Image;
 }
 
 typedef unsigned char AByte; // This type is used to representation of pixel brightness

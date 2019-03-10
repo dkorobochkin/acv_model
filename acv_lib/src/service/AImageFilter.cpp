@@ -27,6 +27,7 @@
 #include "AImageFilter.h"
 #include "ImageFilter.h"
 #include "AImageManager.h"
+#include "AImageUtils.h"
 #include "AImage.h"
 
 #include <cassert>
@@ -75,14 +76,17 @@ AFiltrationResult AImageFilter::Filter(const AImage& srcImg, AImage& dstImg, AFi
 {
     AFiltrationResult ret = AFiltrationResult::INTERNAL_ERROR;
 
-    const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
-    auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
-
-    if (srcImgPtr && dstImgPtr)
+    if (AImageUtils::ImagesHaveSameSizes(srcImg, dstImg))
     {
-        acv::FiltrationResult engRes = acv::ImageFilter::Filter(*srcImgPtr, *dstImgPtr,
-                                                                ConvertToEngineFilterType(type), filterSize);
-        ret = ConvertToAFiltrationResult(engRes);
+        const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
+        auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
+
+        if (srcImgPtr && dstImgPtr)
+        {
+            acv::FiltrationResult engRes = acv::ImageFilter::Filter(*srcImgPtr, *dstImgPtr,
+                                                                    ConvertToEngineFilterType(type), filterSize);
+            ret = ConvertToAFiltrationResult(engRes);
+        }
     }
 
     return ret;
@@ -105,14 +109,17 @@ acv::ImageFilter::ThresholdType ConvertToEngineThresholdType(AThresholdType thre
 bool AImageFilter::AdaptiveThreshold(const AImage& srcImg, AImage& dstImg,
                                      int filterSize, int threshold, AThresholdType thresholdType)
 {
-    bool ret = false;
+    bool ret = AImageUtils::ImagesHaveSameSizes(srcImg, dstImg);
 
-    const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
-    auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
+    if (ret)
+    {
+        const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
+        auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
 
-    if (srcImgPtr && dstImgPtr)
-        ret = acv::ImageFilter::AdaptiveThreshold(*srcImgPtr, *dstImgPtr,
-                                                  filterSize, threshold, ConvertToEngineThresholdType(thresholdType));
+        ret = ret && srcImgPtr != nullptr && dstImgPtr != nullptr;
+        ret = ret && acv::ImageFilter::AdaptiveThreshold(*srcImgPtr, *dstImgPtr,
+                                                         filterSize, threshold, ConvertToEngineThresholdType(thresholdType));
+    }
 
     return ret;
 }

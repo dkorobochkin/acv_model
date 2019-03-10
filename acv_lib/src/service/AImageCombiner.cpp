@@ -38,7 +38,7 @@ AImageCombiner::AImageCombiner()
 
 void AImageCombiner::AddImage(const AImage& img)
 {
-    if (mCombiner)
+    if (mCombiner && img.IsInitialized())
         mCombiner->AddImage(*AImageManager::GetEngineImage(img));
 }
 

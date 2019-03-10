@@ -27,6 +27,7 @@
 #include "ABordersDetector.h"
 #include "BordersDetector.h"
 #include "AImageManager.h"
+#include "AImageUtils.h"
 #include "AImage.h"
 
 #include <cassert>
@@ -49,13 +50,16 @@ acv::BordersDetector::DetectorType ConvertToEngineDetectorType(ADetectorType det
 
 bool ABordersDetector::DetectBorders(const AImage& srcImg, AImage& dstImg, ADetectorType detectorType)
 {
-    bool ret = false;
+    bool ret = AImageUtils::ImagesHaveSameSizes(srcImg, dstImg);
 
-    const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
-    auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
+    if (ret)
+    {
+        const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
+        auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
 
-    if (srcImgPtr && dstImgPtr)
-        ret = acv::BordersDetector::DetectBorders(*srcImgPtr, *dstImgPtr, ConvertToEngineDetectorType(detectorType));
+        ret = ret && srcImgPtr != nullptr && dstImgPtr != nullptr;
+        ret = ret && acv::BordersDetector::DetectBorders(*srcImgPtr, *dstImgPtr, ConvertToEngineDetectorType(detectorType));
+    }
 
     return ret;
 }
@@ -76,15 +80,18 @@ acv::BordersDetector::OperatorType ConvertToEngineOperatorType(AOperatorType ope
 
 bool ABordersDetector::OperatorConvolution(const AImage& srcImg, AImage& dstImg, ADetectorType detectorType, AOperatorType operatorType)
 {
-    bool ret = false;
+    bool ret = AImageUtils::ImagesHaveSameSizes(srcImg, dstImg);
 
-    const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
-    auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
+    if (ret)
+    {
+        const auto& srcImgPtr = AImageManager::GetEngineImage(srcImg);
+        auto& dstImgPtr = AImageManager::GetEngineImage(dstImg);
 
-    if (srcImgPtr && dstImgPtr)
-        ret = acv::BordersDetector::OperatorConvolution(*srcImgPtr, *dstImgPtr,
-                                                        ConvertToEngineDetectorType(detectorType),
-                                                        ConvertToEngineOperatorType(operatorType));
+        ret = ret && srcImgPtr != nullptr && dstImgPtr != nullptr;
+        ret = ret && acv::BordersDetector::OperatorConvolution(*srcImgPtr, *dstImgPtr,
+                                                               ConvertToEngineDetectorType(detectorType),
+                                                               ConvertToEngineOperatorType(operatorType));
+    }
 
     return ret;
 }
