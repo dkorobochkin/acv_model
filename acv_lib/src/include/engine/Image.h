@@ -75,6 +75,15 @@ public: // Constructors
     // Constructor of image with specified dimensions from buffer of data
     Image(const int height, const int width, const void* buf, BufferType bufType);
 
+    // Copy-constructor
+    Image(const Image&) = default;
+
+    // Move-constructor
+    Image(Image&&) = default;
+
+    // Destructor
+    virtual ~Image() = default;
+
 public: // Public methods
 
     // Get the width of image
@@ -138,6 +147,12 @@ public: // Public methods
 
     // Image scaling (upscaling and downscaling)
     Image Scale(const short kScaleX, const short kScaleY, ScaleType scaleType) const;
+
+    // Assignment operator
+    Image& operator = (const Image&) = default;
+
+    // Move assignment operator
+    Image& operator = (Image&&) = default;
 
 private: // Private methods
 

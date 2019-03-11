@@ -35,5 +35,8 @@ const std::shared_ptr<acv::Image>& AImageManager::GetEngineImage(const AImage& i
 
 AImage AImageManager::MakeServiceImage(const acv::Image& img)
 {
-    return AImage(img);
+    AImage ret(-1, -1);
+    ret.mImage = std::make_shared<acv::Image>(img);
+
+    return std::move(ret);
 }

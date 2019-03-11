@@ -36,20 +36,6 @@ AImage::AImage(int height, int width)
         mImage = std::make_shared<acv::Image>(height, width);
 }
 
-AImage::AImage(const acv::Image& img)
-    : mImage(nullptr)
-{
-    if (img.IsInitialized())
-        mImage = std::make_shared<acv::Image>(img);
-}
-
-AImage::AImage(acv::Image&& img)
-    : mImage(nullptr)
-{
-    if (img.IsInitialized())
-        mImage = std::make_shared<acv::Image>(img);
-}
-
 int AImage::GetWidth() const
 {
     return (mImage) ? mImage->GetWidth() : -1;
@@ -91,21 +77,15 @@ acv::Image::ScaleType ConvertToEngineScaleType(AScaleType scaleType)
 
 AImage AImage::Scale(short kScaleX, short kScaleY, AScaleType scaleType) const
 {
-    if (mImage && kScaleX > 1 && kScaleY > 1)
-    {
-        acv::Image scaleImg = mImage->Scale(kScaleX, kScaleY, ConvertToEngineScaleType(scaleType));
-        return AImage(std::move(scaleImg));
-    }
+    AImage retImg(-1, -1);
 
-    return AImage();
+    if (mImage && kScaleX > 1 && kScaleY > 1)
+        retImg.mImage = std::make_shared<acv::Image>(std::move(mImage->Scale(kScaleX, kScaleY, ConvertToEngineScaleType(scaleType))));
+
+    return std::move(retImg);
 }
 
 bool AImage::IsValidCoordinates(int row, int col) const
 {
     return ((mImage) ? !mImage->IsInvalidCoordinates(row, col) : false);
-}
-
-AImage::AImage()
-    : mImage(nullptr)
-{
 }

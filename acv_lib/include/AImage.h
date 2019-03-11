@@ -55,8 +55,29 @@ public:
 
 public:
 
+    friend class AImageManager;
+
+public:
+
     // Constructor with dimensions
     AImage(int height, int width);
+
+    // Copy-constructor
+    AImage(const AImage&) = default;
+
+    // Move-constructor
+    AImage(AImage&&) = default;
+
+    // Destructor
+    virtual ~AImage() = default;
+
+    // Assignment operator
+    AImage& operator = (const AImage&) = default;
+
+    // Move assignment operator
+    AImage& operator = (AImage&&) = default;
+
+public:
 
     // Get the width of image
     int GetWidth() const;
@@ -81,23 +102,8 @@ public:
 
 private:
 
-    // Default constructor
-    AImage();
-
-    // Constructor from low level representation of image
-    AImage(const acv::Image& img);
-
-    // Constructor with moving from low level representation of image
-    AImage(acv::Image&& img);
-
-private:
-
     // Low level representation of image
     std::shared_ptr<acv::Image> mImage;
-
-public:
-
-    friend class AImageManager;
 
 };
 
