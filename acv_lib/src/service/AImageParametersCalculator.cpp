@@ -31,86 +31,114 @@
 
 #include <memory>
 
-double AImageParametersCalculator::CalcEntropy(const AImage& img)
+AImageParametersCalculator::AImageParametersCalculator()
+    : mCalculator(std::make_shared<acv::ImageParametersCalculator>())
+{
+}
+
+AImageParametersCalculator::AImageParametersCalculator(const AImage& img)
+    : mCalculator(nullptr)
+{
+    const auto& image = AImageManager::GetEngineImage(img);
+
+    if (image)
+        mCalculator = std::make_shared<acv::ImageParametersCalculator>(*image);
+    else
+        mCalculator = std::make_shared<acv::ImageParametersCalculator>();
+}
+
+bool AImageParametersCalculator::UpdateImage(const AImage& img)
+{
+    bool ret = mCalculator != nullptr;
+
+    if (ret)
+    {
+        const auto& newImg = AImageManager::GetEngineImage(img);
+        ret = ret && newImg != nullptr;
+
+        if (ret)
+            mCalculator->UpdateImage(*newImg);
+    }
+
+    return ret;
+}
+
+double AImageParametersCalculator::CalcEntropy()
 {
     double ret = 0.0;
 
-    const auto& image = AImageManager::GetEngineImage(img);
-    if (image)
-        ret = acv::ImageParametersCalculator::CalcEntropy(*image);
+    if (mCalculator)
+        ret = mCalculator->CalcEntropy();
 
     return ret;
 }
 
-double AImageParametersCalculator::CalcAverageBrightness(const AImage& img)
+double AImageParametersCalculator::CalcAverageBrightness()
 {
     double ret = 0.0;
 
-    const auto& image = AImageManager::GetEngineImage(img);
-    if (image)
-        ret = acv::ImageParametersCalculator::CalcAverageBrightness(*image);
+    if (mCalculator)
+        ret = mCalculator->CalcAverageBrightness();
 
     return ret;
 }
 
-AByte AImageParametersCalculator::CalcMinBrightness(const AImage& img)
+AByte AImageParametersCalculator::CalcMinBrightness()
 {
     AByte ret = 0;
 
-    const auto& image = AImageManager::GetEngineImage(img);
-    if (image)
-        ret = acv::ImageParametersCalculator::CalcMinBrightness(*image);
+    if (mCalculator)
+        ret = mCalculator->CalcMinBrightness();
 
     return ret;
 }
 
-AByte AImageParametersCalculator::CalcMaxBrightness(const AImage& img)
+AByte AImageParametersCalculator::CalcMaxBrightness()
 {
     AByte ret = 0;
 
-    const auto& image = AImageManager::GetEngineImage(img);
-    if (image)
-        ret = acv::ImageParametersCalculator::CalcMaxBrightness(*image);
+    if (mCalculator)
+        ret = mCalculator->CalcMaxBrightness();
 
     return ret;
 }
 
-void AImageParametersCalculator::CalcMinMaxBrightness(const AImage& img, AByte& minBrig, AByte& maxBrig)
+bool AImageParametersCalculator::CalcMinMaxBrightness(AByte& minBrig, AByte& maxBrig)
 {
-    const auto& image = AImageManager::GetEngineImage(img);
-    if (image)
-        acv::ImageParametersCalculator::CalcMinMaxBrightness(*image, minBrig, maxBrig);
+    bool ret = mCalculator != nullptr;
+
+    if (ret)
+        mCalculator->CalcMinMaxBrightness(minBrig, maxBrig);
+
+    return ret;
 }
 
-double AImageParametersCalculator::CalcStandardDeviation(const AImage& img, double aver)
+double AImageParametersCalculator::CalcStandardDeviation(double aver)
 {
     AByte ret = 0;
 
-    const auto& image = AImageManager::GetEngineImage(img);
-    if (image)
-        ret = acv::ImageParametersCalculator::CalcStandardDeviation(*image, aver);
+    if (mCalculator)
+        ret = mCalculator->CalcStandardDeviation(aver);
 
     return ret;
 }
 
-double AImageParametersCalculator::CalcIntegralQualityIndicator(const AImage& img)
+double AImageParametersCalculator::CalcIntegralQualityIndicator()
 {
     double ret = 0;
 
-    const auto& image = AImageManager::GetEngineImage(img);
-    if (image)
-        ret = acv::ImageParametersCalculator::CalcIntegralQualityIndicator(*image);
+    if (mCalculator)
+        ret = mCalculator->CalcIntegralQualityIndicator();
 
     return ret;
 }
 
-bool AImageParametersCalculator::CreateBrightnessHistogram(const AImage& img, std::vector<double>& brightnessHistogram)
+bool AImageParametersCalculator::CreateBrightnessHistogram(std::vector<double>& brightnessHistogram)
 {
-    const auto& image = AImageManager::GetEngineImage(img);
+    bool ret = mCalculator != nullptr;
 
-    bool ret = image != nullptr;
     if (ret)
-        acv::ImageParametersCalculator::CreateBrightnessHistogram(*image, brightnessHistogram);
+        mCalculator->CreateBrightnessHistogram(brightnessHistogram);
 
     return ret;
 }

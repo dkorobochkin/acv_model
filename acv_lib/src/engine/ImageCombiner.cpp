@@ -150,7 +150,8 @@ CombinationResult ImageCombiner::InformativePriority(Image& combImg, const bool 
             const Image& projImg = *sortedImages[i];
 
             // Calculation the average difference from average brightness
-            int A = ImageParametersCalculator::CalcAverageBrightness(projImg);
+            ImageParametersCalculator calcer(projImg);
+            int A = calcer.CalcAverageBrightness();
 
             // Calculation the average difference from average brightness
             int dA = 0;
@@ -232,6 +233,10 @@ CombinationResult ImageCombiner::LocalEntropy(Image& combImg)
 
     CombinationResult combRes;
 
+    std::vector<ImageParametersCalculator> calcers(mCombinedImages.size());
+    for (size_t i = 0; i < mCombinedImages.size(); ++i)
+        calcers[i].UpdateImage(*mCombinedImages[i]);
+
     if (CanCombine(combRes))
     {
         for (int row = 0; row < combImg.GetHeight(); ++row)
@@ -243,8 +248,7 @@ CombinationResult ImageCombiner::LocalEntropy(Image& combImg)
                 size_t iMax = 0;
                 for (size_t i = 0; i < mCombinedImages.size(); ++i)
                 {
-                    const Image& curImg = *mCombinedImages[i];
-                    double E = ImageParametersCalculator::CalcLocalEntropy(curImg, row, col, APERTURE);
+                    double E = calcers[i].CalcLocalEntropy(row, col, APERTURE);
                     if (E > Emax)
                     {
                         Emax = E;
@@ -391,7 +395,10 @@ void ImageCombiner::FormSortedImagesArray(std::vector<const Image*>& sortedVec)
     std::vector<SImageAndEntropy> imgEntrVec(mCombinedImages.size());
     size_t curStr = 0;
     for (const auto& img : mCombinedImages)
-        imgEntrVec[curStr++] = { img, ImageParametersCalculator::CalcEntropy(*img) };
+    {
+        ImageParametersCalculator calcer(*img);
+        imgEntrVec[curStr++] = { img, calcer.CalcEntropy() };
+    }
 
     // Sort ascending the vector by their entropy
     std::sort(imgEntrVec.begin(), imgEntrVec.end(),

@@ -30,6 +30,11 @@
 #include "AImage.h"
 
 #include <vector>
+#include <memory>
+
+namespace acv {
+class ImageParametersCalculator;
+}
 
 // Wrapper for class ImageParametersCalculator from engine level
 class AImageParametersCalculator
@@ -37,29 +42,62 @@ class AImageParametersCalculator
 
 public:
 
+    // Default constructor
+    AImageParametersCalculator();
+
+    // Constructor with an image as a parameter
+    AImageParametersCalculator(const AImage& img);
+
+    // Copy-constructor
+    AImageParametersCalculator(const AImageParametersCalculator&) = default;
+
+    // Move-constructor
+    AImageParametersCalculator(AImageParametersCalculator&&) = default;
+
+    // Destructor
+    virtual ~AImageParametersCalculator() = default;
+
+public:
+
+    // Assignment operator
+    AImageParametersCalculator& operator = (const AImageParametersCalculator&) = default;
+
+    // Move assignment operator
+    AImageParametersCalculator& operator = (AImageParametersCalculator&&) = default;
+
+public:
+
+    // Update image to calculate the parameters
+    bool UpdateImage(const AImage& img);
+
     // Calculate the entropy of image
-    static double CalcEntropy(const AImage& img);
+    double CalcEntropy();
 
     // Calculate the average brightness of image
-    static double CalcAverageBrightness(const AImage& img);
+    double CalcAverageBrightness();
 
     // Calculate the minimum brightness of image
-    static AByte CalcMinBrightness(const AImage& img);
+    AByte CalcMinBrightness();
 
     // Calculate the maximum brightness of image
-    static AByte CalcMaxBrightness(const AImage& img);
+    AByte CalcMaxBrightness();
 
     // Calculate the minimum and maximum brightness of image
-    static void CalcMinMaxBrightness(const AImage& img, AByte& minBrig, AByte& maxBrig);
+    bool CalcMinMaxBrightness(AByte& minBrig, AByte& maxBrig);
 
     // Calculate the standard deviation of image brightness
-    static double CalcStandardDeviation(const AImage& img, double aver);
+    double CalcStandardDeviation(double aver);
 
     // Calculate the integral quality indicator of image
-    static double CalcIntegralQualityIndicator(const AImage& img);
+    double CalcIntegralQualityIndicator();
 
     // Create array for brightness histogram of image
-    static bool CreateBrightnessHistogram(const AImage& img, std::vector<double>& brightnessHistogram);
+    bool CreateBrightnessHistogram(std::vector<double>& brightnessHistogram);
+
+private:
+
+    // Low level representation of image parameters calculator
+    std::shared_ptr<acv::ImageParametersCalculator> mCalculator;
 
 };
 

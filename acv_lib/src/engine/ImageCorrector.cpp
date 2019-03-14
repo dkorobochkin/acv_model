@@ -103,7 +103,8 @@ void ImageCorrector::ExpandBrightnessRange(const Image& srcImg, const Image::Byt
 bool ImageCorrector::AutoLevels(const Image& srcImg, Image& dstImg)
 {
     Image::Byte minBr, maxBr;
-    ImageParametersCalculator::CalcMinMaxBrightness(srcImg, minBr, maxBr);
+    ImageParametersCalculator calcer(srcImg);
+    calcer.CalcMinMaxBrightness(minBr, maxBr);
 
     if (minBr > Image::MIN_PIXEL_VALUE || maxBr < Image::MAX_PIXEL_VALUE)
         ExpandBrightnessRange(srcImg, minBr, maxBr, dstImg);
@@ -115,8 +116,9 @@ bool ImageCorrector::AutoLevels(const Image& srcImg, Image& dstImg)
 
 bool ImageCorrector::NormAutoLevels(const Image& srcImg, Image& dstImg)
 {
-    double aver = ImageParametersCalculator::CalcAverageBrightness(srcImg);
-    double sd = ImageParametersCalculator::CalcStandardDeviation(srcImg, aver);
+    ImageParametersCalculator calcer(srcImg);
+    double aver = calcer.CalcAverageBrightness();
+    double sd = calcer.CalcStandardDeviation(aver);
 
     int left = aver - 3 * sd;
     Image::CheckPixelValue(left);

@@ -99,7 +99,6 @@ private: // Private methods
     Image CalcDiff(CombinationResult& combRes);
     CombinationResult CalcDiff(Image& combImg);
 
-
     // Check the possibility of combining images in container
     // All images should have same dimensions
     bool CanCombine(CombinationResult& combRes) const;

@@ -34,9 +34,24 @@
 
 namespace acv {
 
-double ImageParametersCalculator::CalcEntropy(const Image& img)
+ImageParametersCalculator::ImageParametersCalculator()
+    : mImage(nullptr)
 {
-    if (!img.IsInitialized())
+}
+
+ImageParametersCalculator::ImageParametersCalculator(const Image& img)
+    : mImage(&img)
+{
+}
+
+void ImageParametersCalculator::UpdateImage(const Image& img)
+{
+    mImage = &img;
+}
+
+double ImageParametersCalculator::CalcEntropy()
+{
+    if (!mImage || !mImage->IsInitialized())
         return 0.0;
 
     // Each element of vector contains the number of image pixels
@@ -45,7 +60,7 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
 
     // Calculate of the volume of brightness and Lebesgue measure
     int V = 0;
-    for (auto imgPix : img.GetData())
+    for (auto imgPix : mImage->GetData())
     {
         Image::Byte z = imgPix;
 
@@ -67,8 +82,11 @@ double ImageParametersCalculator::CalcEntropy(const Image& img)
     return EX;
 }
 
-double ImageParametersCalculator::CalcLocalEntropy(const Image& img, const int row, const int col, const int aperture)
+double ImageParametersCalculator::CalcLocalEntropy(const int row, const int col, const int aperture)
 {
+    if (!mImage || !mImage->IsInitialized())
+        return 0.0;
+
     // Lebesgue measure
     // Key - brightness, value - number of pixels with brightness which is equal to key
     std::map<size_t, size_t> mz;
@@ -82,9 +100,9 @@ double ImageParametersCalculator::CalcLocalEntropy(const Image& img, const int r
             // Inner coordinates which are can going abroad of image
             int innerRow = y;
             int innerCol = x;
-            img.CorrectCoordinates(innerRow, innerCol);
+            mImage->CorrectCoordinates(innerRow, innerCol);
 
-            Image::Byte z = img(innerRow, innerCol);
+            Image::Byte z = mImage->GetPixel(innerRow, innerCol);
 
             V += z;
 
@@ -110,25 +128,28 @@ double ImageParametersCalculator::CalcLocalEntropy(const Image& img, const int r
     return EX;
 }
 
-double ImageParametersCalculator::CalcAverageBrightness(const Image& img)
+double ImageParametersCalculator::CalcAverageBrightness()
 {
     long sum = 0;
 
-    if (!img.IsInitialized())
+    if (!mImage || !mImage->IsInitialized())
         return static_cast<double>(sum);
 
-     for (auto imgPix : img.GetData())
+     for (auto imgPix : mImage->GetData())
          sum += imgPix;
 
-     double ret = static_cast<double>(sum) / (img.GetHeight() * img.GetWidth());
+     double ret = static_cast<double>(sum) / (mImage->GetHeight() * mImage->GetWidth());
      return ret;
 }
 
-Image::Byte ImageParametersCalculator::CalcMinBrightness(const Image& img)
+Image::Byte ImageParametersCalculator::CalcMinBrightness()
 {
     Image::Byte minBr = Image::MAX_PIXEL_VALUE;
 
-    for (auto imgPix : img.GetData())
+    if (!mImage || !mImage->IsInitialized())
+        return minBr;
+
+    for (auto imgPix : mImage->GetData())
     {
         if (imgPix < minBr)
             minBr = imgPix;
@@ -137,11 +158,14 @@ Image::Byte ImageParametersCalculator::CalcMinBrightness(const Image& img)
     return minBr;
 }
 
-Image::Byte ImageParametersCalculator::CalcMaxBrightness(const Image& img)
+Image::Byte ImageParametersCalculator::CalcMaxBrightness()
 {
     Image::Byte maxBr = Image::MIN_PIXEL_VALUE;
 
-    for (auto imgPix : img.GetData())
+    if (!mImage || !mImage->IsInitialized())
+        return maxBr;
+
+    for (auto imgPix : mImage->GetData())
     {
         if (imgPix > maxBr)
             maxBr = imgPix;
@@ -150,12 +174,15 @@ Image::Byte ImageParametersCalculator::CalcMaxBrightness(const Image& img)
     return maxBr;
 }
 
-void ImageParametersCalculator::CalcMinMaxBrightness(const Image& img, Image::Byte& minBrig, Image::Byte& maxBrig)
+void ImageParametersCalculator::CalcMinMaxBrightness(Image::Byte& minBrig, Image::Byte& maxBrig)
 {
     minBrig = Image::MAX_PIXEL_VALUE;
     maxBrig = Image::MIN_PIXEL_VALUE;
 
-    for (auto imgPix : img.GetData())
+    if (!mImage || !mImage->IsInitialized())
+        return;
+
+    for (auto imgPix : mImage->GetData())
     {
         if (imgPix < minBrig)
             minBrig = imgPix;
@@ -164,58 +191,60 @@ void ImageParametersCalculator::CalcMinMaxBrightness(const Image& img, Image::By
     }
 }
 
-void ImageParametersCalculator::CreateBrightnessHistogram(const Image &img, std::vector<double>& brightnessHistogram)
+void ImageParametersCalculator::CreateBrightnessHistogram(std::vector<double>& brightnessHistogram)
 {
-     for (auto imgPix : img.GetData()) //filling vector of brightness histogram
-     {
+    if (!mImage || !mImage->IsInitialized())
+        return;
 
-                 ++(brightnessHistogram)[imgPix];
-
-     }
+    for (auto imgPix : mImage->GetData()) // filling vector of brightness histogram
+        ++brightnessHistogram[imgPix];
 }
-double ImageParametersCalculator::CalcStandardDeviation(const Image& img, const double aver)
+
+double ImageParametersCalculator::CalcStandardDeviation(const double aver)
 {
     double sd = 0.0;
 
-    if (!img.IsInitialized())
+    if (!mImage || !mImage->IsInitialized())
         return sd;
 
-    auto end = img.GetData().end();
-    for (auto it = img.GetData().begin(); it != end; ++it)
+    auto end = mImage->GetData().end();
+    for (auto it = mImage->GetData().begin(); it != end; ++it)
     {
         double dev = static_cast<double>(*it - aver);
         sd += dev * dev;
     }
 
-    sd /= img.GetHeight() * img.GetWidth() - 1;
+    sd /= mImage->GetHeight() * mImage->GetWidth() - 1;
 
     return sqrt(sd);
 }
 
-size_t ImageParametersCalculator::CalcNumberInformationLevels(const Image& img)
+size_t ImageParametersCalculator::CalcNumberInformationLevels()
 {
+    if (!mImage || !mImage->IsInitialized())
+        return 0;
+
     std::set<Image::Byte> levels;
 
-    for (auto imgPix : img.GetData())
+    for (auto imgPix : mImage->GetData())
         levels.insert(imgPix);
 
     return levels.size();
 }
 
-double ImageParametersCalculator::CalcIntegralQualityIndicator(const Image& img)
+double ImageParametersCalculator::CalcIntegralQualityIndicator()
 {
     double iqi = 0.0;
 
-    if (!img.IsInitialized())
+    if (!mImage || !mImage->IsInitialized())
         return iqi;
 
-    Image::Byte minBrig = Image::MAX_PIXEL_VALUE;
-    Image::Byte maxBrig = Image::MIN_PIXEL_VALUE;
-    CalcMinMaxBrightness(img, minBrig, maxBrig);
-    double averBrig = CalcAverageBrightness(img);
-    double stdDev = CalcStandardDeviation(img, averBrig);
-    double entr = CalcEntropy(img);
-    size_t numLevels = CalcNumberInformationLevels(img);
+    Image::Byte minBrig, maxBrig;
+    CalcMinMaxBrightness(minBrig, maxBrig);
+    double averBrig = CalcAverageBrightness();
+    double stdDev = CalcStandardDeviation(averBrig);
+    double entr = CalcEntropy();
+    size_t numLevels = CalcNumberInformationLevels();
 
     double Ln;
     if (averBrig <= 107)

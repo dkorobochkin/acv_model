@@ -810,8 +810,10 @@ void MainWindow::CalcEntropy()
 {
     if (ImgWasSelected())
     {
-       double entropy = AImageParametersCalculator::CalcEntropy(GetCurImg());
-       QMessageBox::information(this, tr("Entropy calculation"), tr("Entropy = %1").arg(entropy), QMessageBox::Ok);
+        AImageParametersCalculator calcer(GetCurImg());
+
+        double entropy = calcer.CalcEntropy();
+        QMessageBox::information(this, tr("Entropy calculation"), tr("Entropy = %1").arg(entropy), QMessageBox::Ok);
     }
     else
     {
@@ -866,7 +868,9 @@ void MainWindow::CalcAverageBrightness()
 {
     if (ImgWasSelected())
     {
-        double averBrig = AImageParametersCalculator::CalcAverageBrightness(GetCurImg());
+        AImageParametersCalculator calcer(GetCurImg());
+
+        double averBrig = calcer.CalcAverageBrightness();
         QMessageBox::information(this, tr("Average brightness calculation"), tr("Average brightness = %1").arg(averBrig), QMessageBox::Ok);
     }
     else
@@ -879,8 +883,10 @@ void MainWindow::CalcStandardDeviation()
 {
     if (ImgWasSelected())
     {
-        double averBrig = AImageParametersCalculator::CalcAverageBrightness(GetCurImg());
-        double sd = AImageParametersCalculator::CalcStandardDeviation(GetCurImg(), averBrig);
+        AImageParametersCalculator calcer(GetCurImg());
+
+        double averBrig = calcer.CalcAverageBrightness();
+        double sd = calcer.CalcStandardDeviation(averBrig);
 
         QMessageBox::information(this, tr("Standard deviation"), tr("Standard deviation = %1").arg(sd), QMessageBox::Ok);
     }
@@ -894,7 +900,9 @@ void MainWindow::CalcIntegralQualityIndicator()
 {
     if (ImgWasSelected())
     {
-        double iqi = AImageParametersCalculator::CalcIntegralQualityIndicator(GetCurImg());
+        AImageParametersCalculator calcer(GetCurImg());
+
+        double iqi = calcer.CalcIntegralQualityIndicator();
         QMessageBox::information(this, tr("Integral quality indicator"), tr("Integral quality indicator = %1").arg(iqi), QMessageBox::Ok);
     }
     else
@@ -907,9 +915,11 @@ void MainWindow::CalcMinMaxBrightness()
 {
     if (ImgWasSelected())
     {
+        AImageParametersCalculator calcer(GetCurImg());
+
         AByte minBr, maxBr;
-        AImageParametersCalculator::CalcMinMaxBrightness(GetCurImg(), minBr, maxBr);
-        QMessageBox::information(this, tr("Minimum and maximum brightness calculation"), tr("Minimum = %1, maximum = %2").arg(minBr).arg(maxBr), QMessageBox::Ok);
+        if (calcer.CalcMinMaxBrightness(minBr, maxBr))
+            QMessageBox::information(this, tr("Minimum and maximum brightness calculation"), tr("Minimum = %1, maximum = %2").arg(minBr).arg(maxBr), QMessageBox::Ok);
     }
     else
     {
@@ -925,7 +935,8 @@ void MainWindow::CreateBrightnessHistogram()
         for(int i = AImage::MIN_PIXEL_VALUE; i < AImage::MAX_PIXEL_VALUE + 1; i++)
             valuesOfBrightness[i] = i;
 
-        bool res = AImageParametersCalculator::CreateBrightnessHistogram(GetCurImg(), brightnessHistogram);
+        AImageParametersCalculator calcer(GetCurImg());
+        bool res = calcer.CreateBrightnessHistogram(brightnessHistogram);
         if (res)
         {
             mHist = new HistogramWidget();
