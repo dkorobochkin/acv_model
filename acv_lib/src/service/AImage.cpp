@@ -77,12 +77,19 @@ acv::Image::ScaleType ConvertToEngineScaleType(AScaleType scaleType)
 
 AImage AImage::Scale(short kScaleX, short kScaleY, AScaleType scaleType) const
 {
-    AImage retImg(-1, -1);
+    if (kScaleX == 1 && kScaleY == 1)
+    {
+        return *this;
+    }
+    else
+    {
+        AImage retImg(-1, -1);
 
-    if (mImage && kScaleX > 1 && kScaleY > 1)
-        retImg.mImage = std::make_shared<acv::Image>(std::move(mImage->Scale(kScaleX, kScaleY, ConvertToEngineScaleType(scaleType))));
+        if (mImage && kScaleX > 1 && kScaleY > 1)
+            retImg.mImage = std::make_shared<acv::Image>(std::move(mImage->Scale(kScaleX, kScaleY, ConvertToEngineScaleType(scaleType))));
 
-    return std::move(retImg);
+        return std::move(retImg);
+    }
 }
 
 bool AImage::IsValidCoordinates(int row, int col) const
