@@ -278,9 +278,6 @@ CombinationResult ImageCombiner::DifferencesAdding(Image& combImg, const bool ne
 {
     CombinationResult combRes;
 
-    if (mCombinedImages.size() != 2)
-      return CombinationResult::MANY_IMAGES;
-
     if (CanCombine(combRes))
     {
         std::vector<const Image*> sortedImages;
@@ -289,42 +286,46 @@ CombinationResult ImageCombiner::DifferencesAdding(Image& combImg, const bool ne
         else
             sortedImages = mCombinedImages;
 
-        Image::Byte Dmin = Image::MAX_PIXEL_VALUE, Dmax = Image::MIN_PIXEL_VALUE;
+        memcpy(combImg.GetRawPointer(), sortedImages[0]->GetRawPointer(), sortedImages[0]->GetHeight() * sortedImages[0]->GetWidth());
 
-        // Search of minimum and maximum of brightness differences
-        Image::Matrix::const_iterator it1, it2;
-        Image::Matrix::iterator itDst;
-        for (it1 = sortedImages[0]->GetData().cbegin(), it2 = sortedImages[1]->GetData().cbegin(), itDst = combImg.GetData().begin();
-             it1 != sortedImages[0]->GetData().cend();
-             ++it1, ++it2, ++itDst)
+        // Projection images to basic image
+        for (size_t i = 1; i < sortedImages.size(); ++i)
         {
-            Image::Byte D = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
+            const Image& projImg = *sortedImages[i];
 
-            if (D < Dmin)
-                Dmin = D;
-            if (D > Dmax)
-                Dmax = D;
+            Image::Byte Dmin = Image::MAX_PIXEL_VALUE, Dmax = Image::MIN_PIXEL_VALUE;
 
-            *itDst = D;
-        }
+            // Search of minimum and maximum of brightness differences
+            Image::Matrix::iterator it1;
+            Image::Matrix::const_iterator it2;
+            for (it1 = combImg.GetData().begin(), it2 = projImg.GetData().cbegin();
+                 it1 != combImg.GetData().end();
+                 ++it1, ++it2)
+            {
+                Image::Byte D = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
 
-        double k1 = (Dmax + 3.0 * Dmin) / 1020.0;
-        double k2 = (3.0 * Dmax + Dmin) / 1020.0;
+                if (D < Dmin)
+                    Dmin = D;
+                if (D > Dmax)
+                    Dmax = D;
+            }
 
-        Image::Byte b1 = Dmin + k1 * (Dmax - Dmin);
-        Image::Byte b2 = Dmin + k2 * (Dmax - Dmin);
-        Image::Byte db = b2 - b1;
+            double k1 = (Dmax + 3.0 * Dmin) / 1020.0;
+            double k2 = (3.0 * Dmax + Dmin) / 1020.0;
 
-        for (it1 = sortedImages[0]->GetData().cbegin(), it2 = sortedImages[1]->GetData().cbegin(), itDst = combImg.GetData().begin();
-             it1 != sortedImages[0]->GetData().cend();
-             ++it1, ++it2, ++itDst)
-        {
-            if (*itDst <= b1)
-                *itDst = *it1;
-            else if (*itDst >= b2)
-                *itDst = *it2;
-            else
-                *itDst = *it1 + (b1 - *itDst) * (*it1 - *it2) / db;
+            Image::Byte b1 = Dmin + k1 * (Dmax - Dmin);
+            Image::Byte b2 = Dmin + k2 * (Dmax - Dmin);
+            Image::Byte db = b2 - b1;
+
+            for (it1 = combImg.GetData().begin(), it2 = projImg.GetData().cbegin();
+                 it1 != combImg.GetData().end();
+                 ++it1, ++it2)
+            {
+                Image::Byte D = (*it1 >= *it2) ? (*it1 - *it2) : (*it2 - *it1);
+
+                if (D > b1)
+                    *it1 = (D >= b2) ? *it2 : *it1 + (b1 - D) * (*it1 - *it2) / db;
+            }
         }
 
         combRes = CombinationResult::SUCCESS;
